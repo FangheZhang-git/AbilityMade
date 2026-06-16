@@ -3,232 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AbilityMade | Handmade with Ability</title>
-  <meta name="description" content="AbilityMade helps disabled artisans sell handmade crafts to global customers.">
-  <link rel="stylesheet" href="style.css">
+  <title>AbilityMade | Gifts Made with Ability</title>
+  <meta name="description" content="AbilityMade creates functional gifts and homeware featuring artwork by disabled artisans.">
+  <link rel="stylesheet" href="style.css?v=frame-clutch">
 </head>
 <body>
-  <!-- Navigation Bar -->
+  <div class="top-strip" aria-label="Partner links">
+    <div class="top-strip-inner">
+      <a href="#story">AbilityMade Foundation</a>
+      <a href="#artists">Studio Program</a>
+      <a href="#corporate">Community Cafe</a>
+    </div>
+  </div>
+
+  <div class="delivery-strip">
+    <strong>FREE</strong> standard delivery for online merchandise purchases $120 and above
+  </div>
+
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
       <a class="logo" href="#home" aria-label="AbilityMade home">AbilityMade</a>
 
+      <form class="search-form" role="search">
+        <label class="sr-only" for="site-search">Search products</label>
+        <span aria-hidden="true">⌕</span>
+        <input id="site-search" type="search" placeholder="Search products">
+      </form>
+
       <div class="nav-links">
-        <a href="#home">Home</a>
-        <a href="#mission">Mission</a>
-        <a href="#artisans">Artisans</a>
-        <a href="#shop">Shop</a>
-        <a href="#impact">Impact</a>
-        <a href="#contact">Contact</a>
+        <a href="#story">Our Story</a>
+        <a href="#artists">Our Artists</a>
+        <a href="#shop">Shop <span aria-hidden="true">⌄</span></a>
+        <a href="#corporate">Corporate <span aria-hidden="true">⌄</span></a>
+        <a href="#contact">Contact Us</a>
       </div>
 
-      <a class="nav-button" href="#shop">Support Artisans</a>
+      <div class="nav-icons" aria-label="Account and cart links">
+        <a class="icon-link cart-link" href="#shop" aria-label="Shopping cart">
+          <span aria-hidden="true">□</span>
+          <b>0</b>
+        </a>
+        <a class="icon-link" href="#contact" aria-label="Account">
+          <span aria-hidden="true">○</span>
+        </a>
+      </div>
     </nav>
   </header>
 
-  <main>
-    <!-- Hero Section -->
-    <section class="hero section" id="home">
-      <div class="hero-content">
-        <p class="eyebrow">Social enterprise for handmade craft</p>
-        <h1>Handmade with ability, shared with the world.</h1>
-        <p class="hero-subheadline">
-          AbilityMade helps disabled artisans turn creativity into income,
-          dignity, and global opportunity.
-        </p>
-        <div class="button-row">
-          <a class="primary-button" href="#shop">Explore Products</a>
-          <a class="secondary-button" href="#artisans">Meet the Artisans</a>
-        </div>
+  <main id="home">
+    <section class="hero-banner" aria-label="Featured workshop">
+      <div class="hero-brand">AbilityMade</div>
+      <h1>JUNE HOLIDAY CRAFT WORKSHOP</h1>
+
+      <div class="workshop-strip" aria-label="Workshop activity images">
+        <img src="assets/images/floral-tree.jpg" alt="Framed floral tree handmade artwork">
+        <img src="assets/images/artisan-workshop.jpg" alt="Artisans making crafts in a workshop">
+        <img src="assets/images/beaded-basket.jpg" alt="Handmade orange beaded basket">
+        <img src="assets/images/bunny-art.jpg" alt="Framed bunny handmade artwork">
+        <img src="assets/images/floral-frame.jpg" alt="Framed floral handmade artwork">
+        <img src="assets/images/artisan-closeup.jpg" alt="Close-up of craft making">
+        <img src="assets/images/beaded-flower-display.jpg" alt="Handmade beaded flower display">
+        <img src="assets/images/artisan-group-workshop.jpg" alt="Group workshop at a craft table">
+        <img src="assets/images/beaded-green-basket.jpg" alt="Green handmade beaded basket">
       </div>
 
-      <div class="hero-visual" aria-label="Artisan craft image">
-        <div class="image-placeholder image-frame large-placeholder">
-          <img src="assets/images/floral-tree.jpg" alt="Framed handmade floral tree artwork">
-        </div>
-        <div class="hero-note">
-          Thoughtful handmade pieces created by skilled disabled artisans.
-        </div>
+      <div class="hero-panel">
+        <p>Exclusively at AbilityMade, Enabling Village</p>
+        <a href="#workshop">CLICK TO REGISTER</a>
       </div>
     </section>
 
-    <!-- Mission Section -->
-    <section class="section mission-section" id="mission">
+    <div class="slider-controls" aria-label="Featured banner controls">
+      <button type="button" aria-label="Previous banner">‹</button>
+      <button type="button" aria-label="Next banner">›</button>
+    </div>
+
+    <section class="section product-section" id="shop">
       <div class="section-heading">
-        <p class="eyebrow">Purpose</p>
-        <h2>Our Mission</h2>
-        <p>
-          Many disabled artisans have strong creative skills but limited access
-          to larger markets. AbilityMade connects their handmade products with
-          customers around the world, helping talent become opportunity.
-        </p>
-      </div>
-
-      <div class="feature-grid">
-        <article class="feature-card">
-          <h3>Economic Opportunity</h3>
-          <p>Helping artisans earn income through products made with care.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Dignity Through Work</h3>
-          <p>Centering skill, creativity, and independence in every story.</p>
-        </article>
-        <article class="feature-card">
-          <h3>Global Visibility</h3>
-          <p>Introducing handmade work to customers beyond local communities.</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- Featured Artisans Section -->
-    <section class="section artisans-section" id="artisans">
-      <div class="section-heading">
-        <p class="eyebrow">People behind the craft</p>
-        <h2>Meet the Artisans</h2>
-      </div>
-
-      <div class="card-grid three-column">
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-closeup.jpg" alt="An artisan concentrating on handmade craft work at a table">
-          </div>
-          <div class="card-body">
-            <h3>Mei L.</h3>
-            <p>Creates handwoven accessories with careful color and texture.</p>
-          </div>
-        </article>
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-workshop.jpg" alt="Artisans working together on handmade projects in a workshop">
-          </div>
-          <div class="card-body">
-            <h3>Chen W.</h3>
-            <p>Makes small embroidered goods inspired by everyday nature.</p>
-          </div>
-        </article>
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-group-workshop.jpg" alt="Artisans seated around a table making craft pieces">
-          </div>
-          <div class="card-body">
-            <h3>Anna R.</h3>
-            <p>Designs paper crafts and greeting cards with warm details.</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Featured Products Section -->
-    <section class="section products-section" id="shop">
-      <div class="section-heading">
-        <p class="eyebrow">Homepage preview</p>
-        <h2>Featured Handmade Products</h2>
+        <h2>New arrivals</h2>
       </div>
 
       <div class="card-grid four-column">
         <article class="product-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/beaded-basket.jpg" alt="Orange handmade beaded mini basket">
-          </div>
+          <a class="product-image" href="#shop">
+            <img src="assets/images/beaded-green-basket.jpg" alt="Green handmade beaded mini basket">
+          </a>
           <div class="card-body">
-            <h3>Handwoven Mini Bag</h3>
-            <p class="price">$28</p>
-            <a class="detail-button" href="#contact">View Details</a>
+            <h3>Beaded Mini Tote</h3>
+            <p class="price">$32.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/bunny-art.jpg" alt="Framed handmade bunny artwork">
-          </div>
+          <a class="product-image" href="#shop">
+            <img src="assets/images/bunny-art.jpg" alt="Framed bunny artwork">
+          </a>
           <div class="card-body">
-            <h3>Embroidered Keychain</h3>
-            <p class="price">$12</p>
-            <a class="detail-button" href="#contact">View Details</a>
+            <h3>Bunny Garden Print</h3>
+            <p class="price">$28.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/floral-frame.jpg" alt="Framed handmade floral artwork">
-          </div>
+          <a class="product-image" href="#shop">
+            <img src="assets/images/floral-frame.jpg" alt="Framed floral handmade artwork">
+          </a>
           <div class="card-body">
-            <h3>Handmade Greeting Card Set</h3>
-            <p class="price">$18</p>
-            <a class="detail-button" href="#contact">View Details</a>
+            <h3>Pressed Bloom Frame</h3>
+            <p class="price">$38.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
+          <a class="product-image" href="#shop">
             <img src="assets/images/beaded-flower-display.jpg" alt="Golden handmade beaded flower desk decoration">
-          </div>
+          </a>
           <div class="card-body">
-            <h3>Small Desk Decoration</h3>
-            <p class="price">$22</p>
-            <a class="detail-button" href="#contact">View Details</a>
+            <h3>Sunlit Flower Display</h3>
+            <p class="price">$45.00</p>
           </div>
         </article>
       </div>
     </section>
 
-    <!-- Impact Section -->
-    <section class="section impact-section" id="impact">
+    <section class="section categories-section">
       <div class="section-heading">
-        <p class="eyebrow">Early progress</p>
-        <h2>Our Growing Impact</h2>
+        <h2>Shop by categories</h2>
       </div>
 
-      <div class="impact-grid">
-        <div class="impact-stat">
-          <strong>5+</strong>
-          <span>Artisans Supported</span>
-        </div>
-        <div class="impact-stat">
-          <strong>20+</strong>
-          <span>Products Listed</span>
-        </div>
-        <div class="impact-stat">
-          <strong>$0</strong>
-          <span>Income Generated</span>
-        </div>
-        <div class="impact-stat">
-          <strong>1</strong>
-          <span>Global Mission</span>
-        </div>
+      <div class="category-grid">
+        <button class="category-tab" type="button" data-category="new-arrivals">New Arrivals</button>
+        <button class="category-tab" type="button" data-category="frame-clutch">Frame Clutch Purse</button>
+        <button class="category-tab" type="button" data-category="diamond-painting">Diamond Painting</button>
+        <button class="category-tab" type="button" data-category="beaded-sculpture">Beaded Sculpture</button>
+        <button class="category-tab" type="button" data-category="beaded-bracelet">Beaded Bracelet</button>
       </div>
-
-      <p class="impact-note">Impact numbers will be updated as the project grows.</p>
     </section>
 
-    <!-- Call to Action Section -->
-    <section class="section cta-section">
-      <div class="cta-content">
-        <h2>Support creativity. Support independence.</h2>
-        <p>
-          Every purchase helps an artisan reach a wider market and earn income
-          from their own skills.
-        </p>
-        <a class="primary-button" href="#shop">Shop Handmade Crafts</a>
+    <section class="section merchandise-section" id="frame-clutch-products" hidden>
+      <div class="listing-toolbar">
+        <span></span>
+        <button type="button">Sort by: Newest <span aria-hidden="true">⌄</span></button>
       </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-vine.jpeg" alt="Black frame clutch purse with silver floral embroidery">
+          </a>
+          <p class="artist-name">Cai Fu'En Jonathan</p>
+          <h3>Ceramic Mug - Emerald Hill</h3>
+          <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-white-gold.jpeg" alt="White frame clutch purse with gold woven detail">
+          </a>
+          <p class="artist-name">Emmanuelle Wong</p>
+          <h3>Ceramic Mug - Baba House</h3>
+          <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-gold.jpeg" alt="Black frame clutch purse with gold floral pattern">
+          </a>
+          <p class="artist-name">Various Artists</p>
+          <h3>Ceramic Mug - Singapore City</h3>
+          <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-blue-bunny.jpeg" alt="Blue bunny patterned frame clutch purse">
+          </a>
+          <p class="artist-name">Lim Jie Ying (Carrichel)</p>
+          <h3>Thermal Tumblers - Joy</h3>
+          <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="Color striped frame clutch purse">
+          </a>
+          <p class="artist-name">Ong Min Hui Grace</p>
+          <h3>Thermal Tumblers - Yellow Orchid</h3>
+          <p class="product-description">By Grace Ong, This sustainable Thermal Tumbler wil...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-floral-stripe.jpeg" alt="Floral stripe frame clutch purse">
+          </a>
+          <p class="artist-name">Hairil Hady Bin Shohri Omar</p>
+          <h3>Thermal Tumblers - Whale Family</h3>
+          <p class="product-description">By Hairil, This sustainable Thermal Tumbler will r...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-mint-flower.jpeg" alt="Mint floral frame clutch purse">
+          </a>
+          <p class="artist-name">Ezra Chan Yi</p>
+          <h3>Thermal Tumblers - Floral Bloom</h3>
+          <p class="product-description">By Ezra, This sustainable Thermal Tumbler will red...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="story-section section" id="story">
+      <div class="story-image">
+        <img src="assets/images/artisan-group-workshop.jpg" alt="Artisans seated around a table making craft pieces">
+      </div>
+      <div class="story-copy">
+        <p class="eyebrow">Our Story</p>
+        <h2>Quality gifts featuring artwork by disabled artisans.</h2>
+        <p>
+          AbilityMade turns original drawings, handmade craft, and studio practice into
+          products people can use every day. Artists earn from every purchase, while
+          shoppers bring home objects with skill, care, and purpose.
+        </p>
+        <a class="button-link" href="#artists">Learn More</a>
+      </div>
+    </section>
+
+    <section class="section feature-panels" id="artists">
+      <article>
+        <img src="assets/images/artisan-closeup.jpg" alt="Artisan concentrating on handmade craft work">
+        <h2>Our Artists</h2>
+        <p>Meet the people behind the patterns, drawings, textures, and handmade forms.</p>
+      </article>
+      <article id="workshop">
+        <img src="assets/images/artisan-workshop.jpg" alt="Craft workshop in progress">
+        <h2>Workshops</h2>
+        <p>Hands-on sessions that share craft skills and the story of inclusive making.</p>
+      </article>
+      <article id="corporate">
+        <img src="assets/images/beaded-basket.jpg" alt="Handmade gift product display">
+        <h2>Corporate Gifting</h2>
+        <p>Thoughtful gift sets for teams, events, and celebrations with measurable impact.</p>
+      </article>
+    </section>
+
+    <section class="newsletter-section" id="contact">
+      <h2>Subscribe to our newsletter</h2>
+      <form class="newsletter-form">
+        <label class="sr-only" for="email">Email address</label>
+        <input id="email" type="email" placeholder="Email address">
+        <button type="submit">Subscribe</button>
+      </form>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer" id="contact">
+  <footer class="footer">
     <div class="footer-content">
       <div>
         <a class="footer-logo" href="#home">AbilityMade</a>
-        <p>Connecting disabled artisans with global customers through meaningful handmade craft.</p>
+        <p>Functional gifts and handmade objects featuring artwork by disabled artisans.</p>
       </div>
-
-      <div class="footer-links" aria-label="Footer navigation">
-        <a href="#mission">Mission</a>
-        <a href="#artisans">Artisans</a>
+      <div class="footer-links">
+        <a href="#story">Our Story</a>
+        <a href="#artists">Our Artists</a>
         <a href="#shop">Shop</a>
-        <a href="#impact">Impact</a>
-        <a href="#contact">Contact</a>
+        <a href="#corporate">Corporate</a>
+        <a href="#contact">Contact Us</a>
       </div>
     </div>
-
     <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
   </footer>
+
+  <aside class="cookie-banner" aria-label="Cookie notice">
+    <p>By clicking 'Accept All' you consent that we may collect information about you for various purposes, including: Statistics and Marketing</p>
+    <a href="#contact">Customize settings</a>
+    <button type="button">Accept all</button>
+    <button type="button">Decline</button>
+  </aside>
+  <script>
+    const categoryTabs = document.querySelectorAll(".category-tab");
+    const frameProducts = document.querySelector("#frame-clutch-products");
+
+    categoryTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const isFrameClutch = tab.dataset.category === "frame-clutch";
+
+        categoryTabs.forEach((item) => {
+          item.classList.toggle("active", item === tab);
+        });
+
+        frameProducts.hidden = !isFrameClutch;
+
+        if (isFrameClutch) {
+          frameProducts.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
