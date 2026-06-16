@@ -217,6 +217,56 @@
       </div>
     </section>
 
+    <section class="section merchandise-section" id="beaded-sculpture-products" hidden>
+      <div class="listing-toolbar">
+        <span></span>
+        <button type="button">Sort by: Newest <span aria-hidden="true">⌄</span></button>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-green-tree.png" alt="Green beaded tree sculpture on a rectangular base">
+          </a>
+          <p class="artist-name">Cai Fu'En Jonathan</p>
+          <h3>Ceramic Mug - Emerald Hill</h3>
+          <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-red-fruit.png" alt="Red and green beaded fruit sculpture on a blue base">
+          </a>
+          <p class="artist-name">Emmanuelle Wong</p>
+          <h3>Ceramic Mug - Baba House</h3>
+          <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-flowers.png" alt="Yellow beaded flower sculpture with red bead centers">
+          </a>
+          <p class="artist-name">Various Artists</p>
+          <h3>Ceramic Mug - Singapore City</h3>
+          <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-basket.png" alt="Yellow beaded basket sculpture with pink and white flowers">
+          </a>
+          <p class="artist-name">Lim Jie Ying (Carrichel)</p>
+          <h3>Thermal Tumblers - Joy</h3>
+          <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
     <section class="story-section section" id="story">
       <div class="story-image">
         <img src="assets/images/artisan-group-workshop.jpg" alt="Artisans seated around a table making craft pieces">
@@ -286,20 +336,25 @@
   </aside>
   <script>
     const categoryTabs = document.querySelectorAll(".category-tab");
-    const frameProducts = document.querySelector("#frame-clutch-products");
+    const merchandiseSections = {
+      "frame-clutch": document.querySelector("#frame-clutch-products"),
+      "beaded-sculpture": document.querySelector("#beaded-sculpture-products"),
+    };
 
     categoryTabs.forEach((tab) => {
       tab.addEventListener("click", () => {
-        const isFrameClutch = tab.dataset.category === "frame-clutch";
+        const targetSection = merchandiseSections[tab.dataset.category];
 
         categoryTabs.forEach((item) => {
           item.classList.toggle("active", item === tab);
         });
 
-        frameProducts.hidden = !isFrameClutch;
+        Object.values(merchandiseSections).forEach((section) => {
+          section.hidden = section !== targetSection;
+        });
 
-        if (isFrameClutch) {
-          frameProducts.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
     });
