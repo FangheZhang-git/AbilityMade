@@ -3,229 +3,305 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AbilityMade | 用能力创造手作</title>
-  <meta name="description" content="AbilityMade 帮助残障手艺人将手工艺品销售给全球顾客。">
-  <link rel="stylesheet" href="style.css">
+  <title>AbilityMade | 用能力创造礼物</title>
+  <meta name="description" content="AbilityMade 将残障手艺人的艺术与手作转化为有功能性的礼品和家居用品。">
+  <link rel="stylesheet" href="style.css?v=frame-clutch">
 </head>
 <body>
-  <!-- 导航栏 -->
+  <div class="top-strip" aria-label="合作项目链接">
+    <div class="top-strip-inner">
+      <a href="#story">AbilityMade 基金会</a>
+      <a href="#artists">工作室计划</a>
+      <a href="#corporate">社区咖啡空间</a>
+    </div>
+  </div>
+
+  <div class="delivery-strip">
+    <strong>满额免配送</strong> 线上商品订单满 $120 即可享受标准配送
+  </div>
+
   <header class="site-header">
     <nav class="navbar" aria-label="主导航">
       <a class="logo" href="#home" aria-label="AbilityMade 首页">AbilityMade</a>
 
+      <form class="search-form" role="search">
+        <label class="sr-only" for="site-search">搜索产品</label>
+        <span aria-hidden="true">⌕</span>
+        <input id="site-search" type="search" placeholder="搜索产品">
+      </form>
+
       <div class="nav-links">
-        <a href="#home">首页</a>
-        <a href="#mission">使命</a>
-        <a href="#artisans">手艺人</a>
-        <a href="#shop">作品</a>
-        <a href="#impact">影响力</a>
-        <a href="#contact">联系</a>
+        <a href="#story">我们的故事</a>
+        <a href="#artists">艺术家</a>
+        <a href="#shop">商店 <span aria-hidden="true">⌄</span></a>
+        <a href="#corporate">企业礼品 <span aria-hidden="true">⌄</span></a>
+        <a href="#contact">联系我们</a>
       </div>
 
-      <a class="nav-button" href="#shop">支持手艺人</a>
+      <div class="nav-icons" aria-label="账户与购物车链接">
+        <a class="icon-link cart-link" href="#shop" aria-label="购物车">
+          <span aria-hidden="true">□</span>
+          <b>0</b>
+        </a>
+        <a class="icon-link" href="#contact" aria-label="账户">
+          <span aria-hidden="true">○</span>
+        </a>
+      </div>
     </nav>
   </header>
 
-  <main>
-    <!-- 首屏介绍 -->
-    <section class="hero section" id="home">
-      <div class="hero-content">
-        <p class="eyebrow">连接手作与社会价值</p>
-        <h1>以能力创造手作，把温度带向世界。</h1>
-        <p class="hero-subheadline">
-          AbilityMade 帮助残障手艺人将创造力转化为收入与面向全球的机会。
-        </p>
-        <div class="button-row">
-          <a class="primary-button" href="#shop">浏览手作产品</a>
-          <a class="secondary-button" href="#artisans">认识手艺人</a>
-        </div>
+  <main id="home">
+    <section class="hero-banner" aria-label="精选工作坊">
+      <div class="hero-brand">AbilityMade</div>
+      <h1>六月假期手作工作坊</h1>
+
+      <div class="workshop-strip" aria-label="工作坊活动图片">
+        <img src="assets/images/floral-tree.jpg" alt="装裱好的花树手工作品">
+        <img src="assets/images/artisan-workshop.jpg" alt="几位手艺人在工作坊中制作手作">
+        <img src="assets/images/beaded-basket.jpg" alt="橙色串珠手作小篮">
+        <img src="assets/images/bunny-art.jpg" alt="装裱好的兔子主题手工作品">
+        <img src="assets/images/floral-frame.jpg" alt="装裱好的花束手工作品">
+        <img src="assets/images/artisan-closeup.jpg" alt="手作制作细节">
+        <img src="assets/images/beaded-flower-display.jpg" alt="串珠花朵手作摆件">
+        <img src="assets/images/artisan-group-workshop.jpg" alt="工作坊里的手艺人围坐制作作品">
+        <img src="assets/images/beaded-green-basket.jpg" alt="绿色串珠手作小篮">
       </div>
 
-      <div class="hero-visual" aria-label="手艺人与手作产品图片区域">
-        <div class="image-placeholder image-frame large-placeholder">
-          <img src="assets/images/floral-tree.jpg" alt="装裱好的花树手工作品">
-        </div>
-        <div class="hero-note">
-          每一件作品都来自残障手艺人的专注、技巧与创造力。
-        </div>
+      <div class="hero-panel">
+        <p>仅限 AbilityMade 融合工作室</p>
+        <a href="#workshop">点击报名</a>
       </div>
     </section>
 
-    <!-- 使命板块 -->
-    <section class="section mission-section" id="mission">
+    <div class="slider-controls" aria-label="精选横幅控制">
+      <button type="button" aria-label="上一张横幅">‹</button>
+      <button type="button" aria-label="下一张横幅">›</button>
+    </div>
+
+    <section class="section product-section" id="shop">
       <div class="section-heading">
-        <p class="eyebrow">我们的初衷</p>
-        <h2>我们的使命</h2>
-        <p>
-          许多残障手艺人拥有扎实的创作能力，却缺少接触更大市场的机会。
-          AbilityMade 希望把他们的手工艺品介绍给世界各地的顾客，让才华被看见，也让劳动获得回报。
-        </p>
-      </div>
-
-      <div class="feature-grid">
-        <article class="feature-card">
-          <h3>经济机会</h3>
-          <p>帮助手艺人通过认真制作的作品获得收入。</p>
-        </article>
-        <article class="feature-card">
-          <h3>工作中的尊严</h3>
-          <p>让技能、创造力与独立性成为每个故事的核心。</p>
-        </article>
-        <article class="feature-card">
-          <h3>全球可见度</h3>
-          <p>把本地社区中的手作带到更广阔的顾客面前。</p>
-        </article>
-      </div>
-    </section>
-
-    <!-- 手艺人介绍 -->
-    <section class="section artisans-section" id="artisans">
-      <div class="section-heading">
-        <p class="eyebrow">作品背后的人</p>
-        <h2>认识手艺人</h2>
-      </div>
-
-      <div class="card-grid three-column">
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-closeup.jpg" alt="一位手艺人正在桌前专注制作手工作品">
-          </div>
-          <div class="card-body">
-            <h3>Mei L.</h3>
-            <p>擅长制作色彩温和、质感细腻的手织配饰。</p>
-          </div>
-        </article>
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-workshop.jpg" alt="几位手艺人在工作坊中一起制作手工作品">
-          </div>
-          <div class="card-body">
-            <h3>Chen W.</h3>
-            <p>创作以日常自然为灵感的小型刺绣作品。</p>
-          </div>
-        </article>
-        <article class="artisan-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/artisan-group-workshop.jpg" alt="工作坊里的手艺人围坐在桌旁制作作品">
-          </div>
-          <div class="card-body">
-            <h3>Anna R.</h3>
-            <p>设计带有温暖细节的纸艺和贺卡作品。</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- 产品预览 -->
-    <section class="section products-section" id="shop">
-      <div class="section-heading">
-        <p class="eyebrow">首页展示</p>
-        <h2>精选手作产品</h2>
+        <h2>新品上架</h2>
       </div>
 
       <div class="card-grid four-column">
         <article class="product-card">
-          <div class="image-placeholder image-frame">
-            <img src="assets/images/beaded-basket.jpg" alt="橙色串珠手作小篮">
-          </div>
+          <a class="product-image" href="#shop">
+            <img src="assets/images/beaded-green-basket.jpg" alt="绿色串珠手作迷你篮">
+          </a>
           <div class="card-body">
-            <h3>手织迷你包</h3>
-            <p class="price">$28</p>
-            <a class="detail-button" href="#contact">查看详情</a>
+            <h3>串珠迷你手提包</h3>
+            <p class="price">$32.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
+          <a class="product-image" href="#shop">
             <img src="assets/images/bunny-art.jpg" alt="装裱好的兔子主题手工作品">
-          </div>
+          </a>
           <div class="card-body">
-            <h3>刺绣钥匙扣</h3>
-            <p class="price">$12</p>
-            <a class="detail-button" href="#contact">查看详情</a>
+            <h3>兔子花园装饰画</h3>
+            <p class="price">$28.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
+          <a class="product-image" href="#shop">
             <img src="assets/images/floral-frame.jpg" alt="装裱好的花束手工作品">
-          </div>
+          </a>
           <div class="card-body">
-            <h3>手工贺卡套装</h3>
-            <p class="price">$18</p>
-            <a class="detail-button" href="#contact">查看详情</a>
+            <h3>压花相框摆件</h3>
+            <p class="price">$38.00</p>
           </div>
         </article>
         <article class="product-card">
-          <div class="image-placeholder image-frame">
+          <a class="product-image" href="#shop">
             <img src="assets/images/beaded-flower-display.jpg" alt="金色花朵串珠桌面摆件">
-          </div>
+          </a>
           <div class="card-body">
-            <h3>小型桌面摆件</h3>
-            <p class="price">$22</p>
-            <a class="detail-button" href="#contact">查看详情</a>
+            <h3>暖阳花朵摆件</h3>
+            <p class="price">$45.00</p>
           </div>
         </article>
       </div>
     </section>
 
-    <!-- 影响力数据 -->
-    <section class="section impact-section" id="impact">
+    <section class="section categories-section">
       <div class="section-heading">
-        <p class="eyebrow">正在成长</p>
-        <h2>不断增长的影响力</h2>
+        <h2>按分类选购</h2>
       </div>
 
-      <div class="impact-grid">
-        <div class="impact-stat">
-          <strong>5+</strong>
-          <span>支持的手艺人</span>
-        </div>
-        <div class="impact-stat">
-          <strong>20+</strong>
-          <span>已展示产品</span>
-        </div>
-        <div class="impact-stat">
-          <strong>$0</strong>
-          <span>已产生收入</span>
-        </div>
-        <div class="impact-stat">
-          <strong>1</strong>
-          <span>全球使命</span>
-        </div>
+      <div class="category-grid">
+        <button class="category-tab" type="button" data-category="new-arrivals">新品上架</button>
+        <button class="category-tab" type="button" data-category="frame-clutch">Frame Clutch Purse</button>
+        <button class="category-tab" type="button" data-category="diamond-painting">Diamond Painting</button>
+        <button class="category-tab" type="button" data-category="beaded-sculpture">Beaded Sculpture</button>
+        <button class="category-tab" type="button" data-category="beaded-bracelet">Beaded Bracelet</button>
       </div>
-
-      <p class="impact-note">随着项目发展，影响力数据将持续更新。</p>
     </section>
 
-    <!-- 行动号召 -->
-    <section class="section cta-section">
-      <div class="cta-content">
-        <h2>支持创造力，也支持独立生活。</h2>
-        <p>
-          每一次购买，都帮助一位手艺人接触更广阔的市场，并通过自己的技能获得收入。
-        </p>
-        <a class="primary-button" href="#shop">选购手工艺品</a>
+    <section class="section merchandise-section" id="frame-clutch-products" hidden>
+      <div class="listing-toolbar">
+        <span></span>
+        <button type="button">Sort by: Newest <span aria-hidden="true">⌄</span></button>
       </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-vine.jpeg" alt="黑色银色藤蔓刺绣口金包">
+          </a>
+          <p class="artist-name">Cai Fu'En Jonathan</p>
+          <h3>Ceramic Mug - Emerald Hill</h3>
+          <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-white-gold.jpeg" alt="白色金线编织口金包">
+          </a>
+          <p class="artist-name">Emmanuelle Wong</p>
+          <h3>Ceramic Mug - Baba House</h3>
+          <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-gold.jpeg" alt="黑金花朵图案口金包">
+          </a>
+          <p class="artist-name">Various Artists</p>
+          <h3>Ceramic Mug - Singapore City</h3>
+          <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
+          <p class="price">$22.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-blue-bunny.jpeg" alt="蓝色兔子图案口金包">
+          </a>
+          <p class="artist-name">Lim Jie Ying (Carrichel)</p>
+          <h3>Thermal Tumblers - Joy</h3>
+          <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="彩色条纹口金包">
+          </a>
+          <p class="artist-name">Ong Min Hui Grace</p>
+          <h3>Thermal Tumblers - Yellow Orchid</h3>
+          <p class="product-description">By Grace Ong, This sustainable Thermal Tumbler wil...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-floral-stripe.jpeg" alt="花纹条纹口金包">
+          </a>
+          <p class="artist-name">Hairil Hady Bin Shohri Omar</p>
+          <h3>Thermal Tumblers - Whale Family</h3>
+          <p class="product-description">By Hairil, This sustainable Thermal Tumbler will r...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-mint-flower.jpeg" alt="浅绿色花朵口金包">
+          </a>
+          <p class="artist-name">Ezra Chan Yi</p>
+          <h3>Thermal Tumblers - Floral Bloom</h3>
+          <p class="product-description">By Ezra, This sustainable Thermal Tumbler will red...</p>
+          <p class="price">$32.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="story-section section" id="story">
+      <div class="story-image">
+        <img src="assets/images/artisan-group-workshop.jpg" alt="工作坊里的手艺人围坐在桌旁制作作品">
+      </div>
+      <div class="story-copy">
+        <p class="eyebrow">我们的故事</p>
+        <h2>由残障手艺人艺术作品延展出的高质感礼品。</h2>
+        <p>
+          AbilityMade 将原创绘画、手作工艺和工作室训练转化为日常可用的产品。
+          每一次购买都让创作者获得收入，也让顾客把技能、专注和社会价值带回家。
+        </p>
+        <a class="button-link" href="#artists">了解更多</a>
+      </div>
+    </section>
+
+    <section class="section feature-panels" id="artists">
+      <article>
+        <img src="assets/images/artisan-closeup.jpg" alt="手艺人正在专注制作手工作品">
+        <h2>艺术家</h2>
+        <p>认识图案、绘画、纹理和手作造型背后的创作者。</p>
+      </article>
+      <article id="workshop">
+        <img src="assets/images/artisan-workshop.jpg" alt="正在进行中的手作工作坊">
+        <h2>工作坊</h2>
+        <p>通过动手体验分享手作技能，也分享融合创作的故事。</p>
+      </article>
+      <article id="corporate">
+        <img src="assets/images/beaded-basket.jpg" alt="手作礼品展示">
+        <h2>企业礼品</h2>
+        <p>适合团队、活动和节日的礼盒，兼具实用性和可衡量的社会影响。</p>
+      </article>
+    </section>
+
+    <section class="newsletter-section" id="contact">
+      <h2>订阅我们的邮件</h2>
+      <form class="newsletter-form">
+        <label class="sr-only" for="email">邮箱地址</label>
+        <input id="email" type="email" placeholder="邮箱地址">
+        <button type="submit">订阅</button>
+      </form>
     </section>
   </main>
 
-  <!-- 页脚 -->
-  <footer class="footer" id="contact">
+  <footer class="footer">
     <div class="footer-content">
       <div>
         <a class="footer-logo" href="#home">AbilityMade</a>
-        <p>通过有意义的手作，把残障手艺人与全球顾客连接起来。</p>
+        <p>由残障手艺人的艺术作品延展出的功能性礼品和手作物件。</p>
       </div>
-
-      <div class="footer-links" aria-label="页脚导航">
-        <a href="#mission">使命</a>
-        <a href="#artisans">手艺人</a>
-        <a href="#shop">作品</a>
-        <a href="#impact">影响力</a>
-        <a href="#contact">联系</a>
+      <div class="footer-links">
+        <a href="#story">我们的故事</a>
+        <a href="#artists">艺术家</a>
+        <a href="#shop">商店</a>
+        <a href="#corporate">企业礼品</a>
+        <a href="#contact">联系我们</a>
       </div>
     </div>
-
     <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
   </footer>
+
+  <aside class="cookie-banner" aria-label="Cookie 提示">
+    <p>点击“全部接受”即表示你同意我们为统计和营销等目的收集相关信息。</p>
+    <a href="#contact">自定义设置</a>
+    <button type="button">全部接受</button>
+    <button type="button">拒绝</button>
+  </aside>
+  <script>
+    const categoryTabs = document.querySelectorAll(".category-tab");
+    const frameProducts = document.querySelector("#frame-clutch-products");
+
+    categoryTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const isFrameClutch = tab.dataset.category === "frame-clutch";
+
+        categoryTabs.forEach((item) => {
+          item.classList.toggle("active", item === tab);
+        });
+
+        frameProducts.hidden = !isFrameClutch;
+
+        if (isFrameClutch) {
+          frameProducts.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+  </script>
 </body>
 </html>
