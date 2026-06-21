@@ -171,17 +171,35 @@ input {
 .icon-link {
   position: relative;
   display: grid;
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   place-items: center;
-  font-size: 1.22rem;
-  font-weight: 900;
+  color: #233c37;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.icon-link:hover {
+  color: var(--accent-dark);
+  background: rgba(14, 75, 66, 0.08);
+  transform: translateY(-1px);
+}
+
+.icon-link svg {
+  width: 23px;
+  height: 23px;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .cart-link b {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: -5px;
+  right: -5px;
   display: grid;
   width: 17px;
   height: 17px;
