@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 470" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrated city map</title>
+  <desc id="desc">A light illustrated map with roads, parks, water, labels, and a location marker.</desc>
+  <rect width="1400" height="470" fill="#eef6fb"/>
+  <path d="M0 352 C132 322 202 350 318 312 C421 278 504 283 605 312 C728 348 817 329 905 300 C1026 260 1139 282 1249 236 C1322 206 1371 203 1400 210 L1400 470 L0 470 Z" fill="#c8efd9"/>
+  <path d="M0 416 C118 384 220 402 344 366 C458 333 563 342 688 366 C829 393 944 375 1066 338 C1188 300 1292 313 1400 281 L1400 470 L0 470 Z" fill="#88d4e6"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-18 116 C126 160 244 156 391 121 C573 78 720 100 887 146 C1050 191 1193 181 1424 119" stroke="#ffffff" stroke-width="30"/>
+    <path d="M-18 116 C126 160 244 156 391 121 C573 78 720 100 887 146 C1050 191 1193 181 1424 119" stroke="#a6bdd1" stroke-width="5"/>
+    <path d="M91 -12 C126 71 153 148 204 212 C267 289 335 324 419 392" stroke="#ffffff" stroke-width="24"/>
+    <path d="M91 -12 C126 71 153 148 204 212 C267 289 335 324 419 392" stroke="#a6bdd1" stroke-width="4"/>
+    <path d="M398 -20 C457 80 496 151 565 219 C642 295 739 344 855 431" stroke="#ffffff" stroke-width="26"/>
+    <path d="M398 -20 C457 80 496 151 565 219 C642 295 739 344 855 431" stroke="#a6bdd1" stroke-width="5"/>
+    <path d="M816 -19 C807 75 834 165 897 236 C960 308 1050 348 1165 462" stroke="#ffffff" stroke-width="28"/>
+    <path d="M816 -19 C807 75 834 165 897 236 C960 308 1050 348 1165 462" stroke="#a6bdd1" stroke-width="5"/>
+    <path d="M1131 -12 C1107 89 1110 181 1153 266 C1199 358 1283 410 1358 491" stroke="#ffffff" stroke-width="24"/>
+    <path d="M1131 -12 C1107 89 1110 181 1153 266 C1199 358 1283 410 1358 491" stroke="#a6bdd1" stroke-width="4"/>
+    <path d="M-8 278 C139 251 258 254 374 276 C526 306 638 283 767 255 C922 222 1054 226 1171 254 C1258 274 1336 278 1414 263" stroke="#ffffff" stroke-width="34"/>
+    <path d="M-8 278 C139 251 258 254 374 276 C526 306 638 283 767 255 C922 222 1054 226 1171 254 C1258 274 1336 278 1414 263" stroke="#8caac0" stroke-width="6"/>
+    <path d="M33 56 L263 222 L408 224 L611 383 L857 378 L1116 230 L1391 317" stroke="#f8d786" stroke-width="10"/>
+    <path d="M33 56 L263 222 L408 224 L611 383 L857 378 L1116 230 L1391 317" stroke="#d3a742" stroke-width="2"/>
+    <path d="M185 432 L342 320 L489 155 L626 119 L774 34" stroke="#ffffff" stroke-width="18"/>
+    <path d="M185 432 L342 320 L489 155 L626 119 L774 34" stroke="#b8c9d4" stroke-width="3"/>
+    <path d="M712 461 L775 336 L876 276 L1021 177 L1199 68" stroke="#ffffff" stroke-width="20"/>
+    <path d="M712 461 L775 336 L876 276 L1021 177 L1199 68" stroke="#b8c9d4" stroke-width="3"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-weight="700" fill="#667982">
+    <text x="130" y="76" font-size="17">HOLLAND</text>
+    <text x="317" y="178" font-size="16">QUEENSTOWN</text>
+    <text x="637" y="251" font-size="17">ALEXANDRA</text>
+    <text x="826" y="345" font-size="16">BUKIT MERAH</text>
+    <text x="969" y="141" font-size="16">NEWTON</text>
+    <text x="1093" y="211" font-size="16">LITTLE INDIA</text>
+    <text x="1191" y="350" font-size="16">MARINA BAY</text>
+    <text x="154" y="363" font-size="14">West Coast Park</text>
+    <text x="537" y="410" font-size="14">Southern Ridges</text>
+    <text x="1018" y="391" font-size="14">Chinatown</text>
+  </g>
+  <g>
+    <rect x="22" y="20" width="115" height="40" rx="4" fill="#fff" filter="url(#shadow)"/>
+    <text x="48" y="46" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#26312d">Map</text>
+    <rect x="137" y="20" width="90" height="40" rx="4" fill="#f5f5f5"/>
+    <text x="159" y="46" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#667982">Satellite</text>
+  </g>
+  <g transform="translate(710 250)">
+    <path d="M0 -44 C23 -44 41 -26 41 -3 C41 30 0 65 0 65 C0 65 -41 30 -41 -3 C-41 -26 -23 -44 0 -44 Z" fill="#e7473c"/>
+    <circle cx="0" cy="-3" r="14" fill="#fff"/>
+    <circle cx="0" cy="-3" r="7" fill="#e7473c"/>
+  </g>
+  <g fill="#fff" stroke="#d4dde6" stroke-width="2">
+    <rect x="1325" y="24" width="42" height="42" rx="4"/>
+    <path d="M1339 45 H1353 M1346 38 V52" stroke="#536673" stroke-width="3"/>
+    <rect x="1325" y="382" width="42" height="42" rx="4"/>
+    <circle cx="1346" cy="396" r="6" fill="#f8c548" stroke="none"/>
+    <path d="M1346 402 V417 M1337 409 H1355" stroke="#f8c548" stroke-width="4"/>
+  </g>
+  <text x="18" y="446" font-family="Inter, Arial, sans-serif" font-size="18" fill="#5a6b73">Google</text>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#26312d" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+</svg>

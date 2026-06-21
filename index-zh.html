@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AbilityMade | 用能力创造礼物</title>
   <meta name="description" content="AbilityMade 将残障手艺人的艺术与手作转化为有功能性的礼品和家居用品。">
-  <link rel="stylesheet" href="style.css?v=beaded-bracelet">
+  <link rel="stylesheet" href="style.css?v=cart-checkout">
 </head>
 <body>
   <div class="top-strip" aria-label="合作项目链接">
     <div class="top-strip-inner">
-      <a href="#story">AbilityMade 基金会</a>
+      <a href="#story-page" data-story-link>AbilityMade 基金会</a>
       <a href="#artists">工作室计划</a>
-      <a href="#corporate">社区咖啡空间</a>
+      <a href="#corporate" data-corporate-link>社区咖啡空间</a>
     </div>
   </div>
 
   <div class="delivery-strip">
-    <strong>满额免配送</strong> 线上商品订单满 $120 即可享受标准配送
+    <strong>满额免配送</strong> 美国线上商品订单满 $120 即可享受标准配送
   </div>
 
   <header class="site-header">
@@ -31,24 +31,49 @@
       </form>
 
       <div class="nav-links">
-        <a href="#story">我们的故事</a>
-        <a href="#artists">艺术家</a>
-        <a href="#shop">商店 <span aria-hidden="true">⌄</span></a>
-        <a href="#corporate">企业礼品 <span aria-hidden="true">⌄</span></a>
-        <a href="#contact">联系我们</a>
+        <a href="#story-page" data-story-link>我们的故事</a>
+        <a href="#artists-page" data-artists-link>艺术家</a>
+        <a href="#shop" data-shop-link>商店 <span aria-hidden="true">⌄</span></a>
+        <a href="#corporate" data-corporate-link>企业礼品 <span aria-hidden="true">⌄</span></a>
+        <a href="#contact-us" data-contact-link>联系我们</a>
       </div>
 
       <div class="nav-icons" aria-label="账户与购物车链接">
-        <a class="icon-link cart-link" href="#shop" aria-label="购物车">
+        <a class="icon-link cart-link" href="#cart" aria-label="购物车" data-cart-open>
           <span aria-hidden="true">□</span>
           <b>0</b>
         </a>
-        <a class="icon-link" href="#contact" aria-label="账户">
+        <a class="icon-link" href="#contact-us" aria-label="账户" data-contact-link>
           <span aria-hidden="true">○</span>
         </a>
       </div>
     </nav>
   </header>
+
+  <div class="cart-overlay" data-cart-close hidden></div>
+  <aside class="cart-drawer" id="cart" aria-label="购物车" aria-hidden="true">
+    <div class="cart-drawer-header">
+      <div>
+        <p class="cart-kicker">AbilityMade</p>
+        <h2>购物车</h2>
+      </div>
+      <button class="cart-icon-button" type="button" aria-label="关闭购物车" data-cart-close>×</button>
+    </div>
+    <div class="cart-items" data-cart-items></div>
+    <div class="cart-empty" data-cart-empty>
+      <p>购物车还是空的。</p>
+      <button type="button" data-cart-close>继续选购</button>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-row">
+        <span>小计</span>
+        <strong data-cart-subtotal>$0.00</strong>
+      </div>
+      <p data-cart-shipping>满 $120 免美国标准配送。配送费用将在结账时计算。</p>
+      <p class="cart-error" data-cart-error role="alert"></p>
+      <button class="cart-checkout" type="button" data-checkout-button>使用 Stripe 结账</button>
+    </div>
+  </aside>
 
   <main id="home">
     <section class="hero-banner" aria-label="精选工作坊">
@@ -78,47 +103,503 @@
       <button type="button" aria-label="下一张横幅">›</button>
     </div>
 
+    <section class="product-detail-section" id="product-detail" hidden>
+      <nav class="breadcrumbs" aria-label="面包屑导航">
+        <a href="#home" data-home-link>首页</a>
+        <span>/</span>
+        <a href="#shop" data-detail-back>商店</a>
+        <span>/</span>
+        <span data-detail-category>商品</span>
+        <span>/</span>
+        <strong data-detail-title>商品详情</strong>
+      </nav>
+
+      <div class="product-detail-layout">
+        <div class="detail-gallery">
+          <div class="detail-image-frame">
+            <img data-detail-image src="assets/images/beaded-green-basket.jpg" alt="所选商品">
+          </div>
+          <div class="detail-gallery-controls" aria-label="商品图片控制">
+            <button type="button" aria-label="上一张商品图片">‹</button>
+            <button type="button" aria-label="下一张商品图片">›</button>
+          </div>
+          <div class="detail-thumbnails" aria-label="商品缩略图">
+            <button class="active" type="button">
+              <img data-detail-thumbnail src="assets/images/beaded-green-basket.jpg" alt="所选商品缩略图">
+            </button>
+          </div>
+        </div>
+
+        <div class="detail-info">
+          <p class="detail-artist" data-detail-artist>Choo Jian Wei</p>
+          <h1 data-detail-heading>Magnet Coaster - SG Drinks</h1>
+          <p class="detail-byline">By Jian Wei,</p>
+          <p class="detail-intro">Gift it to overseas friends as souvenirs - they can use it as coasters or stick it on their fridges to collect!</p>
+          <p class="detail-price" data-detail-price>$80.00</p>
+          <p class="detail-stock">898 In stock</p>
+
+          <div class="quantity-control" aria-label="数量选择">
+            <button type="button" aria-label="减少数量">−</button>
+            <span>1</span>
+            <button type="button" aria-label="增加数量">+</button>
+          </div>
+
+          <button class="detail-add-to-cart" type="button">
+            <span aria-hidden="true">□</span>
+            ADD TO CART
+          </button>
+
+          <div class="detail-accordions">
+            <div class="detail-accordion">
+              <button class="detail-accordion-trigger" type="button" aria-expanded="false">
+                <span>Description</span>
+                <span aria-hidden="true">⌄</span>
+              </button>
+              <div class="detail-accordion-panel" hidden>
+                <ul>
+                  <li>Dimensions: L9 x W9 cm</li>
+                  <li>Weight: 51g</li>
+                  <li>Material: Metal, Magnet</li>
+                </ul>
+                <p>Pictures shown are for illustration purpose only. Actual product might differ due to difference in lightings when pictures are taken.</p>
+              </div>
+            </div>
+
+            <div class="detail-accordion">
+              <button class="detail-accordion-trigger" type="button" aria-expanded="false">
+                <span>Shipping &amp; Delivery</span>
+                <span aria-hidden="true">⌄</span>
+              </button>
+              <div class="detail-accordion-panel" hidden>
+                <ul>
+                  <li>线上订单目前配送至美国境内</li>
+                  <li>单个购物车满 $120 即可享受美国标准免配送</li>
+                  <li>配送费用会在结账时根据购物车商品计算</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="related-products" aria-label="相关商品">
+        <button class="related-arrow" type="button" aria-label="上一组相关商品">‹</button>
+        <div class="related-grid" data-related-products></div>
+        <button class="related-arrow" type="button" aria-label="下一组相关商品">›</button>
+      </section>
+    </section>
+
+    <section class="story-page-section" id="story-page" hidden>
+      <section class="story-text-section">
+        <h1>关于 AbilityMade</h1>
+        <p>
+          AbilityMade 是一个社会企业，通过原创艺术、手作物件和实用商品展示残障手艺人的才华。
+          每件商品都承载艺术家的故事，让创作者获得真正的认可，也让每一次购买都带来有意义的收入与信心。
+        </p>
+        <p>
+          AbilityMade 也通过工作室训练、零售体验、工作坊和企业礼品项目，支持不同能力的伙伴持续学习与就业。
+        </p>
+        <p>加入 AbilityMade，一起庆祝能力并支持融合。</p>
+        <p class="story-bold-link">点击 <a href="#artists-page" data-artists-link>这里</a> 了解我们的艺术家</p>
+      </section>
+
+      <section class="story-card-band" aria-label="AbilityMade 空间">
+        <div class="story-card-grid">
+          <article class="story-info-card">
+            <img src="assets/images/artisan-workshop.jpg" alt="AbilityMade 工作室和手作产品">
+            <div>
+              <h2>融合村工作室门店</h2>
+              <ul>
+                <li>零售店</li>
+                <li>画廊</li>
+                <li>工作坊</li>
+                <li>活动</li>
+              </ul>
+              <a class="story-pill-link" href="#contact-us" data-contact-link>查看地点</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/beaded-flower-display.jpg" alt="AbilityMade 手作礼品展示">
+            <div>
+              <h2>社区工作坊空间</h2>
+              <ul>
+                <li>结合手艺人训练</li>
+                <li>零售店</li>
+                <li>礼品包装</li>
+              </ul>
+              <a class="story-pill-link" href="#contact-us" data-contact-link>查看地点</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/artisan-group-workshop.jpg" alt="AbilityMade 团队工作坊合照">
+            <div>
+              <h2>企业礼品工作室</h2>
+              <ul>
+                <li>定制礼盒</li>
+                <li>团队活动</li>
+                <li>融合手作体验</li>
+              </ul>
+              <a class="story-pill-link" href="#corporate" data-corporate-link>查看地点</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-text-section">
+        <h2>关于我们的艺术家</h2>
+        <p>
+          AbilityMade 服务并代表来自融合工作室计划的艺术家。艺术家探索不同媒材，发展自己的视觉风格，
+          并把个人优势转化为可分享的礼品、家居用品和有意义的商品。
+        </p>
+        <p>
+          艺术家、设计师和指导员会与手艺人并肩工作，帮助他们建立良好的工作习惯、提升工艺技巧，
+          并庆祝每个人独特的主题和表达方式。
+        </p>
+        <p class="story-bold-link">点击 <a href="#artists-page" data-artists-link>这里</a> 认识我们的艺术家</p>
+
+        <h2>想支持我们吗？</h2>
+        <p>让艺术家的生活产生改变，需要整个社区一起参与。你可以通过以下方式支持我们的社会企业：</p>
+      </section>
+
+      <section class="story-card-band" aria-label="支持 AbilityMade 的方式">
+        <div class="story-card-grid">
+          <article class="story-info-card">
+            <img src="assets/images/beaded-bracelet-shell-strand-gold.jpeg" alt="手作串珠手链礼品">
+            <div>
+              <h2>购买或赠送我们的产品</h2>
+              <ul>
+                <li>为每位艺术家创造收入；</li>
+                <li>为不同能力的工作伙伴提供就业机会。</li>
+              </ul>
+              <a class="story-pill-link" href="#shop" data-shop-link>立即选购</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/artisan-closeup.jpg" alt="AbilityMade 志愿者和手艺人">
+            <div>
+              <h2>加入我们成为志愿者</h2>
+              <ul>
+                <li>直接支持艺术家和团队的日常工作；</li>
+                <li>协助门店营运、包装订单和活动准备；</li>
+                <li>提升顾客在工作坊和活动中的体验；</li>
+                <li>与有共同目标的伙伴一起服务社区。</li>
+              </ul>
+              <a class="story-pill-link" href="#contact-us" data-contact-link>联系我们</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/artisan-group-workshop.jpg" alt="AbilityMade 团队合照">
+            <div>
+              <h2>把故事分享出去</h2>
+              <ul>
+                <li>口碑推荐很有力量，每一次推荐都能帮助艺术家被看见；</li>
+                <li>分享我们的社交媒体内容，或在发布照片时标记我们。</li>
+              </ul>
+              <a class="story-pill-link" href="#contact">关注我们</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="story-text-section story-media-heading">
+        <h2>媒体与新闻</h2>
+        <p>我们很高兴让更多人看见艺术家的梦想、故事和创作热情，并分享支持他们的机会。</p>
+      </section>
+
+      <section class="story-card-band story-media-band" aria-label="媒体与新闻">
+        <div class="story-card-grid">
+          <article class="story-info-card">
+            <img src="assets/images/diamond-painting-colorful-floral.png" alt="AbilityMade 彩色手作艺术媒体报道">
+            <div>
+              <h2>2025 年 7 月 1 日</h2>
+              <p>AbilityMade 艺术家推出色彩明亮、适合日常使用的功能性礼品系列。</p>
+              <a class="story-pill-link" href="#contact">阅读更多</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/artisan-workshop.jpg" alt="AbilityMade 工作坊媒体报道">
+            <div>
+              <h2>2024 年 5 月 4 日</h2>
+              <p>有意义的手作工作坊：融合故事、手作体验和带来回馈的礼品。</p>
+              <a class="story-pill-link" href="#workshop">阅读更多</a>
+            </div>
+          </article>
+
+          <article class="story-info-card">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="AbilityMade 功能性礼品媒体报道">
+            <div>
+              <h2>2024 年 3 月 21 日</h2>
+              <p>由残障手艺人艺术作品延展出的功能性礼品，为日常生活带来色彩。</p>
+              <a class="story-pill-link" href="#shop" data-shop-link>阅读更多</a>
+            </div>
+          </article>
+        </div>
+        <a class="story-view-all" href="#contact">查看全部媒体</a>
+      </section>
+    </section>
+
+    <section class="artists-page-section" id="artists-page" hidden>
+      <section class="artists-page-heading">
+        <h1>认识我们的艺术家</h1>
+        <p>这些才华横溢的创作者，为独特图案和设计注入灵感。</p>
+      </section>
+
+      <div class="artists-sort-row">
+        <button type="button">排序：艺术家姓名（升序） <span aria-hidden="true">⌄</span></button>
+      </div>
+
+      <section class="artists-gallery" aria-label="AbilityMade 艺术家">
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=900&q=80" alt="Aaron James Yap 的肖像">
+          <span><strong>AARON JAMES YAP</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80" alt="Aqif Bin Mohamad Taha 的肖像">
+          <span><strong>AQIF BIN MOHAMAD TAHA</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=900&q=80" alt="Asher Ng 的肖像">
+          <span><strong>ASHER NG</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=900&q=80" alt="Asher Won 的肖像">
+          <span><strong>ASHER WON</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=900&q=80" alt="Cai Fu En Jonathan 的肖像">
+          <span><strong>CAI FU EN JONATHAN</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=80" alt="Carrichel Lim Jie Ying 的肖像">
+          <span><strong>CARRICHEL LIM JIE YING</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=900&q=80" alt="Emmanuelle Wong 的肖像">
+          <span><strong>EMMANUELLE WONG</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=900&q=80" alt="Grace Ong 的肖像">
+          <span><strong>GRACE ONG</strong><em>进入艺术家商店</em></span>
+        </a>
+        <a class="artist-tile" href="#shop" data-shop-link>
+          <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=900&q=80" alt="Hairil Hady 的肖像">
+          <span><strong>HAIRIL HADY</strong><em>进入艺术家商店</em></span>
+        </a>
+      </section>
+    </section>
+
+    <section class="corporate-page-section" id="corporate-page" hidden>
+      <nav class="corporate-breadcrumb" aria-label="面包屑导航">
+        <a href="#home" data-home-link>首页</a>
+        <span>/</span>
+        <strong>企业礼品</strong>
+      </nav>
+
+      <section class="corporate-intro" aria-labelledby="corporate-heading">
+        <h1 id="corporate-heading">GREAT GIFTS. GREAT CAUSE!</h1>
+        <p>告别千篇一律的目录礼品和缺乏新意的企业赠品。</p>
+        <p>选择有品质、有功能、也有意义的礼品，每一份设计都源自自闭症谱系艺术家的创作。</p>
+      </section>
+
+      <div class="corporate-tab-band" aria-label="企业礼品选项">
+        <a href="#curated-bundles">CURATED BUNDLES</a>
+        <a href="#readymade">READYMADE</a>
+        <a href="#custom-made">CUSTOM-MADE</a>
+        <a href="#commissioned">COMMISSIONED</a>
+      </div>
+
+      <section class="corporate-card-band" aria-label="企业礼品服务">
+        <div class="corporate-card-grid">
+          <article class="corporate-option-card" id="curated-bundles">
+            <img src="assets/images/beaded-basket.jpg" alt="企业礼盒与手作礼品组合">
+            <div>
+              <h2>Curated Bundles</h2>
+              <ul>
+                <li>礼盒套装</li>
+                <li>使用现有产品</li>
+                <li>礼盒品牌贴纸</li>
+                <li>个性化卡片</li>
+                <li>无最低订购数量</li>
+                <li>1-50 件约 1 周；50 件以上约 2-3 周</li>
+              </ul>
+              <a class="corporate-pill-link" href="#contact-us" data-contact-link>SHOP CURATED BUNDLES</a>
+            </div>
+          </article>
+
+          <article class="corporate-option-card" id="readymade">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="AbilityMade 现成企业礼品">
+            <div>
+              <h2>Readymade</h2>
+              <ul>
+                <li>现有丰富产品选择</li>
+                <li>无需等待定制</li>
+                <li>无隐藏费用</li>
+                <li>无最低订购数量</li>
+                <li>门店购买可立即带走</li>
+                <li>网店购买约 1 周处理时间</li>
+                <li>大批量订单交期另议</li>
+              </ul>
+              <a class="corporate-pill-link" href="#shop" data-shop-link>SHOP READYMADE</a>
+            </div>
+          </article>
+
+          <article class="corporate-option-card" id="custom-made">
+            <img src="assets/images/beaded-green-basket.jpg" alt="AbilityMade 定制企业礼品">
+            <div>
+              <h2>Custom-made</h2>
+              <ul>
+                <li>在现有产品上添加企业标志；和/或</li>
+                <li>现有产品搭配新的现有艺术图案；或</li>
+                <li>新产品搭配现有艺术图案</li>
+                <li>艺术授权费用根据艺术家报价而定</li>
+                <li>不同品项最低订购量不同</li>
+                <li>大批量订单交期另议</li>
+              </ul>
+              <a class="corporate-pill-link" href="#contact-us" data-contact-link>SHOP CUSTOM-MADE</a>
+            </div>
+          </article>
+
+          <article class="corporate-option-card" id="commissioned">
+            <img src="assets/images/diamond-painting-framed-portrait.png" alt="企业委托创作 AbilityMade 艺术作品">
+            <div>
+              <h2>Commissioned</h2>
+              <ul>
+                <li>委托创作全新专属艺术作品</li>
+                <li>艺术费用根据所选艺术家报价而定</li>
+                <li>现有产品搭配专属艺术图案；或</li>
+                <li>新产品搭配专属艺术图案</li>
+                <li>不同品项最低订购量不同</li>
+                <li>不同艺术作品与产品交期不同</li>
+              </ul>
+              <a class="corporate-pill-link" href="#contact-us" data-contact-link>SHOP COMMISSIONED</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="corporate-enquiry" aria-labelledby="corporate-enquiry-heading">
+        <h2 id="corporate-enquiry-heading">Let's create something beautiful together!</h2>
+        <p>获取报价或留下咨询</p>
+
+        <form class="corporate-message-form">
+          <div class="form-field">
+            <label for="corporate-first-name">First Name<span aria-hidden="true">*</span></label>
+            <input id="corporate-first-name" name="first-name" type="text" autocomplete="given-name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="corporate-last-name">Last Name<span aria-hidden="true">*</span></label>
+            <input id="corporate-last-name" name="last-name" type="text" autocomplete="family-name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="corporate-email">Email<span aria-hidden="true">*</span></label>
+            <input id="corporate-email" name="email" type="email" autocomplete="email" required>
+          </div>
+
+          <div class="form-field">
+            <label for="corporate-mobile">Mobile Number<span aria-hidden="true">*</span></label>
+            <input id="corporate-mobile" name="mobile" type="tel" autocomplete="tel" required>
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="corporate-message">Your Message<span aria-hidden="true">*</span></label>
+            <textarea id="corporate-message" name="message" rows="8" required></textarea>
+          </div>
+
+          <div class="captcha-placeholder" aria-label="reCAPTCHA verification placeholder">
+            <span aria-hidden="true"></span>
+            <strong>I'm not a robot</strong>
+            <small>reCAPTCHA</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit">SEND MESSAGE</button>
+          </div>
+        </form>
+      </section>
+    </section>
+
     <section class="section product-section" id="shop">
       <div class="section-heading">
         <h2>新品上架</h2>
       </div>
 
-      <div class="card-grid four-column">
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/beaded-green-basket.jpg" alt="绿色串珠手作迷你篮">
+      <div class="merchandise-grid">
+        <article class="merchandise-card product-card" data-product-id="frame-clutch-black-vine" data-byline="By Jonathan Cai," data-description="这些杯款以 Emerald Hill 艺术图案为灵感，并延展为可收藏的口金包。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/frame-clutch-black-vine.jpeg" alt="黑色银色藤蔓刺绣口金包">
           </a>
-          <div class="card-body">
-            <h3>串珠迷你手提包</h3>
-            <p class="price">$32.00</p>
-          </div>
+          <p class="artist-name">Cai Fu'En Jonathan</p>
+          <h3>Ceramic Mug - Emerald Hill</h3>
+          <p class="product-description">By Jonathan Cai, These ceramic mugs feature colorful...</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/bunny-art.jpg" alt="装裱好的兔子主题手工作品">
+        <article class="merchandise-card product-card" data-product-id="frame-clutch-white-gold" data-byline="By Emmanuelle Wong," data-description="这些杯款以 Baba House 艺术图案为灵感，并延展为白金色口金包。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/frame-clutch-white-gold.jpeg" alt="白色金线编织口金包">
           </a>
-          <div class="card-body">
-            <h3>兔子花园装饰画</h3>
-            <p class="price">$28.00</p>
-          </div>
+          <p class="artist-name">Emmanuelle Wong</p>
+          <h3>Ceramic Mug - Baba House</h3>
+          <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/floral-frame.jpg" alt="装裱好的花束手工作品">
+        <article class="merchandise-card product-card" data-product-id="frame-clutch-black-gold" data-byline="By Asher Ng, Aqif & Amirah," data-description="这些杯款以 Singapore City 艺术图案为灵感，并延展为黑金花纹口金包。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/frame-clutch-black-gold.jpeg" alt="黑金花朵图案口金包">
           </a>
-          <div class="card-body">
-            <h3>压花相框摆件</h3>
-            <p class="price">$38.00</p>
-          </div>
+          <p class="artist-name">Various Artists</p>
+          <h3>Ceramic Mug - Singapore City</h3>
+          <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/beaded-flower-display.jpg" alt="金色花朵串珠桌面摆件">
+        <article class="merchandise-card product-card" data-product-id="diamond-painting-framed-portrait" data-byline="By Various Artists," data-description="带画框的人物钻石画，周围点缀蓝色与金色花朵。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/diamond-painting-framed-portrait.png" alt="带白色画框的蓝色花卉人物钻石画">
           </a>
-          <div class="card-body">
-            <h3>暖阳花朵摆件</h3>
-            <p class="price">$45.00</p>
-          </div>
+          <p class="artist-name">Various Artists</p>
+          <h3>Diamond Painting - Framed Portrait</h3>
+          <p class="product-description">带画框的人物钻石画，周围点缀蓝色与金色花朵。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card product-card" data-product-id="diamond-painting-starry-bunny" data-byline="By Various Artists," data-description="甜美的紫色兔子钻石画，搭配闪烁的星空背景。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/diamond-painting-bunny.png" alt="星空背景上的紫色兔子钻石画">
+          </a>
+          <p class="artist-name">Various Artists</p>
+          <h3>Diamond Painting - Starry Bunny</h3>
+          <p class="product-description">甜美的紫色兔子钻石画，搭配闪烁的星空背景。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card product-card" data-product-id="beaded-sculpture-yellow-flowers" data-byline="By Asher Ng, Aqif & Amirah," data-description="黄色串珠花朵摆件，红色珠心明亮醒目，并摆放在手作串珠底座上。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/beaded-sculpture-yellow-flowers.png" alt="黄色串珠花朵摆件">
+          </a>
+          <p class="artist-name">Various Artists</p>
+          <h3>Ceramic Mug - Singapore City</h3>
+          <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card product-card" data-product-id="beaded-bracelet-shell-strand-white" data-byline="By Jonathan Cai," data-description="白色贝壳串珠手链，两端配有明亮黄色流苏。">
+          <a class="merchandise-image" href="#shop">
+            <img src="assets/images/beaded-bracelet-shell-strand-white.jpeg" alt="白色贝壳串珠手链与黄色流苏">
+          </a>
+          <p class="artist-name">Cai Fu'En Jonathan</p>
+          <h3>Ceramic Mug - Emerald Hill</h3>
+          <p class="product-description">By Jonathan Cai, These ceramic mugs feature colorful...</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
       </div>
     </section>
@@ -129,7 +610,6 @@
       </div>
 
       <div class="category-grid">
-        <button class="category-tab" type="button" data-category="new-arrivals">新品上架</button>
         <button class="category-tab" type="button" data-category="frame-clutch">Frame Clutch Purse</button>
         <button class="category-tab" type="button" data-category="diamond-painting">Diamond Painting</button>
         <button class="category-tab" type="button" data-category="beaded-sculpture">Beaded Sculpture</button>
@@ -144,74 +624,74 @@
       </div>
 
       <div class="merchandise-grid">
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-black-vine">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-black-vine.jpeg" alt="黑色银色藤蔓刺绣口金包">
           </a>
           <p class="artist-name">Cai Fu'En Jonathan</p>
           <h3>Ceramic Mug - Emerald Hill</h3>
           <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-white-gold">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-white-gold.jpeg" alt="白色金线编织口金包">
           </a>
           <p class="artist-name">Emmanuelle Wong</p>
           <h3>Ceramic Mug - Baba House</h3>
           <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-black-gold">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-black-gold.jpeg" alt="黑金花朵图案口金包">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Ceramic Mug - Singapore City</h3>
           <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-blue-bunny">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-blue-bunny.jpeg" alt="蓝色兔子图案口金包">
           </a>
           <p class="artist-name">Lim Jie Ying (Carrichel)</p>
           <h3>Thermal Tumblers - Joy</h3>
           <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-color-stripe">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="彩色条纹口金包">
           </a>
           <p class="artist-name">Ong Min Hui Grace</p>
           <h3>Thermal Tumblers - Yellow Orchid</h3>
           <p class="product-description">By Grace Ong, This sustainable Thermal Tumbler wil...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-floral-stripe">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-floral-stripe.jpeg" alt="花纹条纹口金包">
           </a>
           <p class="artist-name">Hairil Hady Bin Shohri Omar</p>
           <h3>Thermal Tumblers - Whale Family</h3>
           <p class="product-description">By Hairil, This sustainable Thermal Tumbler will r...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="frame-clutch-mint-flower">
           <a class="merchandise-image" href="#frame-clutch-products">
             <img src="assets/images/frame-clutch-mint-flower.jpeg" alt="浅绿色花朵口金包">
           </a>
           <p class="artist-name">Ezra Chan Yi</p>
           <h3>Thermal Tumblers - Floral Bloom</h3>
           <p class="product-description">By Ezra, This sustainable Thermal Tumbler will red...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
       </div>
@@ -224,44 +704,44 @@
       </div>
 
       <div class="merchandise-grid">
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="diamond-painting-purple-flowers">
           <a class="merchandise-image" href="#diamond-painting-products">
             <img src="assets/images/diamond-painting-purple-flowers.png" alt="大幅紫粉色花卉钻石画画布">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Diamond Painting - Purple Flowers</h3>
           <p class="product-description">层次丰富的紫粉色花卉钻石画画布，细节饱满。</p>
-          <p class="price">$45.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="diamond-painting-colorful-floral">
           <a class="merchandise-image" href="#diamond-painting-products">
             <img src="assets/images/diamond-painting-colorful-floral.png" alt="彩色花卉钻石画画布">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Diamond Painting - Colorful Floral</h3>
           <p class="product-description">明亮的花卉钻石画，包含红、黄、蓝、绿等丰富色彩细节。</p>
-          <p class="price">$45.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="diamond-painting-framed-portrait">
           <a class="merchandise-image" href="#diamond-painting-products">
             <img src="assets/images/diamond-painting-framed-portrait.png" alt="带白色画框的蓝色花卉人物钻石画">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Diamond Painting - Framed Portrait</h3>
           <p class="product-description">带画框的人物钻石画，周围点缀蓝色与金色花朵。</p>
-          <p class="price">$45.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="diamond-painting-starry-bunny">
           <a class="merchandise-image" href="#diamond-painting-products">
             <img src="assets/images/diamond-painting-bunny.png" alt="星空背景上的紫色兔子钻石画">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Diamond Painting - Starry Bunny</h3>
           <p class="product-description">甜美的紫色兔子钻石画，搭配闪烁的星空背景。</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
       </div>
@@ -274,44 +754,44 @@
       </div>
 
       <div class="merchandise-grid">
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-sculpture-green-tree">
           <a class="merchandise-image" href="#beaded-sculpture-products">
             <img src="assets/images/beaded-sculpture-green-tree.png" alt="绿色串珠树形摆件">
           </a>
           <p class="artist-name">Cai Fu'En Jonathan</p>
           <h3>Ceramic Mug - Emerald Hill</h3>
           <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-sculpture-red-fruit">
           <a class="merchandise-image" href="#beaded-sculpture-products">
             <img src="assets/images/beaded-sculpture-red-fruit.png" alt="红绿串珠水果摆件与蓝色底座">
           </a>
           <p class="artist-name">Emmanuelle Wong</p>
           <h3>Ceramic Mug - Baba House</h3>
           <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-sculpture-yellow-flowers">
           <a class="merchandise-image" href="#beaded-sculpture-products">
             <img src="assets/images/beaded-sculpture-yellow-flowers.png" alt="黄色串珠花朵摆件">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Ceramic Mug - Singapore City</h3>
           <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-sculpture-yellow-basket">
           <a class="merchandise-image" href="#beaded-sculpture-products">
             <img src="assets/images/beaded-sculpture-yellow-basket.png" alt="黄色串珠篮子与粉白花朵摆件">
           </a>
           <p class="artist-name">Lim Jie Ying (Carrichel)</p>
           <h3>Thermal Tumblers - Joy</h3>
           <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
       </div>
@@ -324,44 +804,44 @@
       </div>
 
       <div class="merchandise-grid">
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-bracelet-shell-strand-white">
           <a class="merchandise-image" href="#beaded-bracelet-products">
             <img src="assets/images/beaded-bracelet-shell-strand-white.jpeg" alt="白色贝壳串珠手链与黄色流苏">
           </a>
           <p class="artist-name">Cai Fu'En Jonathan</p>
           <h3>Ceramic Mug - Emerald Hill</h3>
           <p class="product-description">By Jonathan Cai,These ceramic mugs feature colorful...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-bracelet-shell-strand-gold">
           <a class="merchandise-image" href="#beaded-bracelet-products">
             <img src="assets/images/beaded-bracelet-shell-strand-gold.jpeg" alt="金白色贝壳串珠手链与黄色流苏">
           </a>
           <p class="artist-name">Emmanuelle Wong</p>
           <h3>Ceramic Mug - Baba House</h3>
           <p class="product-description">By Emmanuelle Wong, These ceramic mugs feature col...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-bracelet-shell-strand-natural">
           <a class="merchandise-image" href="#beaded-bracelet-products">
             <img src="assets/images/beaded-bracelet-shell-strand-natural.jpeg" alt="自然色贝壳串珠手链与彩色流苏">
           </a>
           <p class="artist-name">Various Artists</p>
           <h3>Ceramic Mug - Singapore City</h3>
           <p class="product-description">By Asher Ng, Aqif & Amirah, These ceramic mugs...</p>
-          <p class="price">$22.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
-        <article class="merchandise-card">
+        <article class="merchandise-card" data-product-id="beaded-bracelet-shell-loop">
           <a class="merchandise-image" href="#beaded-bracelet-products">
             <img src="assets/images/beaded-bracelet-shell-loop.jpeg" alt="环形贝壳串珠手链与米色流苏">
           </a>
           <p class="artist-name">Lim Jie Ying (Carrichel)</p>
           <h3>Thermal Tumblers - Joy</h3>
           <p class="product-description">By Carrichel, This sustainable Thermal Tumbler wil...</p>
-          <p class="price">$32.00</p>
+          <p class="price">$80.00</p>
           <button class="add-to-cart" type="button">ADD TO CART</button>
         </article>
       </div>
@@ -400,6 +880,88 @@
       </article>
     </section>
 
+    <section class="contact-page-section" id="contact-us" hidden>
+      <nav class="contact-breadcrumb" aria-label="面包屑">
+        <a href="#home" data-home-link>首页</a>
+        <span>/</span>
+        <strong>联系我们</strong>
+      </nav>
+
+      <div class="contact-map-frame">
+        <img src="assets/images/contact-map.svg" alt="显示 AbilityMade 门店周边位置的地图">
+      </div>
+
+      <section class="outlets-section" aria-labelledby="outlets-heading">
+        <h1 id="outlets-heading">TAF 门店</h1>
+        <p>融合商店、咖啡空间与艺廊，欢迎到附近门店探访。</p>
+
+        <div class="outlet-grid">
+          <article class="outlet-card is-featured">
+            <h2>旗舰店、艺廊与咖啡空间</h2>
+            <p>Enabling Village<br>20, Lengkok Bahru, #01-07,<br>Singapore 159053</p>
+            <p>周一至周六：10am 至 6pm<br>周日及公共假期休息</p>
+            <a href="tel:+6565130706">+65 6513 0706</a>
+          </article>
+
+          <article class="outlet-card">
+            <h2>PATHLIGHT 门店（对公众开放）- Campus 1 Ang Mo Kio</h2>
+            <p>位于 Prof Brawn Cafe 内<br>Pathlight School Campus 1<br>5, Ang Mo Kio Avenue 10,<br>Singapore 569739</p>
+            <p>周一至周六及公共假期：9am 至 9pm<br>周日休息</p>
+            <a href="tel:+6565920431">+65 6592 0431</a>
+          </article>
+
+          <article class="outlet-card">
+            <h2>PATHLIGHT 门店（对公众开放）- Tampines</h2>
+            <p>位于 Prof Brawn Cafe 内<br>Pathlight School (Tampines)<br>4 Tampines Street 91,<br>Singapore 528907</p>
+            <p>周一至周六及公共假期：9am 至 9pm<br>周日休息</p>
+            <a href="tel:+6568591540">+65 6859 1540</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="message-section" aria-labelledby="message-heading">
+        <h2 id="message-heading">发送消息给我们</h2>
+        <p>如果你有任何问题，或想加入志愿服务，欢迎告诉我们。</p>
+
+        <form class="contact-message-form">
+          <div class="form-field">
+            <label for="contact-first-name-zh">名字<span aria-hidden="true">*</span></label>
+            <input id="contact-first-name-zh" name="first-name" type="text" autocomplete="given-name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="contact-last-name-zh">姓氏<span aria-hidden="true">*</span></label>
+            <input id="contact-last-name-zh" name="last-name" type="text" autocomplete="family-name" required>
+          </div>
+
+          <div class="form-field">
+            <label for="contact-email-zh">邮箱<span aria-hidden="true">*</span></label>
+            <input id="contact-email-zh" name="email" type="email" autocomplete="email" required>
+          </div>
+
+          <div class="form-field">
+            <label for="contact-mobile-zh">手机号码<span aria-hidden="true">*</span></label>
+            <input id="contact-mobile-zh" name="mobile" type="tel" autocomplete="tel" required>
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="contact-message-zh">留言内容<span aria-hidden="true">*</span></label>
+            <textarea id="contact-message-zh" name="message" rows="8" required></textarea>
+          </div>
+
+          <div class="captcha-placeholder" aria-label="reCAPTCHA 验证占位">
+            <span aria-hidden="true"></span>
+            <strong>I'm not a robot</strong>
+            <small>reCAPTCHA</small>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit">发送消息</button>
+          </div>
+        </form>
+      </section>
+    </section>
+
     <section class="newsletter-section" id="contact">
       <h2>订阅我们的邮件</h2>
       <form class="newsletter-form">
@@ -417,11 +979,11 @@
         <p>由残障手艺人的艺术作品延展出的功能性礼品和手作物件。</p>
       </div>
       <div class="footer-links">
-        <a href="#story">我们的故事</a>
-        <a href="#artists">艺术家</a>
-        <a href="#shop">商店</a>
-        <a href="#corporate">企业礼品</a>
-        <a href="#contact">联系我们</a>
+        <a href="#story-page" data-story-link>我们的故事</a>
+        <a href="#artists-page" data-artists-link>艺术家</a>
+        <a href="#shop" data-shop-link>商店</a>
+        <a href="#corporate" data-corporate-link>企业礼品</a>
+        <a href="#contact-us" data-contact-link>联系我们</a>
       </div>
     </div>
     <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
@@ -459,6 +1021,609 @@
         }
       });
     });
+
+    const main = document.querySelector("main");
+    const detailSection = document.querySelector("#product-detail");
+    const storyPageSection = document.querySelector("#story-page");
+    const artistsPageSection = document.querySelector("#artists-page");
+    const corporatePageSection = document.querySelector("#corporate-page");
+    const contactPageSection = document.querySelector("#contact-us");
+    const detailImage = document.querySelector("[data-detail-image]");
+    const detailThumbnail = document.querySelector("[data-detail-thumbnail]");
+    const detailTitle = document.querySelector("[data-detail-title]");
+    const detailHeading = document.querySelector("[data-detail-heading]");
+    const detailArtist = document.querySelector("[data-detail-artist]");
+    const detailPrice = document.querySelector("[data-detail-price]");
+    const detailCategory = document.querySelector("[data-detail-category]");
+    const relatedProducts = document.querySelector("[data-related-products]");
+    const productCards = [...document.querySelectorAll(".product-card, .merchandise-card")];
+    const detailQuantityControl = document.querySelector(".quantity-control");
+    const detailQuantityValue = detailQuantityControl?.querySelector("span");
+    const cartDrawer = document.querySelector(".cart-drawer");
+    const cartOverlay = document.querySelector(".cart-overlay");
+    const cartItemsContainer = document.querySelector("[data-cart-items]");
+    const cartEmpty = document.querySelector("[data-cart-empty]");
+    const cartSubtotal = document.querySelector("[data-cart-subtotal]");
+    const cartShipping = document.querySelector("[data-cart-shipping]");
+    const cartError = document.querySelector("[data-cart-error]");
+    const checkoutButton = document.querySelector("[data-checkout-button]");
+    const cartCount = document.querySelector(".cart-link b");
+    const cartStorageKey = "abilitymade-cart-v1";
+    const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+    const cartCopy = {
+      remove: "移除",
+      checkout: "使用 Stripe 结账",
+      checkoutLoading: "正在跳转...",
+      checkoutUnavailable: "结账功能需要通过 Vercel 或本地开发服务器访问后使用。",
+      checkoutError: "暂时无法开始结账，请稍后再试。",
+      empty: "购物车还是空的。",
+      shippingFree: "你的订单已满足美国标准免配送条件。",
+      shippingProgress: (remaining) => `还差 ${currencyFormatter.format(remaining)} 即可享受美国标准免配送。`,
+    };
+    let cart = [];
+    let activeProductCard = null;
+    let activeProductTarget = "shop";
+
+    const getFallbackProductId = (card) => {
+      const imagePath = card.querySelector("img")?.getAttribute("src") || card.querySelector("h3")?.textContent || "product";
+      return imagePath.split("/").pop().replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+    };
+
+    const getPriceAmount = (priceText) => Number.parseFloat(priceText.replace(/[^0-9.]/g, "")) || 0;
+
+    const getProductData = (card) => {
+      const image = card.querySelector("img");
+      const categorySection = card.closest(".merchandise-section");
+      const categoryTab = categorySection
+        ? document.querySelector(`[data-category="${categorySection.id.replace("-products", "")}"]`)
+        : null;
+
+      return {
+        id: card.dataset.productId || getFallbackProductId(card),
+        image: image.src,
+        imagePath: image.getAttribute("src"),
+        alt: image.alt,
+        title: card.querySelector("h3")?.textContent.trim() || "Magnet Coaster - SG Drinks",
+        artist: card.querySelector(".artist-name")?.textContent.trim() || "Choo Jian Wei",
+        price: card.querySelector(".price")?.textContent.trim() || "$80.00",
+        amount: getPriceAmount(card.querySelector(".price")?.textContent.trim() || "$80.00"),
+        byline: card.dataset.byline || card.querySelector(".product-description")?.textContent.trim().split(".")[0] || "By Jian Wei,",
+        description: card.dataset.description || card.querySelector(".product-description")?.textContent.trim() || "Gift it to overseas friends as souvenirs - they can use it as coasters or stick it on their fridges to collect!",
+        category: categoryTab?.textContent.trim() || "新品上架",
+        categoryTarget: categorySection?.id || "shop",
+      };
+    };
+
+    const productCatalog = new Map(productCards.map((card) => [getProductData(card).id, getProductData(card)]));
+
+    const loadCart = () => {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
+        cart = Array.isArray(savedCart)
+          ? savedCart.filter((item) => productCatalog.has(item.id)).map((item) => ({
+            id: item.id,
+            quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1)),
+          }))
+          : [];
+      } catch {
+        cart = [];
+      }
+    };
+
+    const saveCart = () => {
+      localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    };
+
+    const getCartTotals = () => cart.reduce((totals, item) => {
+      const product = productCatalog.get(item.id);
+      if (!product) return totals;
+
+      return {
+        count: totals.count + item.quantity,
+        subtotal: totals.subtotal + product.amount * item.quantity,
+      };
+    }, { count: 0, subtotal: 0 });
+
+    const setCartOpen = (isOpen) => {
+      cartDrawer.setAttribute("aria-hidden", String(!isOpen));
+      cartOverlay.hidden = !isOpen;
+      document.body.classList.toggle("cart-is-open", isOpen);
+      if (isOpen) {
+        cartError.textContent = "";
+      }
+    };
+
+    const updateCartItem = (id, quantity) => {
+      cart = cart
+        .map((item) => item.id === id ? { ...item, quantity: Math.max(0, Math.min(99, quantity)) } : item)
+        .filter((item) => item.quantity > 0);
+      saveCart();
+      renderCart();
+    };
+
+    const addToCart = (product, quantity = 1) => {
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        existingItem.quantity = Math.min(99, existingItem.quantity + quantity);
+      } else {
+        cart.push({ id: product.id, quantity: Math.max(1, Math.min(99, quantity)) });
+      }
+
+      saveCart();
+      renderCart();
+      setCartOpen(true);
+    };
+
+    const renderCart = () => {
+      const { count, subtotal } = getCartTotals();
+      cartCount.textContent = String(count);
+      cartSubtotal.textContent = currencyFormatter.format(subtotal);
+      cartShipping.textContent = subtotal >= 120
+        ? cartCopy.shippingFree
+        : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
+      cartItemsContainer.innerHTML = "";
+      cartEmpty.hidden = cart.length > 0;
+      checkoutButton.disabled = cart.length === 0;
+      checkoutButton.textContent = cartCopy.checkout;
+
+      cart.forEach((item) => {
+        const product = productCatalog.get(item.id);
+        if (!product) return;
+
+        const row = document.createElement("article");
+        row.className = "cart-item";
+        row.innerHTML = `
+          <img src="${product.imagePath}" alt="${product.alt}">
+          <div class="cart-item-main">
+            <h3>${product.title}</h3>
+            <p>${product.artist}</p>
+            <strong>${currencyFormatter.format(product.amount)}</strong>
+            <div class="cart-item-actions">
+              <div class="cart-quantity" aria-label="${product.title} 数量">
+                <button type="button" data-cart-decrease="${product.id}" aria-label="减少 ${product.title} 数量">−</button>
+                <span>${item.quantity}</span>
+                <button type="button" data-cart-increase="${product.id}" aria-label="增加 ${product.title} 数量">+</button>
+              </div>
+              <button class="cart-remove" type="button" data-cart-remove="${product.id}">${cartCopy.remove}</button>
+            </div>
+          </div>
+        `;
+        cartItemsContainer.append(row);
+      });
+    };
+
+    const setRelatedProducts = (activeCard) => {
+      relatedProducts.innerHTML = "";
+      productCards.filter((card) => card !== activeCard).slice(0, 4).forEach((card) => {
+        const product = getProductData(card);
+        const button = document.createElement("button");
+        button.className = "related-card";
+        button.type = "button";
+        button.innerHTML = `
+          <img src="${product.imagePath}" alt="${product.alt}">
+          <span>${product.artist}</span>
+          <strong>${product.title}</strong>
+        `;
+        button.addEventListener("click", () => showProductDetail(card));
+        relatedProducts.append(button);
+      });
+    };
+
+    const showProductDetail = (card) => {
+      const product = getProductData(card);
+      activeProductCard = card;
+      detailImage.src = product.imagePath;
+      detailImage.alt = product.alt;
+      detailThumbnail.src = product.imagePath;
+      detailThumbnail.alt = `${product.title} thumbnail`;
+      detailTitle.textContent = product.title;
+      detailHeading.textContent = product.title;
+      detailArtist.textContent = product.artist;
+      detailPrice.textContent = product.price;
+      document.querySelector(".detail-byline").textContent = product.byline;
+      document.querySelector(".detail-intro").textContent = product.description;
+      detailCategory.textContent = product.category;
+      detailQuantityValue.textContent = "1";
+      activeProductTarget = product.categoryTarget;
+      detailSection.hidden = false;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      main.classList.add("detail-mode");
+      setRelatedProducts(card);
+      document.querySelectorAll(".detail-accordion-trigger").forEach((trigger) => {
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.nextElementSibling.hidden = true;
+      });
+      detailSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const showProductList = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      if (activeProductTarget !== "shop") {
+        const targetSection = document.querySelector(`#${activeProductTarget}`);
+        const targetTab = document.querySelector(`[data-category="${activeProductTarget.replace("-products", "")}"]`);
+
+        categoryTabs.forEach((item) => {
+          item.classList.toggle("active", item === targetTab);
+        });
+
+        Object.values(merchandiseSections).forEach((section) => {
+          section.hidden = section !== targetSection;
+        });
+      }
+
+      const returnTarget = activeProductTarget === "shop"
+        ? document.querySelector("#shop")
+        : document.querySelector(".categories-section");
+      returnTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const showHome = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      activeProductTarget = "shop";
+
+      categoryTabs.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      Object.values(merchandiseSections).forEach((section) => {
+        section.hidden = true;
+      });
+
+      document.querySelector("#home").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const showStoryPage = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = false;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      main.classList.add("story-mode");
+
+      categoryTabs.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      Object.values(merchandiseSections).forEach((section) => {
+        section.hidden = true;
+      });
+
+      window.scrollTo({ top: 0, behavior: "auto" });
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+    };
+
+    const showArtistsPage = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = false;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      main.classList.add("artists-mode");
+
+      categoryTabs.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      Object.values(merchandiseSections).forEach((section) => {
+        section.hidden = true;
+      });
+
+      window.scrollTo({ top: 0, behavior: "auto" });
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+    };
+
+    const showCorporatePage = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = false;
+      contactPageSection.hidden = true;
+      main.classList.add("corporate-mode");
+
+      categoryTabs.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      Object.values(merchandiseSections).forEach((section) => {
+        section.hidden = true;
+      });
+
+      window.scrollTo({ top: 0, behavior: "auto" });
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+    };
+
+    const showContactPage = () => {
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = false;
+      main.classList.add("contact-mode");
+
+      categoryTabs.forEach((item) => {
+        item.classList.remove("active");
+      });
+
+      Object.values(merchandiseSections).forEach((section) => {
+        section.hidden = true;
+      });
+
+      window.scrollTo({ top: 0, behavior: "auto" });
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+    };
+
+    const showStandardSection = (selector) => {
+      const target = document.querySelector(selector);
+      if (!target) return;
+
+      main.classList.remove("detail-mode");
+      main.classList.remove("story-mode");
+      main.classList.remove("artists-mode");
+      main.classList.remove("corporate-mode");
+      main.classList.remove("contact-mode");
+      detailSection.hidden = true;
+      storyPageSection.hidden = true;
+      artistsPageSection.hidden = true;
+      corporatePageSection.hidden = true;
+      contactPageSection.hidden = true;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    productCards.forEach((card) => {
+      card.tabIndex = 0;
+      card.addEventListener("click", (event) => {
+        if (event.target.closest("button")) return;
+        event.preventDefault();
+        showProductDetail(card);
+      });
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          showProductDetail(card);
+        }
+      });
+    });
+
+    document.querySelectorAll(".add-to-cart").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const card = event.target.closest(".merchandise-card, .product-card");
+        if (!card) return;
+
+        event.preventDefault();
+        addToCart(getProductData(card));
+      });
+    });
+
+    detailQuantityControl?.querySelectorAll("button").forEach((button, index) => {
+      button.addEventListener("click", () => {
+        const currentQuantity = Number.parseInt(detailQuantityValue.textContent, 10) || 1;
+        const nextQuantity = index === 0
+          ? Math.max(1, currentQuantity - 1)
+          : Math.min(99, currentQuantity + 1);
+        detailQuantityValue.textContent = String(nextQuantity);
+      });
+    });
+
+    document.querySelector(".detail-add-to-cart")?.addEventListener("click", () => {
+      if (!activeProductCard) return;
+
+      addToCart(getProductData(activeProductCard), Number.parseInt(detailQuantityValue.textContent, 10) || 1);
+    });
+
+    document.querySelectorAll("[data-cart-open]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        setCartOpen(true);
+      });
+    });
+
+    document.querySelectorAll("[data-cart-close]").forEach((button) => {
+      button.addEventListener("click", () => setCartOpen(false));
+    });
+
+    cartItemsContainer.addEventListener("click", (event) => {
+      const decreaseId = event.target.dataset.cartDecrease;
+      const increaseId = event.target.dataset.cartIncrease;
+      const removeId = event.target.dataset.cartRemove;
+      const targetId = decreaseId || increaseId || removeId;
+      if (!targetId) return;
+
+      const item = cart.find((cartItem) => cartItem.id === targetId);
+      if (!item) return;
+
+      if (decreaseId) updateCartItem(targetId, item.quantity - 1);
+      if (increaseId) updateCartItem(targetId, item.quantity + 1);
+      if (removeId) updateCartItem(targetId, 0);
+    });
+
+    checkoutButton.addEventListener("click", async () => {
+      if (cart.length === 0) return;
+
+      if (window.location.protocol === "file:") {
+        cartError.textContent = cartCopy.checkoutUnavailable;
+        return;
+      }
+
+      checkoutButton.disabled = true;
+      checkoutButton.textContent = cartCopy.checkoutLoading;
+      cartError.textContent = "";
+
+      try {
+        const response = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ items: cart }),
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.url) {
+          throw new Error(result.error || cartCopy.checkoutError);
+        }
+
+        window.location.href = result.url;
+      } catch (error) {
+        cartError.textContent = error.message || cartCopy.checkoutError;
+        checkoutButton.disabled = false;
+        checkoutButton.textContent = cartCopy.checkout;
+      }
+    });
+
+    document.querySelectorAll("[data-detail-back]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showProductList();
+      });
+    });
+
+    document.querySelectorAll("[data-shop-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        if (main.classList.contains("detail-mode")) {
+          showProductList();
+          return;
+        }
+
+        main.classList.remove("story-mode");
+        main.classList.remove("artists-mode");
+        main.classList.remove("corporate-mode");
+        main.classList.remove("contact-mode");
+        storyPageSection.hidden = true;
+        artistsPageSection.hidden = true;
+        corporatePageSection.hidden = true;
+        contactPageSection.hidden = true;
+        document.querySelector("#shop").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    document.querySelectorAll("[data-story-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showStoryPage();
+      });
+    });
+
+    document.querySelectorAll("[data-artists-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showArtistsPage();
+      });
+    });
+
+    document.querySelectorAll("[data-corporate-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showCorporatePage();
+      });
+    });
+
+    document.querySelectorAll("[data-contact-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showContactPage();
+      });
+    });
+
+    document.querySelectorAll(".contact-message-form, .corporate-message-form").forEach((form) => {
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+      });
+    });
+
+    document.querySelectorAll('a[href="#artists"], a[href="#contact"], a[href="#workshop"]').forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showStandardSection(link.getAttribute("href"));
+      });
+    });
+
+    document.querySelectorAll(".logo, [data-home-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        showHome();
+      });
+    });
+
+    document.querySelectorAll(".detail-accordion-trigger").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        const isExpanded = trigger.getAttribute("aria-expanded") === "true";
+
+        document.querySelectorAll(".detail-accordion-trigger").forEach((item) => {
+          item.setAttribute("aria-expanded", "false");
+          item.nextElementSibling.hidden = true;
+        });
+
+        if (!isExpanded) {
+          trigger.setAttribute("aria-expanded", "true");
+          trigger.nextElementSibling.hidden = false;
+        }
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setCartOpen(false);
+      }
+    });
+
+    loadCart();
+    if (new URLSearchParams(window.location.search).get("checkout") === "success") {
+      cart = [];
+      saveCart();
+    }
+    renderCart();
+
+    if (window.location.hash === "#contact-us") {
+      showContactPage();
+    } else if (window.location.hash === "#artists-page" || window.location.hash === "#our-artists") {
+      showArtistsPage();
+    } else if (window.location.hash === "#corporate") {
+      showCorporatePage();
+    } else if (window.location.hash === "#story" || window.location.hash === "#story-page") {
+      showStoryPage();
+    } else if (window.location.hash === "#cart") {
+      setCartOpen(true);
+    }
   </script>
 </body>
 </html>
