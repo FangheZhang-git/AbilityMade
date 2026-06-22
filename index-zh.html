@@ -85,14 +85,13 @@
       </div>
     </section>
 
-    <section class="section categories-section">
+    <section class="section categories-section" id="shop">
       <div class="section-heading">
         <h2>按分类选购</h2>
       </div>
 
       <div class="category-grid">
         <button class="category-tab active" type="button" data-category="all-products" aria-pressed="true">浏览全部</button>
-        <button class="category-tab" type="button" data-category="new-arrivals" aria-pressed="false">新品上架</button>
         <button class="category-tab" type="button" data-category="frame-clutch" aria-pressed="false">口金包</button>
         <button class="category-tab" type="button" data-category="diamond-painting" aria-pressed="false">钻石画</button>
         <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">串珠摆件</button>
@@ -357,51 +356,6 @@
       <button type="button" aria-label="下一张横幅">›</button>
     </div>
 
-    <section class="section product-section" id="shop">
-      <div class="section-heading">
-        <h2>新品上架</h2>
-      </div>
-
-      <div class="card-grid four-column">
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/beaded-green-basket.jpg" alt="绿色串珠手作迷你篮">
-          </a>
-          <div class="card-body">
-            <h3>串珠迷你手提包</h3>
-            <p class="price">$32.00</p>
-          </div>
-        </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/bunny-art.jpg" alt="装裱好的兔子主题手工作品">
-          </a>
-          <div class="card-body">
-            <h3>兔子花园装饰画</h3>
-            <p class="price">$28.00</p>
-          </div>
-        </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/floral-frame.jpg" alt="装裱好的花束手工作品">
-          </a>
-          <div class="card-body">
-            <h3>压花相框摆件</h3>
-            <p class="price">$38.00</p>
-          </div>
-        </article>
-        <article class="product-card">
-          <a class="product-image" href="#shop">
-            <img src="assets/images/beaded-flower-display.jpg" alt="金色花朵串珠桌面摆件">
-          </a>
-          <div class="card-body">
-            <h3>暖阳花朵摆件</h3>
-            <p class="price">$45.00</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
     <section class="section feature-panels" id="artists">
       <article>
         <img src="assets/images/artisan-closeup.jpg" alt="手艺人正在专注制作手工作品">
@@ -455,7 +409,6 @@
   </aside>
   <script>
     const categoryTabs = document.querySelectorAll(".category-tab");
-    const newArrivalsSection = document.querySelector("#shop");
     const merchandiseSections = {
       "frame-clutch": document.querySelector("#frame-clutch-products"),
       "diamond-painting": document.querySelector("#diamond-painting-products"),
@@ -468,7 +421,7 @@
       tab.addEventListener("click", () => {
         const category = tab.dataset.category;
         const showAllProducts = category === "all-products";
-        const targetSection = category === "new-arrivals" ? newArrivalsSection : merchandiseSections[category];
+        const targetSection = merchandiseSections[category];
 
         categoryTabs.forEach((item) => {
           const isActive = item === tab;
