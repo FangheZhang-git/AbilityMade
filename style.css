@@ -597,6 +597,27 @@ main > .story-section:first-child {
   color: var(--muted);
 }
 
+.panel-link {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  padding: 0 20px;
+  border: 1px solid rgba(18, 59, 52, 0.18);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--green);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.panel-link:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
 .newsletter-section {
   display: grid;
   gap: 18px;
