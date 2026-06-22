@@ -397,6 +397,27 @@ input {
   background: var(--green);
 }
 
+.shop-section-divider {
+  position: relative;
+  height: 62px;
+  margin: 34px 0 16px;
+  border-top: 1px solid rgba(18, 59, 52, 0.1);
+  border-bottom: 1px solid rgba(18, 59, 52, 0.1);
+  background: var(--blue-soft);
+}
+
+.shop-section-divider::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  width: min(1040px, calc(100% - 40px));
+  height: 2px;
+  margin: 0 auto;
+  background: rgba(18, 59, 52, 0.16);
+  content: "";
+}
+
 .story-section {
   display: grid;
   grid-template-columns: 1fr;
