@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AbilityMade | Gifts Made with Ability</title>
+  <meta name="description" content="AbilityMade creates functional gifts and homeware featuring artwork by disabled artisans.">
+  <link rel="icon" type="image/png" href="assets/images/abilitymade-favicon.png">
+  <link rel="stylesheet" href="style.css?v=mix-cart">
+</head>
+<body>
+  <div class="delivery-strip">
+    <strong>FREE</strong> standard delivery for online merchandise purchases $120 and above
+  </div>
+
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="#home" aria-label="AbilityMade home">
+        <img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true">
+        <span class="sr-only">AbilityMade</span>
+      </a>
+
+      <form class="search-form" role="search">
+        <label class="sr-only" for="site-search">Search products</label>
+        <span aria-hidden="true">⌕</span>
+        <input id="site-search" type="search" placeholder="Search products">
+      </form>
+
+      <div class="nav-links">
+        <a href="#story">Our Story</a>
+        <a href="#shop">Shop</a>
+        <a href="#contact">Contact Us</a>
+      </div>
+
+      <div class="nav-icons" aria-label="Account and cart links">
+        <a class="icon-link cart-link" href="#cart" aria-label="Shopping cart" data-cart-open>
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <circle cx="9" cy="20" r="1.4"></circle>
+            <circle cx="18" cy="20" r="1.4"></circle>
+            <path d="M2.8 3.5h2.5l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4l1.3-5.4H6.4"></path>
+          </svg>
+          <b>0</b>
+        </a>
+        <a class="icon-link" href="#contact" aria-label="Account">
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <path d="M20 21a8 8 0 0 0-16 0"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="cart-overlay" data-cart-close hidden></div>
+  <aside class="cart-drawer" id="cart" aria-label="Shopping cart" aria-hidden="true">
+    <div class="cart-drawer-header">
+      <div>
+        <p class="cart-kicker">AbilityMade</p>
+        <h2>Your cart</h2>
+      </div>
+      <button class="cart-icon-button" type="button" aria-label="Close cart" data-cart-close>&times;</button>
+    </div>
+    <div class="cart-items" data-cart-items></div>
+    <div class="cart-empty" data-cart-empty>
+      <p>Your cart is empty.</p>
+      <button type="button" data-cart-close>Continue shopping</button>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-row">
+        <span>Subtotal</span>
+        <strong data-cart-subtotal>$0.00</strong>
+      </div>
+      <p data-cart-shipping>Free standard delivery over $120.</p>
+      <p class="cart-error" data-cart-error role="alert"></p>
+    </div>
+  </aside>
+
+  <main id="home">
+    <section class="story-section section" id="story">
+      <div class="story-copy">
+        <p class="eyebrow">Our Story</p>
+        <h2>Quality gifts featuring artwork by disabled artisans</h2>
+        <div class="story-details">
+          <p>
+            AbilityMade was created and is currently maintained by a high school student and
+            a college student. It is dedicated to supporting individuals with intellectual,
+            developmental, and physical disabilities in Qingdao, China.
+          </p>
+          <p>
+            Although our artists face many mental and physical challenges, they have never
+            given up. Instead, they continue to work with determination, courage, and hope.
+            Day after day, they carefully handcraft these beautiful and meaningful pieces.
+          </p>
+          <p>
+            Every product on this website is 100% handmade. All proceeds from sales will go
+            directly to our artists to support their daily lives and recognize their hard work.
+          </p>
+          <p>
+            We sincerely hope you enjoy this website and appreciate the creations made by our
+            artists. Your purchase will make a real difference in their lives.
+          </p>
+          <p>
+            Please feel free to contact us if you have any questions or if you would like to
+            join us in supporting this meaningful cause. We truly appreciate your kindness
+            and support.
+          </p>
+        </div>
+        <a class="button-link" href="#artists">Learn More</a>
+      </div>
+      <div class="story-image">
+        <img src="assets/images/abilitymade-workshop-hero-collage.jpg" alt="Collage of AbilityMade artisans making diamond paintings in a workshop">
+      </div>
+    </section>
+
+    <section class="section categories-section" id="shop">
+      <div class="section-heading">
+        <h2>Shop by categories</h2>
+      </div>
+
+      <div class="category-grid">
+        <button class="category-tab active" type="button" data-category="all-products" aria-pressed="true">Browse All</button>
+        <button class="category-tab" type="button" data-category="frame-clutch" aria-pressed="false">Frame Clutch Purse</button>
+        <button class="category-tab" type="button" data-category="diamond-painting" aria-pressed="false">Diamond Painting</button>
+        <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">Beaded Sculpture</button>
+        <button class="category-tab" type="button" data-category="beaded-bracelet" aria-pressed="false">Beaded Bracelet</button>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="frame-clutch-products">
+      <div class="listing-toolbar">
+        <span>Frame Clutch Purse</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-vine.jpeg" alt="Black frame clutch purse with silver floral embroidery">
+          </a>
+          <h3>Black Floral Frame Clutch</h3>
+          <p class="product-description">A black linen clutch with a silver floral pattern and metal frame closure. Size: 20cm x 15cm.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-white-gold.jpeg" alt="White frame clutch purse with gold woven detail">
+          </a>
+          <h3>White Gold Frame Clutch</h3>
+          <p class="product-description">A white linen clutch with gold woven detailing and a metal frame closure. Size: 20cm x 15cm.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-gold.jpeg" alt="Black frame clutch purse with gold floral pattern">
+          </a>
+          <h3>Black Gold Floral Frame Clutch</h3>
+          <p class="product-description">A black linen clutch with a gold floral pattern and metal frame closure. Size: 12cm x 10cm.</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-blue-bunny.jpeg" alt="Blue bunny patterned frame clutch purse">
+          </a>
+          <h3>Blue Bunny Frame Clutch</h3>
+          <p class="product-description">A blue linen clutch with a bunny pattern and metal frame closure. Size: 10cm x 11cm.</p>
+          <p class="price">$20.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="Color striped frame clutch purse">
+          </a>
+          <h3>Color Stripe Frame Clutch</h3>
+          <p class="product-description">A linen clutch with colorful striped panels and a metal frame closure. Size: 13cm x 15cm.</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-floral-stripe.jpeg" alt="Floral stripe frame clutch purse">
+          </a>
+          <h3>Floral Stripe Frame Clutch</h3>
+          <p class="product-description">A linen clutch with floral and striped details and a metal frame closure. Size: 10cm x 20cm.</p>
+          <p class="price">$35.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-mint-flower.jpeg" alt="Mint floral frame clutch purse">
+          </a>
+          <h3>Mint Floral Frame Clutch</h3>
+          <p class="product-description">A mint green linen clutch with a floral pattern and metal frame closure. Size: 10cm x 20cm.</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="diamond-painting-products">
+      <div class="listing-toolbar">
+        <span>Diamond Painting</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-purple-flowers.png" alt="Large purple floral diamond painting canvas">
+          </a>
+          <h3>Diamond Painting - Purple Flowers</h3>
+          <p class="product-description">A diamond painting artwork made with sparkling resin drills on canvas, showing layered purple and pink flowers. Size: 120cm x 50cm.</p>
+          <p class="price">$300.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-colorful-floral.png" alt="Colorful floral diamond painting canvas">
+          </a>
+          <h3>Diamond Painting - Colorful Floral</h3>
+          <p class="product-description">A diamond painting artwork made with sparkling resin drills on canvas, filled with bright red, yellow, blue, and green floral details. Size: 120cm x 50cm.</p>
+          <p class="price">$300.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-framed-portrait.png" alt="Framed portrait diamond painting with blue flowers">
+          </a>
+          <h3>Diamond Painting - Framed Portrait</h3>
+          <p class="product-description">A framed diamond painting artwork made with sparkling resin drills, featuring a portrait surrounded by blue and gold flowers. Size: 30cm x 40cm.</p>
+          <p class="price">$200.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-bunny.png" alt="Purple bunny diamond painting on a starry background">
+          </a>
+          <h3>Diamond Painting - Starry Bunny</h3>
+          <p class="product-description">A diamond painting artwork made with sparkling resin drills, showing a purple bunny against a starry night background. Size: 65cm x 90cm.</p>
+          <p class="price">$200.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="beaded-sculpture-products">
+      <div class="listing-toolbar">
+        <span>Beaded Sculpture</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-green-tree.png" alt="Green beaded tree sculpture on a rectangular base">
+          </a>
+          <h3>Beaded Tree Sculpture</h3>
+          <p class="product-description">A handmade green tree sculpture made with translucent acrylic beads on a rectangular base. Size: 20cm x 20cm.</p>
+          <p class="price">$100.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-red-fruit.png" alt="Red and green beaded fruit sculpture on a blue base">
+          </a>
+          <h3>Beaded Fruit Sculpture</h3>
+          <p class="product-description">A handmade red fruit sculpture made with red, green, and blue acrylic beads on a small base. Size: 12cm x 20cm.</p>
+          <p class="price">$70.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-flowers.png" alt="Yellow beaded flower sculpture with red bead centers">
+          </a>
+          <h3>Beaded Yellow Flower Sculpture</h3>
+          <p class="product-description">A handmade yellow flower arrangement made with clear yellow acrylic beads and red bead centers. Size: 20cm x 20cm.</p>
+          <p class="price">$100.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-basket.png" alt="Yellow beaded basket sculpture with pink and white flowers">
+          </a>
+          <h3>Beaded Flower Basket</h3>
+          <p class="product-description">A handmade yellow basket made with acrylic beads and decorated with pink, white, red, and gold bead flowers. Size: 8cm x 20cm.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="beaded-bracelet-products">
+      <div class="listing-toolbar">
+        <span>Beaded Bracelet</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-white.jpeg" alt="White roasted tagua nut beaded bracelet strand with yellow tassels">
+          </a>
+          <h3>White Tagua Nut Beaded Bracelet</h3>
+          <p class="product-description">A white beaded bracelet made with roasted tagua nut beads and finished with small yellow tassels.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-gold.jpeg" alt="Gold and white shell beaded bracelet strand with yellow tassels">
+          </a>
+          <h3>Gold Shell Beaded Bracelet</h3>
+          <p class="product-description">A gold and white shell beaded bracelet strand finished with small yellow tassels.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-natural.jpeg" alt="Natural shell beaded bracelet strand with cream and multicolor tassels">
+          </a>
+          <h3>Natural Shell Beaded Bracelet</h3>
+          <p class="product-description">A natural shell beaded bracelet strand with cream beads and multicolor tassel details.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-loop.jpeg" alt="Looped shell beaded bracelet with cream tassel">
+          </a>
+          <h3>Looped Shell Beaded Bracelet</h3>
+          <p class="product-description">A looped shell beaded bracelet made with cream-toned beads and a soft tassel.</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="newsletter-section" id="contact">
+      <h2>Subscribe to our newsletter</h2>
+      <form class="newsletter-form">
+        <label class="sr-only" for="email">Email address</label>
+        <input id="email" type="email" placeholder="Email address">
+        <button type="submit">Subscribe</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <a class="footer-logo" href="#home">
+          <img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true">
+          <span class="sr-only">AbilityMade</span>
+        </a>
+        <p>Functional gifts and handmade objects featuring artwork by disabled artisans.</p>
+      </div>
+      <div class="footer-contact">
+        <h2>Contact Information</h2>
+        <p>Henry</p>
+        <p>William</p>
+        <a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a>
+      </div>
+    </div>
+    <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const categoryTabs = document.querySelectorAll(".category-tab");
+    const productCards = [...document.querySelectorAll(".merchandise-card")];
+    const cartDrawer = document.querySelector(".cart-drawer");
+    const cartOverlay = document.querySelector(".cart-overlay");
+    const cartItemsContainer = document.querySelector("[data-cart-items]");
+    const cartEmpty = document.querySelector("[data-cart-empty]");
+    const cartSubtotal = document.querySelector("[data-cart-subtotal]");
+    const cartShipping = document.querySelector("[data-cart-shipping]");
+    const cartError = document.querySelector("[data-cart-error]");
+    const cartCount = document.querySelector(".cart-link b");
+    const cartStorageKey = "abilitymade-cart-v1";
+    const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+    const cartCopy = {
+      remove: "Remove",
+      empty: "Your cart is empty.",
+      shippingFree: "Your order qualifies for free standard delivery.",
+      shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
+    };
+    let cart = [];
+    const merchandiseSections = {
+      "frame-clutch": document.querySelector("#frame-clutch-products"),
+      "diamond-painting": document.querySelector("#diamond-painting-products"),
+      "beaded-sculpture": document.querySelector("#beaded-sculpture-products"),
+      "beaded-bracelet": document.querySelector("#beaded-bracelet-products"),
+    };
+    const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
+
+    const getFallbackProductId = (card) => {
+      const imagePath = card.querySelector("img")?.getAttribute("src") || card.querySelector("h3")?.textContent || "product";
+      return imagePath.split("/").pop().replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+    };
+
+    const getPriceAmount = (priceText) => Number.parseFloat(priceText.replace(/[^0-9.]/g, "")) || 0;
+
+    const getProductData = (card) => {
+      const image = card.querySelector("img");
+
+      return {
+        id: card.dataset.productId || getFallbackProductId(card),
+        imagePath: image?.getAttribute("src") || "",
+        alt: image?.alt || "",
+        title: card.querySelector("h3")?.textContent.trim() || "AbilityMade product",
+        price: card.querySelector(".price")?.textContent.trim() || "$0.00",
+        amount: getPriceAmount(card.querySelector(".price")?.textContent.trim() || "$0.00"),
+      };
+    };
+
+    const productCatalog = new Map(productCards.map((card) => {
+      const product = getProductData(card);
+      return [product.id, product];
+    }));
+
+    const loadCart = () => {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
+        cart = Array.isArray(savedCart)
+          ? savedCart.filter((item) => productCatalog.has(item.id)).map((item) => ({
+            id: item.id,
+            quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1)),
+          }))
+          : [];
+      } catch {
+        cart = [];
+      }
+    };
+
+    const saveCart = () => {
+      localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    };
+
+    const getCartTotals = () => cart.reduce((totals, item) => {
+      const product = productCatalog.get(item.id);
+      if (!product) return totals;
+
+      return {
+        count: totals.count + item.quantity,
+        subtotal: totals.subtotal + product.amount * item.quantity,
+      };
+    }, { count: 0, subtotal: 0 });
+
+    const setCartOpen = (isOpen) => {
+      cartDrawer.setAttribute("aria-hidden", String(!isOpen));
+      cartOverlay.hidden = !isOpen;
+      document.body.classList.toggle("cart-is-open", isOpen);
+      if (isOpen) {
+        cartError.textContent = "";
+      }
+    };
+
+    const updateCartItem = (id, quantity) => {
+      cart = cart
+        .map((item) => item.id === id ? { ...item, quantity: Math.max(0, Math.min(99, quantity)) } : item)
+        .filter((item) => item.quantity > 0);
+      saveCart();
+      renderCart();
+    };
+
+    const addToCart = (product) => {
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        existingItem.quantity = Math.min(99, existingItem.quantity + 1);
+      } else {
+        cart.push({ id: product.id, quantity: 1 });
+      }
+
+      saveCart();
+      renderCart();
+      setCartOpen(true);
+    };
+
+    const renderCart = () => {
+      const { count, subtotal } = getCartTotals();
+      cartCount.textContent = String(count);
+      cartSubtotal.textContent = currencyFormatter.format(subtotal);
+      cartShipping.textContent = subtotal >= 120
+        ? cartCopy.shippingFree
+        : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
+      cartItemsContainer.innerHTML = "";
+      cartEmpty.hidden = cart.length > 0;
+
+      cart.forEach((item) => {
+        const product = productCatalog.get(item.id);
+        if (!product) return;
+
+        const row = document.createElement("article");
+        row.className = "cart-item";
+        row.innerHTML = `
+          <img src="${product.imagePath}" alt="${product.alt}">
+          <div class="cart-item-main">
+            <h3>${product.title}</h3>
+            <strong>${currencyFormatter.format(product.amount)}</strong>
+            <div class="cart-item-actions">
+              <div class="cart-quantity" aria-label="Quantity for ${product.title}">
+                <button type="button" data-cart-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>
+                <span>${item.quantity}</span>
+                <button type="button" data-cart-increase="${product.id}" aria-label="Increase ${product.title}">+</button>
+              </div>
+              <button class="cart-remove" type="button" data-cart-remove="${product.id}">${cartCopy.remove}</button>
+            </div>
+          </div>
+        `;
+        cartItemsContainer.append(row);
+      });
+    };
+
+    categoryTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const category = tab.dataset.category;
+        const showAllProducts = category === "all-products";
+        const targetSection = merchandiseSections[category];
+
+        categoryTabs.forEach((item) => {
+          const isActive = item === tab;
+          item.classList.toggle("active", isActive);
+          item.setAttribute("aria-pressed", String(isActive));
+        });
+
+        merchandiseSectionList.forEach((section) => {
+          section.hidden = !showAllProducts && section !== targetSection;
+        });
+
+        if (showAllProducts) {
+          merchandiseSectionList[0]?.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (targetSection) {
+          targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+
+    document.querySelectorAll(".add-to-cart").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const card = event.target.closest(".merchandise-card");
+        if (!card) return;
+
+        event.preventDefault();
+        addToCart(getProductData(card));
+      });
+    });
+
+    document.querySelectorAll("[data-cart-open]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        setCartOpen(true);
+      });
+    });
+
+    document.querySelectorAll("[data-cart-close]").forEach((button) => {
+      button.addEventListener("click", () => setCartOpen(false));
+    });
+
+    cartItemsContainer.addEventListener("click", (event) => {
+      const decreaseId = event.target.dataset.cartDecrease;
+      const increaseId = event.target.dataset.cartIncrease;
+      const removeId = event.target.dataset.cartRemove;
+      const targetId = decreaseId || increaseId || removeId;
+      if (!targetId) return;
+
+      const item = cart.find((cartItem) => cartItem.id === targetId);
+      if (!item) return;
+
+      if (decreaseId) updateCartItem(targetId, item.quantity - 1);
+      if (increaseId) updateCartItem(targetId, item.quantity + 1);
+      if (removeId) updateCartItem(targetId, 0);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setCartOpen(false);
+      }
+    });
+
+    loadCart();
+    renderCart();
+
+    if (window.location.hash === "#cart") {
+      setCartOpen(true);
+    }
+  </script>
+</body>
+</html>
