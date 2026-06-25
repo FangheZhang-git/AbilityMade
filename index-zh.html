@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AbilityMade | 用能力创造礼物</title>
+  <meta name="description" content="AbilityMade 将残障手艺人的艺术与手作转化为有功能性的礼品和家居用品。">
+  <link rel="icon" type="image/png" href="assets/images/abilitymade-favicon.png">
+  <link rel="stylesheet" href="style.css?v=mix-cart">
+</head>
+<body>
+  <div class="delivery-strip">
+    <strong>满额免配送</strong> 线上商品订单满 $120 即可享受标准配送
+  </div>
+
+  <header class="site-header">
+    <nav class="navbar" aria-label="主导航">
+      <a class="logo" href="#home" aria-label="AbilityMade 首页">
+        <img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true">
+        <span class="sr-only">AbilityMade</span>
+      </a>
+
+      <form class="search-form" role="search">
+        <label class="sr-only" for="site-search">搜索产品</label>
+        <span aria-hidden="true">⌕</span>
+        <input id="site-search" type="search" placeholder="搜索产品">
+      </form>
+
+      <div class="nav-links">
+        <a href="#story">我们的故事</a>
+        <a href="#shop">商店</a>
+        <a href="#contact">联系我们</a>
+      </div>
+
+      <div class="nav-icons" aria-label="账户与购物车链接">
+        <a class="icon-link cart-link" href="#cart" aria-label="购物车" data-cart-open>
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <circle cx="9" cy="20" r="1.4"></circle>
+            <circle cx="18" cy="20" r="1.4"></circle>
+            <path d="M2.8 3.5h2.5l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4l1.3-5.4H6.4"></path>
+          </svg>
+          <b>0</b>
+        </a>
+        <a class="icon-link" href="#contact" aria-label="账户">
+          <svg aria-hidden="true" viewBox="0 0 24 24" focusable="false">
+            <path d="M20 21a8 8 0 0 0-16 0"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="cart-overlay" data-cart-close hidden></div>
+  <aside class="cart-drawer" id="cart" aria-label="购物车" aria-hidden="true">
+    <div class="cart-drawer-header">
+      <div>
+        <p class="cart-kicker">AbilityMade</p>
+        <h2>购物车</h2>
+      </div>
+      <button class="cart-icon-button" type="button" aria-label="关闭购物车" data-cart-close>&times;</button>
+    </div>
+    <div class="cart-items" data-cart-items></div>
+    <div class="cart-empty" data-cart-empty>
+      <p>你的购物车是空的。</p>
+      <button type="button" data-cart-close>继续选购</button>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-row">
+        <span>小计</span>
+        <strong data-cart-subtotal>$0.00</strong>
+      </div>
+      <p data-cart-shipping>订单满 $120 可享受标准配送。</p>
+      <p class="cart-error" data-cart-error role="alert"></p>
+    </div>
+  </aside>
+
+  <main id="home">
+    <section class="story-section section" id="story">
+      <div class="story-copy">
+        <p class="eyebrow">我们的故事</p>
+        <h2>由残障手艺人艺术作品延展出的高质感礼品。</h2>
+        <div class="story-details">
+          <p>
+            本网站由一名高中生和一名大学生共同创建，并持续维护。网站致力于支持中国青岛
+            的智力、发展性和身体障碍人士。
+          </p>
+          <p>
+            虽然我们的艺术家面临许多心理和身体方面的挑战，但他们从未放弃。相反，他们
+            始终带着决心、勇气和希望继续创作，日复一日地认真手工制作这些美丽而有意义
+            的作品。
+          </p>
+          <p>
+            本网站上的每一件产品都是 100% 手工制作。所有销售所得都将直接交给我们的艺术家，
+            用于支持他们的日常生活，并认可他们辛勤付出的劳动。
+          </p>
+          <p>
+            我们真诚希望你喜欢这个网站，也欣赏艺术家们亲手创作的作品。你的购买将为他们的
+            生活带来真实的改变。
+          </p>
+          <p>
+            如果你有任何问题，或希望加入我们一起支持这项有意义的事业，欢迎随时联系我们。
+            我们由衷感谢你的善意与支持。
+          </p>
+        </div>
+        <a class="button-link" href="#artists">了解更多</a>
+      </div>
+      <div class="story-image">
+        <img src="assets/images/abilitymade-workshop-hero-collage.jpg" alt="AbilityMade 手艺人在工作坊制作钻石画的拼贴照片">
+      </div>
+    </section>
+
+    <section class="section categories-section" id="shop">
+      <div class="section-heading">
+        <h2>按分类选购</h2>
+      </div>
+
+      <div class="category-grid">
+        <button class="category-tab active" type="button" data-category="all-products" aria-pressed="true">浏览全部</button>
+        <button class="category-tab" type="button" data-category="frame-clutch" aria-pressed="false">口金包</button>
+        <button class="category-tab" type="button" data-category="diamond-painting" aria-pressed="false">钻石画</button>
+        <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">串珠摆件</button>
+        <button class="category-tab" type="button" data-category="beaded-bracelet" aria-pressed="false">串珠手链</button>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="frame-clutch-products">
+      <div class="listing-toolbar">
+        <span>口金包</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-vine.jpeg" alt="黑色银色藤蔓刺绣口金包">
+          </a>
+          <h3>黑色花纹口金包</h3>
+          <p class="product-description">黑色亚麻口金包，带银色花纹和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-white-gold.jpeg" alt="白色金线编织口金包">
+          </a>
+          <h3>白金色口金包</h3>
+          <p class="product-description">白色亚麻口金包，带金色编织细节和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-black-gold.jpeg" alt="黑金花朵图案口金包">
+          </a>
+          <h3>黑金花纹口金包</h3>
+          <p class="product-description">黑色亚麻口金包，带金色花朵图案和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-blue-bunny.jpeg" alt="蓝色兔子图案口金包">
+          </a>
+          <h3>蓝色兔子口金包</h3>
+          <p class="product-description">蓝色亚麻口金包，带兔子图案和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$20.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-color-stripe.jpeg" alt="彩色条纹口金包">
+          </a>
+          <h3>彩色条纹口金包</h3>
+          <p class="product-description">亚麻口金包，带彩色条纹拼接和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-floral-stripe.jpeg" alt="花纹条纹口金包">
+          </a>
+          <h3>花纹条纹口金包</h3>
+          <p class="product-description">亚麻口金包，带花朵与条纹细节和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$35.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#frame-clutch-products">
+            <img src="assets/images/frame-clutch-mint-flower.jpeg" alt="浅绿色花朵口金包">
+          </a>
+          <h3>薄荷绿花朵口金包</h3>
+          <p class="product-description">薄荷绿色亚麻口金包，带花朵图案和金属口金开合。尺寸：__ x __。</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="diamond-painting-products">
+      <div class="listing-toolbar">
+        <span>钻石画</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-purple-flowers.png" alt="大幅紫粉色花卉钻石画画布">
+          </a>
+          <h3>紫色花朵钻石画</h3>
+          <p class="product-description">钻石画作品，以闪亮树脂钻贴在画布上，呈现层次丰富的紫粉色花朵。尺寸：__ x __。</p>
+          <p class="price">$300.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-colorful-floral.png" alt="彩色花卉钻石画画布">
+          </a>
+          <h3>彩色花卉钻石画</h3>
+          <p class="product-description">钻石画作品，以闪亮树脂钻贴在画布上，包含红、黄、蓝、绿等明亮花卉细节。尺寸：__ x __。</p>
+          <p class="price">$300.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-framed-portrait.png" alt="带白色画框的蓝色花卉人物钻石画">
+          </a>
+          <h3>画框人物钻石画</h3>
+          <p class="product-description">带画框的钻石画作品，以闪亮树脂钻制作，人物周围点缀蓝色与金色花朵。尺寸：__ x __。</p>
+          <p class="price">$200.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#diamond-painting-products">
+            <img src="assets/images/diamond-painting-bunny.png" alt="星空背景上的紫色兔子钻石画">
+          </a>
+          <h3>星空兔子钻石画</h3>
+          <p class="product-description">钻石画作品，以闪亮树脂钻制作，呈现星空背景中的紫色兔子。尺寸：__ x __。</p>
+          <p class="price">$200.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="beaded-sculpture-products">
+      <div class="listing-toolbar">
+        <span>串珠摆件</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-green-tree.png" alt="绿色串珠树形摆件">
+          </a>
+          <h3>串珠树形摆件</h3>
+          <p class="product-description">手工绿色树形摆件，以透明亚克力珠子制作，并固定在长方形底座上。尺寸：__ x __。</p>
+          <p class="price">$100.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-red-fruit.png" alt="红绿串珠水果摆件与蓝色底座">
+          </a>
+          <h3>串珠水果摆件</h3>
+          <p class="product-description">手工红色水果摆件，以红色、绿色和蓝色亚克力珠子制作，并放置在小底座上。尺寸：__ x __。</p>
+          <p class="price">$70.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-flowers.png" alt="黄色串珠花朵摆件">
+          </a>
+          <h3>黄色串珠花朵摆件</h3>
+          <p class="product-description">手工黄色花朵摆件，以透明黄色亚克力珠子制作，并搭配红色珠心。尺寸：__ x __。</p>
+          <p class="price">$100.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-sculpture-products">
+            <img src="assets/images/beaded-sculpture-yellow-basket.png" alt="黄色串珠篮子与粉白花朵摆件">
+          </a>
+          <h3>串珠花篮摆件</h3>
+          <p class="product-description">手工黄色花篮，以亚克力珠子制作，并装饰粉色、白色、红色和金色串珠花朵。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section merchandise-section" id="beaded-bracelet-products">
+      <div class="listing-toolbar">
+        <span>串珠手链</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-white.jpeg" alt="白色烤象牙果串珠手链与黄色流苏">
+          </a>
+          <h3>白色象牙果串珠手链</h3>
+          <p class="product-description">白色串珠手链，以烤过之后的象牙果珠子制作，末端搭配小黄色流苏。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-gold.jpeg" alt="金白色贝壳串珠手链与黄色流苏">
+          </a>
+          <h3>金色贝壳串珠手链</h3>
+          <p class="product-description">金白色贝壳串珠手链，末端搭配小黄色流苏。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-strand-natural.jpeg" alt="自然色贝壳串珠手链与彩色流苏">
+          </a>
+          <h3>自然色贝壳串珠手链</h3>
+          <p class="product-description">自然色贝壳串珠手链，搭配米色珠子和彩色流苏细节。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#beaded-bracelet-products">
+            <img src="assets/images/beaded-bracelet-shell-loop.jpeg" alt="环形贝壳串珠手链与米色流苏">
+          </a>
+          <h3>环形贝壳串珠手链</h3>
+          <p class="product-description">环形贝壳串珠手链，以米色调珠子制作，并搭配柔软流苏。尺寸：__ x __。</p>
+          <p class="price">$80.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="newsletter-section" id="contact">
+      <h2>订阅我们的邮件</h2>
+      <form class="newsletter-form">
+        <label class="sr-only" for="email">邮箱地址</label>
+        <input id="email" type="email" placeholder="邮箱地址">
+        <button type="submit">订阅</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <a class="footer-logo" href="#home">
+          <img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true">
+          <span class="sr-only">AbilityMade</span>
+        </a>
+        <p>由残障手艺人的艺术作品延展出的功能性礼品和手作物件。</p>
+      </div>
+      <div class="footer-contact">
+        <h2>联系信息</h2>
+        <p>Henry</p>
+        <p>William</p>
+        <a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a>
+      </div>
+    </div>
+    <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const categoryTabs = document.querySelectorAll(".category-tab");
+    const productCards = [...document.querySelectorAll(".merchandise-card")];
+    const cartDrawer = document.querySelector(".cart-drawer");
+    const cartOverlay = document.querySelector(".cart-overlay");
+    const cartItemsContainer = document.querySelector("[data-cart-items]");
+    const cartEmpty = document.querySelector("[data-cart-empty]");
+    const cartSubtotal = document.querySelector("[data-cart-subtotal]");
+    const cartShipping = document.querySelector("[data-cart-shipping]");
+    const cartError = document.querySelector("[data-cart-error]");
+    const cartCount = document.querySelector(".cart-link b");
+    const cartStorageKey = "abilitymade-cart-v1";
+    const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+    const cartCopy = {
+      remove: "移除",
+      empty: "你的购物车是空的。",
+      shippingFree: "你的订单已满足标准配送条件。",
+      shippingProgress: (remaining) => `还差 ${currencyFormatter.format(remaining)} 可享受标准配送。`,
+    };
+    let cart = [];
+    const merchandiseSections = {
+      "frame-clutch": document.querySelector("#frame-clutch-products"),
+      "diamond-painting": document.querySelector("#diamond-painting-products"),
+      "beaded-sculpture": document.querySelector("#beaded-sculpture-products"),
+      "beaded-bracelet": document.querySelector("#beaded-bracelet-products"),
+    };
+    const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
+
+    const getFallbackProductId = (card) => {
+      const imagePath = card.querySelector("img")?.getAttribute("src") || card.querySelector("h3")?.textContent || "product";
+      return imagePath.split("/").pop().replace(/\.[a-z0-9]+$/i, "").toLowerCase();
+    };
+
+    const getPriceAmount = (priceText) => Number.parseFloat(priceText.replace(/[^0-9.]/g, "")) || 0;
+
+    const getProductData = (card) => {
+      const image = card.querySelector("img");
+
+      return {
+        id: card.dataset.productId || getFallbackProductId(card),
+        imagePath: image?.getAttribute("src") || "",
+        alt: image?.alt || "",
+        title: card.querySelector("h3")?.textContent.trim() || "AbilityMade 商品",
+        price: card.querySelector(".price")?.textContent.trim() || "$0.00",
+        amount: getPriceAmount(card.querySelector(".price")?.textContent.trim() || "$0.00"),
+      };
+    };
+
+    const productCatalog = new Map(productCards.map((card) => {
+      const product = getProductData(card);
+      return [product.id, product];
+    }));
+
+    const loadCart = () => {
+      try {
+        const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
+        cart = Array.isArray(savedCart)
+          ? savedCart.filter((item) => productCatalog.has(item.id)).map((item) => ({
+            id: item.id,
+            quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1)),
+          }))
+          : [];
+      } catch {
+        cart = [];
+      }
+    };
+
+    const saveCart = () => {
+      localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    };
+
+    const getCartTotals = () => cart.reduce((totals, item) => {
+      const product = productCatalog.get(item.id);
+      if (!product) return totals;
+
+      return {
+        count: totals.count + item.quantity,
+        subtotal: totals.subtotal + product.amount * item.quantity,
+      };
+    }, { count: 0, subtotal: 0 });
+
+    const setCartOpen = (isOpen) => {
+      cartDrawer.setAttribute("aria-hidden", String(!isOpen));
+      cartOverlay.hidden = !isOpen;
+      document.body.classList.toggle("cart-is-open", isOpen);
+      if (isOpen) {
+        cartError.textContent = "";
+      }
+    };
+
+    const updateCartItem = (id, quantity) => {
+      cart = cart
+        .map((item) => item.id === id ? { ...item, quantity: Math.max(0, Math.min(99, quantity)) } : item)
+        .filter((item) => item.quantity > 0);
+      saveCart();
+      renderCart();
+    };
+
+    const addToCart = (product) => {
+      const existingItem = cart.find((item) => item.id === product.id);
+      if (existingItem) {
+        existingItem.quantity = Math.min(99, existingItem.quantity + 1);
+      } else {
+        cart.push({ id: product.id, quantity: 1 });
+      }
+
+      saveCart();
+      renderCart();
+      setCartOpen(true);
+    };
+
+    const renderCart = () => {
+      const { count, subtotal } = getCartTotals();
+      cartCount.textContent = String(count);
+      cartSubtotal.textContent = currencyFormatter.format(subtotal);
+      cartShipping.textContent = subtotal >= 120
+        ? cartCopy.shippingFree
+        : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
+      cartItemsContainer.innerHTML = "";
+      cartEmpty.hidden = cart.length > 0;
+
+      cart.forEach((item) => {
+        const product = productCatalog.get(item.id);
+        if (!product) return;
+
+        const row = document.createElement("article");
+        row.className = "cart-item";
+        row.innerHTML = `
+          <img src="${product.imagePath}" alt="${product.alt}">
+          <div class="cart-item-main">
+            <h3>${product.title}</h3>
+            <strong>${currencyFormatter.format(product.amount)}</strong>
+            <div class="cart-item-actions">
+              <div class="cart-quantity" aria-label="${product.title} 数量">
+                <button type="button" data-cart-decrease="${product.id}" aria-label="减少 ${product.title} 数量">-</button>
+                <span>${item.quantity}</span>
+                <button type="button" data-cart-increase="${product.id}" aria-label="增加 ${product.title} 数量">+</button>
+              </div>
+              <button class="cart-remove" type="button" data-cart-remove="${product.id}">${cartCopy.remove}</button>
+            </div>
+          </div>
+        `;
+        cartItemsContainer.append(row);
+      });
+    };
+
+    categoryTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const category = tab.dataset.category;
+        const showAllProducts = category === "all-products";
+        const targetSection = merchandiseSections[category];
+
+        categoryTabs.forEach((item) => {
+          const isActive = item === tab;
+          item.classList.toggle("active", isActive);
+          item.setAttribute("aria-pressed", String(isActive));
+        });
+
+        merchandiseSectionList.forEach((section) => {
+          section.hidden = !showAllProducts && section !== targetSection;
+        });
+
+        if (showAllProducts) {
+          merchandiseSectionList[0]?.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else if (targetSection) {
+          targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
+    });
+
+    document.querySelectorAll(".add-to-cart").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const card = event.target.closest(".merchandise-card");
+        if (!card) return;
+
+        event.preventDefault();
+        addToCart(getProductData(card));
+      });
+    });
+
+    document.querySelectorAll("[data-cart-open]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        setCartOpen(true);
+      });
+    });
+
+    document.querySelectorAll("[data-cart-close]").forEach((button) => {
+      button.addEventListener("click", () => setCartOpen(false));
+    });
+
+    cartItemsContainer.addEventListener("click", (event) => {
+      const decreaseId = event.target.dataset.cartDecrease;
+      const increaseId = event.target.dataset.cartIncrease;
+      const removeId = event.target.dataset.cartRemove;
+      const targetId = decreaseId || increaseId || removeId;
+      if (!targetId) return;
+
+      const item = cart.find((cartItem) => cartItem.id === targetId);
+      if (!item) return;
+
+      if (decreaseId) updateCartItem(targetId, item.quantity - 1);
+      if (increaseId) updateCartItem(targetId, item.quantity + 1);
+      if (removeId) updateCartItem(targetId, 0);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setCartOpen(false);
+      }
+    });
+
+    loadCart();
+    renderCart();
+
+    if (window.location.hash === "#cart") {
+      setCartOpen(true);
+    }
+  </script>
+</body>
+</html>
