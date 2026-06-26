@@ -600,6 +600,30 @@ input {
   line-height: 1.35;
 }
 
+.cart-checkout {
+  display: grid;
+  width: 100%;
+  min-height: 46px;
+  place-items: center;
+  margin-top: 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.92rem;
+  font-weight: 950;
+}
+
+.cart-checkout:hover:not(:disabled) {
+  background: var(--accent-dark);
+}
+
+.cart-checkout:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
 .cart-error {
   min-height: 18px;
   color: var(--accent-dark) !important;
