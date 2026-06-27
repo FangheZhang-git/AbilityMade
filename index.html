@@ -71,7 +71,7 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>Free standard delivery over $120.</p>
-      <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout with Stripe</button>
+      <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout unavailable</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -380,9 +380,7 @@
     const cartCopy = {
       remove: "Remove",
       empty: "Your cart is empty.",
-      checkout: "Checkout with Stripe",
-      checkoutLoading: "Redirecting...",
-      checkoutError: "Unable to start checkout. Please try again.",
+      checkout: "Checkout unavailable",
       shippingFree: "Your order qualifies for free standard delivery.",
       shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
     };
@@ -485,7 +483,8 @@
       cartShipping.textContent = subtotal >= 120
         ? cartCopy.shippingFree
         : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
-      checkoutButton.disabled = cart.length === 0;
+      checkoutButton.disabled = true;
+      checkoutButton.textContent = cartCopy.checkout;
       cartItemsContainer.innerHTML = "";
       cartEmpty.hidden = cart.length > 0;
 
@@ -512,36 +511,6 @@
         `;
         cartItemsContainer.append(row);
       });
-    };
-
-    const startCheckout = async () => {
-      if (cart.length === 0) {
-        cartError.textContent = cartCopy.empty;
-        return;
-      }
-
-      checkoutButton.disabled = true;
-      checkoutButton.textContent = cartCopy.checkoutLoading;
-      cartError.textContent = "";
-
-      try {
-        const response = await fetch("/api/create-checkout-session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ items: cart }),
-        });
-        const data = await response.json();
-
-        if (!response.ok || !data.url) {
-          throw new Error(data.error || cartCopy.checkoutError);
-        }
-
-        window.location.href = data.url;
-      } catch (error) {
-        cartError.textContent = error.message || cartCopy.checkoutError;
-        checkoutButton.disabled = cart.length === 0;
-        checkoutButton.textContent = cartCopy.checkout;
-      }
     };
 
     categoryTabs.forEach((tab) => {
@@ -588,8 +557,6 @@
     document.querySelectorAll("[data-cart-close]").forEach((button) => {
       button.addEventListener("click", () => setCartOpen(false));
     });
-
-    checkoutButton.addEventListener("click", startCheckout);
 
     cartItemsContainer.addEventListener("click", (event) => {
       const decreaseId = event.target.dataset.cartDecrease;
