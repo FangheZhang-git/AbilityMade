@@ -96,7 +96,7 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>Free standard delivery over $120.</p>
-      <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout unavailable</button>
+      <button class="cart-checkout" type="button" data-cart-checkout disabled>Request to Purchase</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -405,7 +405,7 @@
     const cartCopy = {
       remove: "Remove",
       empty: "Your cart is empty.",
-      checkout: "Checkout unavailable",
+      checkout: "Request to Purchase",
       shippingFree: "Your order qualifies for free standard delivery.",
       shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
     };

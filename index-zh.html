@@ -96,7 +96,7 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>订单满 $120 可享受标准配送。</p>
-      <button class="cart-checkout" type="button" data-cart-checkout disabled>暂不开放结账</button>
+      <button class="cart-checkout" type="button" data-cart-checkout disabled>提交购买请求</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -403,7 +403,7 @@
     const cartCopy = {
       remove: "移除",
       empty: "你的购物车是空的。",
-      checkout: "暂不开放结账",
+      checkout: "提交购买请求",
       shippingFree: "你的订单已满足标准配送条件。",
       shippingProgress: (remaining) => `还差 ${currencyFormatter.format(remaining)} 可享受标准配送。`,
     };
