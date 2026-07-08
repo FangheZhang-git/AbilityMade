@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request to Purchase | AbilityMade</title>
+  <meta name="description" content="Submit your AbilityMade purchase request and contact information.">
+  <link rel="canonical" href="https://abilitymade.net/checkout.html">
+  <link rel="icon" type="image/png" href="assets/images/abilitymade-favicon.png">
+  <link rel="stylesheet" href="style.css?v=mix-cart">
+</head>
+<body class="checkout-page">
+  <div class="delivery-strip">
+    <strong>FREE</strong> standard delivery for online merchandise purchases $120 and above
+  </div>
+
+  <header class="site-header">
+    <nav class="navbar checkout-navbar" aria-label="Checkout navigation">
+      <a class="logo" href="index.html" aria-label="AbilityMade home">
+        <img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true">
+        <span class="sr-only">AbilityMade</span>
+      </a>
+      <div class="nav-links checkout-nav-links">
+        <a href="index.html#shop">Back to Shop</a>
+        <a href="index.html#contact">Contact Us</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="checkout-main">
+    <section class="checkout-panel" aria-labelledby="checkout-title">
+      <div class="checkout-thank-you">
+        <h1 id="checkout-title">Thank you for shopping :)</h1>
+      </div>
+
+      <p class="checkout-message">
+        We apologize that we do not have an official checkout platform yet. Please fill out
+        your name and email address in the form here and we will contact you for checkout shortly.
+      </p>
+
+      <form class="shopping-form" id="purchase-request-form">
+        <div class="shopping-form-title">
+          <h2>Shopping Form</h2>
+        </div>
+
+        <label for="first-name">First Name:</label>
+        <input id="first-name" name="first-name" type="text" autocomplete="given-name" required>
+
+        <label for="last-name">Last Name:</label>
+        <input id="last-name" name="last-name" type="text" autocomplete="family-name" required>
+
+        <label for="email-address">Email Address:</label>
+        <input id="email-address" name="email-address" type="email" autocomplete="email" required>
+
+        <button class="button-link shopping-submit" type="submit">Submit Request</button>
+        <p class="form-status" data-form-status role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const requestStorageKey = "abilitymade-checkout-request-v1";
+    const form = document.querySelector("#purchase-request-form");
+    const statusMessage = document.querySelector("[data-form-status]");
+
+    const getMailtoUrl = ({ firstName, lastName, email, items, subtotal }) => {
+      const itemLines = items.length
+        ? items.map((item) => `- ${item.title} x ${item.quantity} (${item.price})`).join("\n")
+        : "- Cart details were not available.";
+      const body = [
+        "Hello AbilityMade,",
+        "",
+        "I would like to request checkout for my cart.",
+        "",
+        `Name: ${firstName} ${lastName}`,
+        `Email: ${email}`,
+        "",
+        "Cart:",
+        itemLines,
+        "",
+        `Subtotal: ${subtotal}`,
+      ].join("\n");
+
+      return `mailto:AbilityMade@gmail.com?subject=${encodeURIComponent("AbilityMade purchase request")}&body=${encodeURIComponent(body)}`;
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const firstName = String(formData.get("first-name") || "").trim();
+      const lastName = String(formData.get("last-name") || "").trim();
+      const email = String(formData.get("email-address") || "").trim();
+      let savedRequest = {};
+
+      try {
+        savedRequest = JSON.parse(localStorage.getItem(requestStorageKey) || "{}");
+      } catch {
+        savedRequest = {};
+      }
+
+      const items = Array.isArray(savedRequest.items) ? savedRequest.items : [];
+      const subtotal = savedRequest.subtotal || "$0.00";
+      const submitButton = form.querySelector(".shopping-submit");
+      const mailtoUrl = getMailtoUrl({ firstName, lastName, email, items, subtotal });
+
+      submitButton.disabled = true;
+      statusMessage.textContent = "Sending your purchase request...";
+
+      try {
+        const response = await fetch("/api/purchase-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ firstName, lastName, email, items, subtotal }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Purchase request email was not sent.");
+        }
+
+        statusMessage.textContent = "Thank you. Your purchase request has been sent to AbilityMade.";
+        form.reset();
+      } catch {
+        statusMessage.textContent = "We could not send automatically yet. Please send the prepared email so we can contact you shortly.";
+        window.location.href = mailtoUrl;
+      } finally {
+        submitButton.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
