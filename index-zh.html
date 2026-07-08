@@ -399,6 +399,7 @@
     const cartCount = document.querySelector(".cart-link b");
     const checkoutButton = document.querySelector("[data-cart-checkout]");
     const cartStorageKey = "abilitymade-cart-v1";
+    const checkoutRequestStorageKey = "abilitymade-checkout-request-v1";
     const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
     const cartCopy = {
       remove: "移除",
@@ -469,6 +470,23 @@
       };
     }, { count: 0, subtotal: 0 });
 
+    const saveCheckoutRequest = () => {
+      const { subtotal } = getCartTotals();
+      const items = cart.map((item) => {
+        const product = productCatalog.get(item.id);
+        return product ? {
+          title: product.title,
+          price: currencyFormatter.format(product.amount),
+          quantity: item.quantity,
+        } : null;
+      }).filter(Boolean);
+
+      localStorage.setItem(checkoutRequestStorageKey, JSON.stringify({
+        items,
+        subtotal: currencyFormatter.format(subtotal),
+      }));
+    };
+
     const setCartOpen = (isOpen) => {
       cartDrawer.setAttribute("aria-hidden", String(!isOpen));
       cartOverlay.hidden = !isOpen;
@@ -506,7 +524,7 @@
       cartShipping.textContent = subtotal >= 120
         ? cartCopy.shippingFree
         : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
-      checkoutButton.disabled = true;
+      checkoutButton.disabled = count === 0;
       checkoutButton.textContent = cartCopy.checkout;
       cartItemsContainer.innerHTML = "";
       cartEmpty.hidden = cart.length > 0;
@@ -594,6 +612,14 @@
       if (decreaseId) updateCartItem(targetId, item.quantity - 1);
       if (increaseId) updateCartItem(targetId, item.quantity + 1);
       if (removeId) updateCartItem(targetId, 0);
+    });
+
+    checkoutButton.addEventListener("click", () => {
+      const { count } = getCartTotals();
+      if (count === 0) return;
+
+      saveCheckoutRequest();
+      window.location.href = "checkout.html";
     });
 
     document.addEventListener("keydown", (event) => {
