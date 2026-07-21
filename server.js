@@ -7,6 +7,10 @@ const port = Number.parseInt(process.env.PORT || "3000", 10);
 const purchaseRequestTo = process.env.PURCHASE_REQUEST_TO || "AbilityMade@gmail.com";
 const purchaseRequestFrom = process.env.PURCHASE_REQUEST_FROM || "";
 const resendApiKey = process.env.RESEND_API_KEY || "";
+const newsletterSegmentId = process.env.RESEND_NEWSLETTER_SEGMENT_ID || "";
+const newsletterRateLimitWindowMs = 60 * 60 * 1000;
+const newsletterRateLimitMax = 10;
+const newsletterAttempts = new Map();
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
@@ -71,6 +75,55 @@ const escapeHtml = (value) => String(value)
   .replace(/'/g, "&#39;");
 
 const cleanText = (value, fallback = "") => String(value || fallback).trim().slice(0, 500);
+
+const normalizeEmail = (value) => String(value || "").trim().toLowerCase().slice(0, 254);
+
+const isValidEmail = (email) => email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const getClientAddress = (req) => {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const forwardedAddress = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor?.split(",")[0];
+  return String(forwardedAddress || req.socket.remoteAddress || "unknown").trim().slice(0, 100);
+};
+
+const isNewsletterRateLimited = (req) => {
+  const now = Date.now();
+
+  if (newsletterAttempts.size > 1000) {
+    newsletterAttempts.forEach((attempt, address) => {
+      if (attempt.resetAt <= now) newsletterAttempts.delete(address);
+    });
+    if (newsletterAttempts.size > 2000) newsletterAttempts.clear();
+  }
+
+  const address = getClientAddress(req);
+  const existingAttempt = newsletterAttempts.get(address);
+  const attempt = !existingAttempt || existingAttempt.resetAt <= now
+    ? { count: 0, resetAt: now + newsletterRateLimitWindowMs }
+    : existingAttempt;
+
+  attempt.count += 1;
+  newsletterAttempts.set(address, attempt);
+
+  return attempt.count > newsletterRateLimitMax;
+};
+
+const resendRequest = async (pathname, options = {}) => fetch(`https://api.resend.com${pathname}`, {
+  ...options,
+  headers: {
+    Authorization: `Bearer ${resendApiKey}`,
+    "Content-Type": "application/json",
+    ...options.headers,
+  },
+});
+
+const getProviderError = async (response) => {
+  try {
+    return await response.text();
+  } catch {
+    return "Could not read provider response.";
+  }
+};
 
 const getPurchaseRequestEmail = ({ firstName, lastName, email, items, subtotal }) => {
   const safeItems = Array.isArray(items) ? items.slice(0, 50) : [];
@@ -197,6 +250,105 @@ const handlePurchaseRequest = async (req, res) => {
   }
 };
 
+const handleNewsletterSubscribe = async (req, res) => {
+  if (req.method !== "POST") {
+    res.writeHead(405, { Allow: "POST" });
+    res.end("Method Not Allowed");
+    return;
+  }
+
+  if (isNewsletterRateLimited(req)) {
+    res.setHeader("Retry-After", String(newsletterRateLimitWindowMs / 1000));
+    sendJson(res, 429, { error: "rate_limited" });
+    return;
+  }
+
+  let request;
+
+  try {
+    request = await readJsonBody(req);
+  } catch (error) {
+    sendJson(res, 400, { error: "invalid_request" });
+    return;
+  }
+
+  if (cleanText(request.website)) {
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  const email = normalizeEmail(request.email);
+  if (!isValidEmail(email)) {
+    sendJson(res, 400, { error: "invalid_email" });
+    return;
+  }
+
+  if (!resendApiKey || !newsletterSegmentId) {
+    sendJson(res, 503, { error: "newsletter_unavailable" });
+    return;
+  }
+
+  try {
+    const createResponse = await resendRequest("/contacts", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        unsubscribed: false,
+        segments: [{ id: newsletterSegmentId }],
+      }),
+    });
+
+    if (createResponse.ok) {
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    const createError = await getProviderError(createResponse);
+    const contactAlreadyExists = createResponse.status === 409
+      || (createResponse.status === 422 && /already exists/i.test(createError));
+
+    if (!contactAlreadyExists) {
+      console.error("Email provider rejected newsletter subscription:", createError);
+      sendJson(res, 502, { error: "provider_error" });
+      return;
+    }
+
+    const encodedEmail = encodeURIComponent(email);
+    const encodedSegmentId = encodeURIComponent(newsletterSegmentId);
+    const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, {
+      method: "PATCH",
+      body: JSON.stringify({ unsubscribed: false }),
+    });
+
+    if (!updateResponse.ok) {
+      console.error("Could not restore newsletter subscription:", await getProviderError(updateResponse));
+      sendJson(res, 502, { error: "provider_error" });
+      return;
+    }
+
+    const segmentResponse = await resendRequest(`/contacts/${encodedEmail}/segments/${encodedSegmentId}`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+
+    if (!segmentResponse.ok) {
+      const segmentError = await getProviderError(segmentResponse);
+      const alreadyInSegment = [409, 422].includes(segmentResponse.status) && /already|exists|member/i.test(segmentError);
+
+      if (!alreadyInSegment) {
+        console.error("Could not add newsletter contact to segment:", segmentError);
+        sendJson(res, 502, { error: "provider_error" });
+        return;
+      }
+    }
+
+    sendJson(res, 200, { ok: true });
+  } catch (error) {
+    console.error("Could not save newsletter subscription:", error);
+    sendJson(res, 502, { error: "provider_error" });
+  }
+};
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${port}`);
 
@@ -207,6 +359,11 @@ const server = http.createServer((req, res) => {
 
   if (url.pathname === "/api/purchase-request") {
     handlePurchaseRequest(req, res);
+    return;
+  }
+
+  if (url.pathname === "/api/newsletter-subscribe") {
+    handleNewsletterSubscribe(req, res);
     return;
   }
 

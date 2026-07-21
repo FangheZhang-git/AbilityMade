@@ -361,10 +361,18 @@
 
     <section class="newsletter-section" id="contact">
       <h2>Subscribe to our newsletter</h2>
-      <form class="newsletter-form">
-        <label class="sr-only" for="email">Email address</label>
-        <input id="email" type="email" placeholder="Email address">
-        <button type="submit">Subscribe</button>
+      <form class="newsletter-form" data-newsletter-form>
+        <div class="newsletter-controls">
+          <label class="sr-only" for="email">Email address</label>
+          <input id="email" name="email" type="email" placeholder="Email address" autocomplete="email" maxlength="254" aria-describedby="newsletter-consent newsletter-status" required>
+          <button type="submit">Subscribe</button>
+        </div>
+        <div class="newsletter-honeypot" aria-hidden="true">
+          <label for="newsletter-website">Leave this field empty</label>
+          <input id="newsletter-website" name="website" type="text" autocomplete="off" tabindex="-1">
+        </div>
+        <p class="newsletter-consent" id="newsletter-consent">By subscribing, you agree to receive occasional AbilityMade news and promotions. You can unsubscribe at any time.</p>
+        <p class="newsletter-status" id="newsletter-status" data-newsletter-status role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
@@ -400,6 +408,7 @@
     const cartError = document.querySelector("[data-cart-error]");
     const cartCount = document.querySelector(".cart-link b");
     const checkoutButton = document.querySelector("[data-cart-checkout]");
+    const newsletterForm = document.querySelector("[data-newsletter-form]");
     const cartStorageKey = "abilitymade-cart-v1";
     const checkoutRequestStorageKey = "abilitymade-checkout-request-v1";
     const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -409,6 +418,14 @@
       checkout: "Request to Purchase",
       shippingFree: "Your order qualifies for free standard delivery.",
       shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
+    };
+    const newsletterCopy = {
+      idle: "Subscribe",
+      pending: "Subscribing…",
+      success: "Thank you for subscribing to the AbilityMade newsletter!",
+      invalid: "Please enter a valid email address.",
+      rateLimited: "Too many attempts. Please wait and try again.",
+      error: "We could not save your subscription right now. Please try again later.",
     };
     let cart = [];
     const merchandiseSections = {
@@ -646,6 +663,62 @@
       saveCart();
       renderCart();
     }
+
+    newsletterForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const emailInput = newsletterForm.elements.email;
+      const websiteInput = newsletterForm.elements.website;
+      const submitButton = newsletterForm.querySelector("button[type=\"submit\"]");
+      const status = newsletterForm.querySelector("[data-newsletter-status]");
+
+      status.className = "newsletter-status";
+      status.textContent = "";
+
+      if (!emailInput.checkValidity()) {
+        emailInput.reportValidity();
+        status.classList.add("is-error");
+        status.textContent = newsletterCopy.invalid;
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = newsletterCopy.pending;
+      newsletterForm.setAttribute("aria-busy", "true");
+
+      try {
+        const response = await fetch("/api/newsletter-subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: emailInput.value,
+            website: websiteInput.value,
+          }),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          const message = result.error === "invalid_email"
+            ? newsletterCopy.invalid
+            : result.error === "rate_limited"
+              ? newsletterCopy.rateLimited
+              : newsletterCopy.error;
+          throw new Error(message);
+        }
+
+        newsletterForm.reset();
+        status.classList.add("is-success");
+        status.textContent = newsletterCopy.success;
+      } catch (error) {
+        status.classList.add("is-error");
+        const localizedErrors = [newsletterCopy.invalid, newsletterCopy.rateLimited, newsletterCopy.error];
+        status.textContent = localizedErrors.includes(error.message) ? error.message : newsletterCopy.error;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = newsletterCopy.idle;
+        newsletterForm.removeAttribute("aria-busy");
+      }
+    });
   </script>
 </body>
 </html>
