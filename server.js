@@ -16,6 +16,7 @@ const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".gif": "image/gif",
   ".html": "text/html; charset=utf-8",
+  ".ico": "image/x-icon",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".js": "text/javascript; charset=utf-8",
@@ -123,6 +124,114 @@ const getProviderError = async (response) => {
   } catch {
     return "Could not read provider response.";
   }
+};
+
+const getNewsletterSubscriberEmail = (language) => {
+  if (language === "zh-CN") {
+    return {
+      subject: "你已成功订阅 AbilityMade",
+      text: [
+        "你已成功订阅 AbilityMade",
+        "",
+        "感谢你订阅 AbilityMade 邮件。我们会不定期向你发送最新消息、新品和推广活动。",
+        "",
+        "访问 AbilityMade：https://abilitymade.net",
+        "",
+        `如果这不是你的操作，请联系 ${purchaseRequestTo}。`,
+      ].join("\n"),
+      html: `
+        <h1>你已成功订阅 AbilityMade</h1>
+        <p>感谢你订阅 AbilityMade 邮件。我们会不定期向你发送最新消息、新品和推广活动。</p>
+        <p><a href="https://abilitymade.net">访问 AbilityMade</a></p>
+        <p>如果这不是你的操作，请联系 <a href="mailto:${escapeHtml(purchaseRequestTo)}">${escapeHtml(purchaseRequestTo)}</a>。</p>
+      `,
+    };
+  }
+
+  return {
+    subject: "You’re subscribed to AbilityMade",
+    text: [
+      "You’re subscribed to AbilityMade",
+      "",
+      "Thank you for subscribing to the AbilityMade newsletter. We’ll send you occasional news, new products, and promotions.",
+      "",
+      "Visit AbilityMade: https://abilitymade.net",
+      "",
+      `If you did not make this request, please contact ${purchaseRequestTo}.`,
+    ].join("\n"),
+    html: `
+      <h1>You’re subscribed to AbilityMade</h1>
+      <p>Thank you for subscribing to the AbilityMade newsletter. We’ll send you occasional news, new products, and promotions.</p>
+      <p><a href="https://abilitymade.net">Visit AbilityMade</a></p>
+      <p>If you did not make this request, please contact <a href="mailto:${escapeHtml(purchaseRequestTo)}">${escapeHtml(purchaseRequestTo)}</a>.</p>
+    `,
+  };
+};
+
+const getNewsletterHostEmail = ({ email, language, subscribedAt }) => {
+  const pageLanguage = language === "zh-CN" ? "Chinese (zh-CN)" : "English (en)";
+  const safeEmail = escapeHtml(email);
+
+  return {
+    subject: "New AbilityMade newsletter subscriber",
+    text: [
+      "New AbilityMade newsletter subscriber",
+      "",
+      `Email: ${email}`,
+      `Signup page: ${pageLanguage}`,
+      `Signup time: ${subscribedAt}`,
+    ].join("\n"),
+    html: `
+      <h1>New AbilityMade newsletter subscriber</h1>
+      <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+      <p><strong>Signup page:</strong> ${pageLanguage}</p>
+      <p><strong>Signup time:</strong> ${escapeHtml(subscribedAt)}</p>
+    `,
+  };
+};
+
+const sendNewsletterEmail = async (label, payload) => {
+  try {
+    const response = await resendRequest("/emails", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      console.error(`Email provider rejected ${label}:`, await getProviderError(response));
+    }
+  } catch (error) {
+    console.error(`Could not send ${label}:`, error);
+  }
+};
+
+const sendNewsletterConfirmations = async ({ email, language }) => {
+  if (!purchaseRequestFrom) {
+    console.error("Could not send newsletter confirmations: PURCHASE_REQUEST_FROM is not configured.");
+    return;
+  }
+
+  const subscriberEmail = getNewsletterSubscriberEmail(language);
+  const hostEmail = getNewsletterHostEmail({
+    email,
+    language,
+    subscribedAt: new Date().toISOString(),
+  });
+
+  await Promise.all([
+    sendNewsletterEmail("newsletter subscriber confirmation", {
+      from: purchaseRequestFrom,
+      to: [email],
+      reply_to: purchaseRequestTo,
+      ...subscriberEmail,
+    }),
+    sendNewsletterEmail("newsletter host notification", {
+      from: purchaseRequestFrom,
+      to: [purchaseRequestTo],
+      reply_to: email,
+      ...hostEmail,
+    }),
+  ]);
 };
 
 const getPurchaseRequestEmail = ({ firstName, lastName, email, items, subtotal }) => {
@@ -283,6 +392,13 @@ const handleNewsletterSubscribe = async (req, res) => {
     return;
   }
 
+  const requestedLanguage = cleanText(request.language);
+  if (requestedLanguage && !["en", "zh-CN"].includes(requestedLanguage)) {
+    sendJson(res, 400, { error: "invalid_request" });
+    return;
+  }
+  const language = requestedLanguage || "en";
+
   if (!resendApiKey || !newsletterSegmentId) {
     sendJson(res, 503, { error: "newsletter_unavailable" });
     return;
@@ -298,50 +414,48 @@ const handleNewsletterSubscribe = async (req, res) => {
       }),
     });
 
-    if (createResponse.ok) {
-      sendJson(res, 200, { ok: true });
-      return;
-    }
+    if (!createResponse.ok) {
+      const createError = await getProviderError(createResponse);
+      const contactAlreadyExists = createResponse.status === 409
+        || (createResponse.status === 422 && /already exists/i.test(createError));
 
-    const createError = await getProviderError(createResponse);
-    const contactAlreadyExists = createResponse.status === 409
-      || (createResponse.status === 422 && /already exists/i.test(createError));
-
-    if (!contactAlreadyExists) {
-      console.error("Email provider rejected newsletter subscription:", createError);
-      sendJson(res, 502, { error: "provider_error" });
-      return;
-    }
-
-    const encodedEmail = encodeURIComponent(email);
-    const encodedSegmentId = encodeURIComponent(newsletterSegmentId);
-    const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, {
-      method: "PATCH",
-      body: JSON.stringify({ unsubscribed: false }),
-    });
-
-    if (!updateResponse.ok) {
-      console.error("Could not restore newsletter subscription:", await getProviderError(updateResponse));
-      sendJson(res, 502, { error: "provider_error" });
-      return;
-    }
-
-    const segmentResponse = await resendRequest(`/contacts/${encodedEmail}/segments/${encodedSegmentId}`, {
-      method: "POST",
-      body: JSON.stringify({}),
-    });
-
-    if (!segmentResponse.ok) {
-      const segmentError = await getProviderError(segmentResponse);
-      const alreadyInSegment = [409, 422].includes(segmentResponse.status) && /already|exists|member/i.test(segmentError);
-
-      if (!alreadyInSegment) {
-        console.error("Could not add newsletter contact to segment:", segmentError);
+      if (!contactAlreadyExists) {
+        console.error("Email provider rejected newsletter subscription:", createError);
         sendJson(res, 502, { error: "provider_error" });
         return;
       }
+
+      const encodedEmail = encodeURIComponent(email);
+      const encodedSegmentId = encodeURIComponent(newsletterSegmentId);
+      const updateResponse = await resendRequest(`/contacts/${encodedEmail}`, {
+        method: "PATCH",
+        body: JSON.stringify({ unsubscribed: false }),
+      });
+
+      if (!updateResponse.ok) {
+        console.error("Could not restore newsletter subscription:", await getProviderError(updateResponse));
+        sendJson(res, 502, { error: "provider_error" });
+        return;
+      }
+
+      const segmentResponse = await resendRequest(`/contacts/${encodedEmail}/segments/${encodedSegmentId}`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+
+      if (!segmentResponse.ok) {
+        const segmentError = await getProviderError(segmentResponse);
+        const alreadyInSegment = [409, 422].includes(segmentResponse.status) && /already|exists|member/i.test(segmentError);
+
+        if (!alreadyInSegment) {
+          console.error("Could not add newsletter contact to segment:", segmentError);
+          sendJson(res, 502, { error: "provider_error" });
+          return;
+        }
+      }
     }
 
+    await sendNewsletterConfirmations({ email, language });
     sendJson(res, 200, { ok: true });
   } catch (error) {
     console.error("Could not save newsletter subscription:", error);
@@ -408,6 +522,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(port, "0.0.0.0", () => {
-  console.log(`AbilityMade is running on port ${port}`);
-});
+if (require.main === module) {
+  server.listen(port, "0.0.0.0", () => {
+    console.log(`AbilityMade is running on port ${port}`);
+  });
+}
+
+module.exports = { newsletterAttempts, server };

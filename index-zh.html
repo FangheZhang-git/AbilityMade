@@ -19,7 +19,10 @@
   <meta name="twitter:title" content="AbilityMade | 支持残障手艺人的手工礼品平台">
   <meta name="twitter:description" content="AbilityMade 是一个支持残障手艺人的平台，展示并分享由残障人士创作的手工艺品、礼品、包袋、手链和艺术衍生商品。">
   <meta name="twitter:image" content="https://abilitymade.net/assets/images/abilitymade-workshop-hero-collage.jpg">
-  <link rel="icon" type="image/png" href="assets/images/abilitymade-favicon.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css?v=mix-cart">
   <script type="application/ld+json">
     {
@@ -691,6 +694,7 @@
           body: JSON.stringify({
             email: emailInput.value,
             website: websiteInput.value,
+            language: "zh-CN",
           }),
         });
         const result = await response.json().catch(() => ({}));

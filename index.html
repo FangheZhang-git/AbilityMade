@@ -19,7 +19,10 @@
   <meta name="twitter:title" content="AbilityMade | Handmade Gifts by Disabled Artisans">
   <meta name="twitter:description" content="AbilityMade is a platform supporting disabled artisans through handmade gifts, handicrafts, artwork-based merchandise, bags, bracelets, and home decor.">
   <meta name="twitter:image" content="https://abilitymade.net/assets/images/abilitymade-workshop-hero-collage.jpg">
-  <link rel="icon" type="image/png" href="assets/images/abilitymade-favicon.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
   <link rel="stylesheet" href="style.css?v=mix-cart">
   <script type="application/ld+json">
     {
@@ -693,6 +696,7 @@
           body: JSON.stringify({
             email: emailInput.value,
             website: websiteInput.value,
+            language: "en",
           }),
         });
         const result = await response.json().catch(() => ({}));

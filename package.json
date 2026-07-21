@@ -4,7 +4,8 @@
   "private": true,
   "description": "Static storefront for AbilityMade.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test server.test.js"
   },
   "engines": {
     "node": ">=20"
