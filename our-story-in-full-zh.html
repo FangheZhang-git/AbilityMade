@@ -54,12 +54,43 @@
   <script>
     const searchInput = document.querySelector(".search-form input[name=\"search\"]");
 
+    let searchScrollPosition = window.scrollY;
+    let searchScrollLocked = false;
+
+    const restoreSearchScrollPosition = () => {
+      if (!searchScrollLocked || document.activeElement !== searchInput || Math.abs(window.scrollY - searchScrollPosition) < 1) return;
+
+      const root = document.documentElement;
+      const previousScrollBehavior = root.style.scrollBehavior;
+      root.style.scrollBehavior = "auto";
+      window.scrollTo(window.scrollX, searchScrollPosition);
+      root.style.scrollBehavior = previousScrollBehavior;
+    };
+
     searchInput?.addEventListener("pointerdown", (event) => {
+      searchScrollPosition = window.scrollY;
+      searchScrollLocked = true;
       if (document.activeElement !== searchInput) {
         event.preventDefault();
         searchInput.focus({ preventScroll: true });
       }
+      requestAnimationFrame(restoreSearchScrollPosition);
     });
+    searchInput?.addEventListener("focus", () => {
+      if (!searchScrollLocked) {
+        searchScrollPosition = window.scrollY;
+        searchScrollLocked = true;
+      }
+      requestAnimationFrame(restoreSearchScrollPosition);
+    });
+    searchInput?.addEventListener("input", () => {
+      restoreSearchScrollPosition();
+      requestAnimationFrame(restoreSearchScrollPosition);
+    });
+    searchInput?.addEventListener("blur", () => {
+      searchScrollLocked = false;
+    });
+    window.addEventListener("scroll", restoreSearchScrollPosition, { passive: true });
   </script>
 </body>
 </html>
