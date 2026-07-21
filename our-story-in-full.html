@@ -16,7 +16,7 @@
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
       <a class="logo" href="index.html" aria-label="AbilityMade home"><img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true"><span class="sr-only">AbilityMade</span></a>
-      <form class="search-form" role="search" action="index.html"><label class="sr-only" for="site-search">Search products</label><span aria-hidden="true">⌕</span><input id="site-search" type="search" placeholder="Search products"></form>
+      <form class="search-form" role="search" action="index.html#shop" method="get" target="_blank"><label class="sr-only" for="site-search">Search products</label><span aria-hidden="true">⌕</span><input id="site-search" name="search" type="search" placeholder="Search products" required></form>
       <div class="nav-links"><a href="our-story-in-full.html" aria-current="page">Our Story</a><a href="index.html#shop">Shop</a><a href="index.html#contact">Contact Us</a></div>
       <div class="nav-icons" aria-label="Account and cart links">
         <a class="icon-link cart-link" href="index.html#cart" aria-label="Shopping cart"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle><path d="M2.8 3.5h2.5l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4l1.3-5.4H6.4"></path></svg><b>0</b></a>
@@ -51,5 +51,15 @@
     <div class="footer-content"><div><a class="footer-logo" href="index.html"><img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true"><span class="sr-only">AbilityMade</span></a><p>Functional gifts and handmade objects featuring artwork by disabled artisans.</p></div><div class="footer-contact"><h2>Contact Information</h2><p>Henry</p><p>William</p><a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a></div></div>
     <p class="copyright">&copy; 2026 AbilityMade. All rights reserved.</p>
   </footer>
+  <script>
+    const searchInput = document.querySelector(".search-form input[name=\"search\"]");
+
+    searchInput?.addEventListener("pointerdown", (event) => {
+      if (document.activeElement !== searchInput) {
+        event.preventDefault();
+        searchInput.focus({ preventScroll: true });
+      }
+    });
+  </script>
 </body>
 </html>

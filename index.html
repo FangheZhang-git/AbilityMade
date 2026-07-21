@@ -48,10 +48,10 @@
         <span class="sr-only">AbilityMade</span>
       </a>
 
-      <form class="search-form" role="search">
+      <form class="search-form" role="search" action="index.html#shop" method="get" target="_blank">
         <label class="sr-only" for="site-search">Search products</label>
         <span aria-hidden="true">⌕</span>
-        <input id="site-search" type="search" placeholder="Search products">
+        <input id="site-search" name="search" type="search" placeholder="Search products" required>
       </form>
 
       <div class="nav-links">
@@ -153,6 +153,11 @@
         <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">Beaded Sculpture</button>
         <button class="category-tab" type="button" data-category="beaded-bracelet" aria-pressed="false">Beaded Bracelet</button>
       </div>
+    </section>
+
+    <section class="section search-results-status" data-search-results-status aria-live="polite" hidden>
+      <p data-search-results-summary></p>
+      <p data-search-results-empty hidden>No matching products found. Try another product name.</p>
     </section>
 
     <section class="section merchandise-section" id="frame-clutch-products">
@@ -412,6 +417,10 @@
     const cartCount = document.querySelector(".cart-link b");
     const checkoutButton = document.querySelector("[data-cart-checkout]");
     const newsletterForm = document.querySelector("[data-newsletter-form]");
+    const searchInput = document.querySelector(".search-form input[name=\"search\"]");
+    const searchResultsStatus = document.querySelector("[data-search-results-status]");
+    const searchResultsSummary = document.querySelector("[data-search-results-summary]");
+    const searchResultsEmpty = document.querySelector("[data-search-results-empty]");
     const cartStorageKey = "abilitymade-cart-v1";
     const checkoutRequestStorageKey = "abilitymade-checkout-request-v1";
     const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -438,6 +447,59 @@
       "beaded-bracelet": document.querySelector("#beaded-bracelet-products"),
     };
     const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
+
+    searchInput?.addEventListener("pointerdown", (event) => {
+      if (document.activeElement !== searchInput) {
+        event.preventDefault();
+        searchInput.focus({ preventScroll: true });
+      }
+    });
+
+    const normalizeSearchText = (value) => value.normalize("NFKC").toLocaleLowerCase("en-US");
+
+    const clearSearchResults = () => {
+      productCards.forEach((card) => {
+        card.hidden = false;
+      });
+      searchResultsStatus.hidden = true;
+      searchResultsSummary.textContent = "";
+      searchResultsEmpty.hidden = true;
+
+      const url = new URL(window.location.href);
+      if (url.searchParams.has("search")) {
+        url.searchParams.delete("search");
+        window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+      }
+    };
+
+    const applySearchResults = () => {
+      const query = new URLSearchParams(window.location.search).get("search")?.trim() || "";
+      if (!query) return;
+
+      searchInput.value = query;
+      const normalizedQuery = normalizeSearchText(query);
+      let matchCount = 0;
+
+      productCards.forEach((card) => {
+        const title = card.querySelector("h3")?.textContent.trim() || "";
+        const isMatch = normalizeSearchText(title).includes(normalizedQuery);
+        card.hidden = !isMatch;
+        if (isMatch) matchCount += 1;
+      });
+
+      merchandiseSectionList.forEach((section) => {
+        section.hidden = ![...section.querySelectorAll(".merchandise-card")].some((card) => !card.hidden);
+      });
+      categoryTabs.forEach((tab) => {
+        tab.classList.remove("active");
+        tab.setAttribute("aria-pressed", "false");
+      });
+
+      searchResultsStatus.hidden = false;
+      searchResultsSummary.textContent = `${matchCount} ${matchCount === 1 ? "product" : "products"} found for “${query}”.`;
+      searchResultsEmpty.hidden = matchCount !== 0;
+      document.querySelector("#shop")?.scrollIntoView({ block: "start" });
+    };
 
     const getFallbackProductId = (card) => {
       const imagePath = card.querySelector("img")?.getAttribute("src") || card.querySelector("h3")?.textContent || "product";
@@ -578,6 +640,7 @@
 
     categoryTabs.forEach((tab) => {
       tab.addEventListener("click", () => {
+        clearSearchResults();
         const category = tab.dataset.category;
         const showAllProducts = category === "all-products";
         const targetSection = merchandiseSections[category];
@@ -652,6 +715,7 @@
 
     loadCart();
     renderCart();
+    applySearchResults();
 
     if (window.location.hash === "#cart") {
       setCartOpen(true);
