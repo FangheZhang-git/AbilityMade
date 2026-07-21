@@ -16,7 +16,7 @@
   <header class="site-header">
     <nav class="navbar" aria-label="主导航">
       <a class="logo" href="index-zh.html" aria-label="AbilityMade 首页"><img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true"><span class="sr-only">AbilityMade</span></a>
-      <form class="search-form" role="search" action="index-zh.html"><label class="sr-only" for="site-search">搜索商品</label><span aria-hidden="true">⌕</span><input id="site-search" type="search" placeholder="搜索商品"></form>
+      <form class="search-form" role="search" action="index-zh.html#shop" method="get" target="_blank"><label class="sr-only" for="site-search">搜索商品</label><span aria-hidden="true">⌕</span><input id="site-search" name="search" type="search" placeholder="搜索商品" required></form>
       <div class="nav-links"><a href="our-story-in-full-zh.html" aria-current="page">我们的故事</a><a href="index-zh.html#shop">商店</a><a href="index-zh.html#contact">联系我们</a></div>
       <div class="nav-icons" aria-label="账户和购物车链接">
         <a class="icon-link cart-link" href="index-zh.html#cart" aria-label="购物车"><svg aria-hidden="true" viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="20" r="1.4"></circle><circle cx="18" cy="20" r="1.4"></circle><path d="M2.8 3.5h2.5l2.2 11.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4l1.3-5.4H6.4"></path></svg><b>0</b></a>
@@ -51,5 +51,15 @@
     <div class="footer-content"><div><a class="footer-logo" href="index-zh.html"><img src="assets/images/abilitymade-logo.png" alt="" aria-hidden="true"><span class="sr-only">AbilityMade</span></a><p>展示残障手艺人艺术创作的实用礼物与手工制品。</p></div><div class="footer-contact"><h2>联系信息</h2><p>Henry</p><p>William</p><a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a></div></div>
     <p class="copyright">&copy; 2026 AbilityMade。保留所有权利。</p>
   </footer>
+  <script>
+    const searchInput = document.querySelector(".search-form input[name=\"search\"]");
+
+    searchInput?.addEventListener("pointerdown", (event) => {
+      if (document.activeElement !== searchInput) {
+        event.preventDefault();
+        searchInput.focus({ preventScroll: true });
+      }
+    });
+  </script>
 </body>
 </html>
