@@ -449,10 +449,9 @@
     const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
 
     let searchScrollPosition = window.scrollY;
-    let searchScrollLocked = false;
 
     const restoreSearchScrollPosition = () => {
-      if (!searchScrollLocked || document.activeElement !== searchInput || Math.abs(window.scrollY - searchScrollPosition) < 1) return;
+      if (Math.abs(window.scrollY - searchScrollPosition) < 1) return;
 
       const root = document.documentElement;
       const previousScrollBehavior = root.style.scrollBehavior;
@@ -463,7 +462,6 @@
 
     searchInput?.addEventListener("pointerdown", (event) => {
       searchScrollPosition = window.scrollY;
-      searchScrollLocked = true;
       if (document.activeElement !== searchInput) {
         event.preventDefault();
         searchInput.focus({ preventScroll: true });
@@ -471,20 +469,18 @@
       requestAnimationFrame(restoreSearchScrollPosition);
     });
     searchInput?.addEventListener("focus", () => {
-      if (!searchScrollLocked) {
-        searchScrollPosition = window.scrollY;
-        searchScrollLocked = true;
-      }
       requestAnimationFrame(restoreSearchScrollPosition);
+    });
+    searchInput?.addEventListener("keydown", () => {
+      searchScrollPosition = window.scrollY;
+    });
+    searchInput?.addEventListener("beforeinput", () => {
+      searchScrollPosition = window.scrollY;
     });
     searchInput?.addEventListener("input", () => {
       restoreSearchScrollPosition();
       requestAnimationFrame(restoreSearchScrollPosition);
     });
-    searchInput?.addEventListener("blur", () => {
-      searchScrollLocked = false;
-    });
-    window.addEventListener("scroll", restoreSearchScrollPosition, { passive: true });
 
     const normalizeSearchText = (value) => value.normalize("NFKC").toLocaleLowerCase("en-US");
 
