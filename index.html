@@ -48,11 +48,11 @@
         <span class="sr-only">AbilityMade</span>
       </a>
 
-      <form class="search-form" role="search" action="index.html#shop" method="get" target="_blank">
+      <div class="search-slot"><form class="search-form" role="search" action="index.html#shop" method="get" target="_blank">
         <label class="sr-only" for="site-search">Search products</label>
         <span aria-hidden="true">⌕</span>
         <input id="site-search" name="search" type="search" placeholder="Search products" required>
-      </form>
+      </form></div>
 
       <div class="nav-links">
         <a href="#story">Our Story</a>
@@ -418,6 +418,7 @@
     const checkoutButton = document.querySelector("[data-cart-checkout]");
     const newsletterForm = document.querySelector("[data-newsletter-form]");
     const searchInput = document.querySelector(".search-form input[name=\"search\"]");
+    const searchForm = searchInput?.closest(".search-form");
     const searchResultsStatus = document.querySelector("[data-search-results-status]");
     const searchResultsSummary = document.querySelector("[data-search-results-summary]");
     const searchResultsEmpty = document.querySelector("[data-search-results-empty]");
@@ -448,52 +449,51 @@
     };
     const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
 
-    let searchScrollPosition = window.scrollY;
-    let searchKeyPositionCaptured = false;
+    let searchFocusScrollX = window.scrollX;
+    let searchFocusScrollY = window.scrollY;
+    let searchScrollSettleTimer;
 
-    const restoreSearchScrollPosition = () => {
-      if (Math.abs(window.scrollY - searchScrollPosition) < 1) return;
+    window.addEventListener("scroll", () => {
+      window.clearTimeout(searchScrollSettleTimer);
+      searchScrollSettleTimer = window.setTimeout(() => {
+        if (document.activeElement !== searchInput) {
+          searchFocusScrollX = window.scrollX;
+          searchFocusScrollY = window.scrollY;
+        }
+      }, 100);
+    }, { passive: true });
 
-      const root = document.documentElement;
-      const previousScrollBehavior = root.style.scrollBehavior;
-      root.style.scrollBehavior = "auto";
-      window.scrollTo(window.scrollX, searchScrollPosition);
-      root.style.scrollBehavior = previousScrollBehavior;
+    const fixSearchFormToViewport = () => {
+      if (!searchForm || searchForm.classList.contains("is-viewport-fixed")) return;
+      const rect = searchForm.getBoundingClientRect();
+      searchForm.style.setProperty("--search-fixed-top", `${rect.top}px`);
+      searchForm.style.setProperty("--search-fixed-left", `${rect.left}px`);
+      searchForm.style.setProperty("--search-fixed-width", `${rect.width}px`);
+      searchForm.classList.add("is-viewport-fixed");
+      document.documentElement.classList.add("search-input-focused");
     };
 
     searchInput?.addEventListener("pointerdown", (event) => {
-      searchScrollPosition = window.scrollY;
-      if (document.activeElement !== searchInput) {
-        event.preventDefault();
-        searchInput.focus({ preventScroll: true });
-      }
-      requestAnimationFrame(restoreSearchScrollPosition);
+      if (document.activeElement === searchInput) return;
+      searchFocusScrollX = window.scrollX;
+      searchFocusScrollY = window.scrollY;
+      fixSearchFormToViewport();
+      event.preventDefault();
+      searchInput.focus({ preventScroll: true });
     });
     searchInput?.addEventListener("focus", () => {
-      requestAnimationFrame(restoreSearchScrollPosition);
-    });
-    searchInput?.addEventListener("keydown", () => {
-      searchScrollPosition = window.scrollY;
-      searchKeyPositionCaptured = true;
-    });
-    searchInput?.addEventListener("beforeinput", () => {
-      if (!searchKeyPositionCaptured) {
-        searchScrollPosition = window.scrollY;
-        searchKeyPositionCaptured = true;
-      }
-    });
-    searchInput?.addEventListener("input", () => {
-      restoreSearchScrollPosition();
+      fixSearchFormToViewport();
       requestAnimationFrame(() => {
-        restoreSearchScrollPosition();
-        searchKeyPositionCaptured = false;
+        window.scrollTo({ left: searchFocusScrollX, top: searchFocusScrollY, behavior: "instant" });
       });
     });
-    window.addEventListener("scroll", () => {
-      if (document.activeElement === searchInput && !searchKeyPositionCaptured) {
-        searchScrollPosition = window.scrollY;
-      }
-    }, { passive: true });
+    searchInput?.addEventListener("blur", () => {
+      searchForm?.classList.remove("is-viewport-fixed");
+      searchForm?.style.removeProperty("--search-fixed-top");
+      searchForm?.style.removeProperty("--search-fixed-left");
+      searchForm?.style.removeProperty("--search-fixed-width");
+      document.documentElement.classList.remove("search-input-focused");
+    });
 
     const normalizeSearchText = (value) => value.normalize("NFKC").toLocaleLowerCase("en-US");
 

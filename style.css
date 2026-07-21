@@ -25,6 +25,10 @@ html {
   scroll-padding-top: 96px;
 }
 
+html.search-input-focused {
+  scroll-behavior: auto;
+}
+
 body {
   margin: 0;
   background: var(--background);
@@ -121,6 +125,19 @@ input {
   color: var(--muted);
   padding: 0 13px;
   box-shadow: 0 1px 5px rgba(70, 50, 33, 0.08);
+}
+
+.search-slot {
+  width: 100%;
+  min-width: 0;
+}
+
+.search-form.is-viewport-fixed {
+  position: fixed;
+  top: var(--search-fixed-top);
+  left: var(--search-fixed-left);
+  width: var(--search-fixed-width);
+  z-index: 22;
 }
 
 .search-form input {
