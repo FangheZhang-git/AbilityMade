@@ -359,10 +359,18 @@
 
     <section class="newsletter-section" id="contact">
       <h2>订阅我们的邮件</h2>
-      <form class="newsletter-form">
-        <label class="sr-only" for="email">邮箱地址</label>
-        <input id="email" type="email" placeholder="邮箱地址">
-        <button type="submit">订阅</button>
+      <form class="newsletter-form" data-newsletter-form>
+        <div class="newsletter-controls">
+          <label class="sr-only" for="email">邮箱地址</label>
+          <input id="email" name="email" type="email" placeholder="邮箱地址" autocomplete="email" maxlength="254" aria-describedby="newsletter-consent newsletter-status" required>
+          <button type="submit">订阅</button>
+        </div>
+        <div class="newsletter-honeypot" aria-hidden="true">
+          <label for="newsletter-website">请将此字段留空</label>
+          <input id="newsletter-website" name="website" type="text" autocomplete="off" tabindex="-1">
+        </div>
+        <p class="newsletter-consent" id="newsletter-consent">提交订阅即表示你同意接收 AbilityMade 的最新消息和推广邮件。你可以随时取消订阅。</p>
+        <p class="newsletter-status" id="newsletter-status" data-newsletter-status role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
@@ -398,6 +406,7 @@
     const cartError = document.querySelector("[data-cart-error]");
     const cartCount = document.querySelector(".cart-link b");
     const checkoutButton = document.querySelector("[data-cart-checkout]");
+    const newsletterForm = document.querySelector("[data-newsletter-form]");
     const cartStorageKey = "abilitymade-cart-v1";
     const checkoutRequestStorageKey = "abilitymade-checkout-request-v1";
     const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
@@ -407,6 +416,14 @@
       checkout: "提交购买请求",
       shippingFree: "你的订单已满足标准配送条件。",
       shippingProgress: (remaining) => `还差 ${currencyFormatter.format(remaining)} 可享受标准配送。`,
+    };
+    const newsletterCopy = {
+      idle: "订阅",
+      pending: "正在订阅…",
+      success: "感谢你订阅 AbilityMade 邮件！",
+      invalid: "请输入有效的邮箱地址。",
+      rateLimited: "尝试次数过多，请稍后再试。",
+      error: "目前无法保存你的订阅，请稍后再试。",
     };
     let cart = [];
     const merchandiseSections = {
@@ -644,6 +661,62 @@
       saveCart();
       renderCart();
     }
+
+    newsletterForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const emailInput = newsletterForm.elements.email;
+      const websiteInput = newsletterForm.elements.website;
+      const submitButton = newsletterForm.querySelector("button[type=\"submit\"]");
+      const status = newsletterForm.querySelector("[data-newsletter-status]");
+
+      status.className = "newsletter-status";
+      status.textContent = "";
+
+      if (!emailInput.checkValidity()) {
+        emailInput.reportValidity();
+        status.classList.add("is-error");
+        status.textContent = newsletterCopy.invalid;
+        return;
+      }
+
+      submitButton.disabled = true;
+      submitButton.textContent = newsletterCopy.pending;
+      newsletterForm.setAttribute("aria-busy", "true");
+
+      try {
+        const response = await fetch("/api/newsletter-subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: emailInput.value,
+            website: websiteInput.value,
+          }),
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          const message = result.error === "invalid_email"
+            ? newsletterCopy.invalid
+            : result.error === "rate_limited"
+              ? newsletterCopy.rateLimited
+              : newsletterCopy.error;
+          throw new Error(message);
+        }
+
+        newsletterForm.reset();
+        status.classList.add("is-success");
+        status.textContent = newsletterCopy.success;
+      } catch (error) {
+        status.classList.add("is-error");
+        const localizedErrors = [newsletterCopy.invalid, newsletterCopy.rateLimited, newsletterCopy.error];
+        status.textContent = localizedErrors.includes(error.message) ? error.message : newsletterCopy.error;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = newsletterCopy.idle;
+        newsletterForm.removeAttribute("aria-busy");
+      }
+    });
   </script>
 </body>
 </html>
