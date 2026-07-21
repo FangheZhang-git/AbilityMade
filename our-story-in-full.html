@@ -55,6 +55,7 @@
     const searchInput = document.querySelector(".search-form input[name=\"search\"]");
 
     let searchScrollPosition = window.scrollY;
+    let searchKeyPositionCaptured = false;
 
     const restoreSearchScrollPosition = () => {
       if (Math.abs(window.scrollY - searchScrollPosition) < 1) return;
@@ -79,14 +80,26 @@
     });
     searchInput?.addEventListener("keydown", () => {
       searchScrollPosition = window.scrollY;
+      searchKeyPositionCaptured = true;
     });
     searchInput?.addEventListener("beforeinput", () => {
-      searchScrollPosition = window.scrollY;
+      if (!searchKeyPositionCaptured) {
+        searchScrollPosition = window.scrollY;
+        searchKeyPositionCaptured = true;
+      }
     });
     searchInput?.addEventListener("input", () => {
       restoreSearchScrollPosition();
-      requestAnimationFrame(restoreSearchScrollPosition);
+      requestAnimationFrame(() => {
+        restoreSearchScrollPosition();
+        searchKeyPositionCaptured = false;
+      });
     });
+    window.addEventListener("scroll", () => {
+      if (document.activeElement === searchInput && !searchKeyPositionCaptured) {
+        searchScrollPosition = window.scrollY;
+      }
+    }, { passive: true });
   </script>
 </body>
 </html>
