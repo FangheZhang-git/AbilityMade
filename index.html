@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AbilityMade | Handmade Gifts by Disabled Artisans</title>
+  <meta name="application-name" content="AbilityMade">
   <meta name="description" content="AbilityMade is a platform supporting disabled artisans through handmade gifts, handicrafts, artwork-based merchandise, bags, bracelets, and home decor.">
   <link rel="canonical" href="https://abilitymade.net/">
   <link rel="alternate" hreflang="en" href="https://abilitymade.net/">
@@ -27,12 +28,26 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AbilityMade",
-      "url": "https://abilitymade.net/",
-      "logo": "https://abilitymade.net/assets/images/abilitymade-logo.png",
-      "email": "AbilityMade@gmail.com",
-      "description": "AbilityMade is a platform supporting disabled artisans through handmade gifts, handicrafts, artwork-based merchandise, bags, bracelets, and home decor."
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://abilitymade.net/#website",
+          "name": "AbilityMade",
+          "url": "https://abilitymade.net/",
+          "publisher": {
+            "@id": "https://abilitymade.net/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://abilitymade.net/#organization",
+          "name": "AbilityMade",
+          "url": "https://abilitymade.net/",
+          "logo": "https://abilitymade.net/assets/images/abilitymade-logo.png",
+          "email": "AbilityMade@gmail.com",
+          "description": "AbilityMade is a platform supporting disabled artisans through handmade gifts, handicrafts, artwork-based merchandise, bags, bracelets, and home decor."
+        }
+      ]
     }
   </script>
 </head>
