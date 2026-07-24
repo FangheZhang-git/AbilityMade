@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AbilityMade | 支持残障手艺人的手工礼品平台</title>
+  <meta name="application-name" content="AbilityMade">
   <meta name="description" content="AbilityMade 是一个支持残障手艺人的平台，展示并分享由残障人士创作的手工艺品、礼品、包袋、手链和艺术衍生商品。">
   <link rel="canonical" href="https://abilitymade.net/index-zh.html">
   <link rel="alternate" hreflang="en" href="https://abilitymade.net/">
@@ -27,12 +28,26 @@
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "AbilityMade",
-      "url": "https://abilitymade.net/",
-      "logo": "https://abilitymade.net/assets/images/abilitymade-logo.png",
-      "email": "AbilityMade@gmail.com",
-      "description": "AbilityMade 是一个支持残障手艺人的平台，展示并分享由残障人士创作的手工艺品、礼品、包袋、手链和艺术衍生商品。"
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://abilitymade.net/#website",
+          "name": "AbilityMade",
+          "url": "https://abilitymade.net/",
+          "publisher": {
+            "@id": "https://abilitymade.net/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://abilitymade.net/#organization",
+          "name": "AbilityMade",
+          "url": "https://abilitymade.net/",
+          "logo": "https://abilitymade.net/assets/images/abilitymade-logo.png",
+          "email": "AbilityMade@gmail.com",
+          "description": "AbilityMade 是一个支持残障手艺人的平台，展示并分享由残障人士创作的手工艺品、礼品、包袋、手链和艺术衍生商品。"
+        }
+      ]
     }
   </script>
 </head>
