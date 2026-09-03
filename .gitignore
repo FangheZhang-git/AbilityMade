@@ -1,6 +1,9 @@
 .DS_Store
 node_modules/
 
+# Keep all PDF documents local
+*.[pP][dD][fF]
+
 # Local Gmail OAuth credentials/tokens and outreach state
 credentials.json
 gmail-credentials.json
