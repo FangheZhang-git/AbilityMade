@@ -5,7 +5,16 @@
   "description": "Static storefront for AbilityMade.",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test server.test.js"
+    "test": "node --test server.test.js scripts/email-outreach.test.js",
+    "outreach:dry-run": "node scripts/email-outreach.js dry-run --expected-count 10",
+    "outreach:authorize": "node scripts/email-outreach.js authorize",
+    "outreach:draft": "node scripts/email-outreach.js draft --expected-count 10",
+    "outreach:queue-dry-run": "node scripts/email-outreach.js queue-dry-run",
+    "outreach:queue-import": "node scripts/email-outreach.js queue-import",
+    "outreach:queue-draft": "node scripts/email-outreach.js queue-draft",
+    "outreach:queue-send-preflight": "node scripts/email-outreach.js queue-send-preflight",
+    "outreach:queue-send": "node scripts/email-outreach.js queue-send",
+    "outreach:queue-mark-failed": "node scripts/email-outreach.js queue-mark-failed"
   },
   "engines": {
     "node": ">=20"
