@@ -11,3 +11,13 @@ gmail-token.json
 .abilitymade-email-log.json
 .abilitymade-email-log-*.json
 outreach-config.json
+
+# Private organization, legal, outreach, and document-working files
+5013c organization/
+AbilityMade_Bylaws.docx
+AbilityMade_Alabama_7_Additional_Partnership_Emails.md
+AbilityMade_Alabama_Partnership_Emails.md
+Wisconsin_email_1_batch.md
+Wisconsin_email_2_batch.md
+CODEX_HANDOFF.md
+tmp/
