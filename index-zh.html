@@ -165,6 +165,7 @@
         <button class="category-tab" type="button" data-category="diamond-painting" aria-pressed="false">钻石画</button>
         <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">串珠摆件</button>
         <button class="category-tab" type="button" data-category="beaded-bracelet" aria-pressed="false">串珠手链</button>
+        <button class="category-tab" type="button" data-category="paintings-drawings" aria-pressed="false">绘画作品</button>
       </div>
     </section>
 
@@ -380,6 +381,42 @@
       </div>
     </section>
 
+    <section class="section merchandise-section" id="paintings-drawings-products">
+      <div class="listing-toolbar">
+        <span>绘画作品</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/love-is-artwork.png" alt="以绿色爱心和 Love 字样为主题的彩色抽象画">
+          </a>
+          <h3>爱之艺术画作</h3>
+          <p class="product-description">一幅以醒目绿色爱心为中心的原创画作，融合富有表现力的笔触、趣味图形和明快色彩。</p>
+          <p class="price">$50.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/member-drawing-art-block.png" alt="手绘木质艺术方块，画有彩虹下的多元人物群像">
+          </a>
+          <h3>成员手绘艺术方块</h3>
+          <p class="product-description">手绘木质艺术方块，以彩色人物群像和彩虹边框表现友谊、包容与社区精神。</p>
+          <p class="price">$50.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/member-heart-art-notecards.png" alt="配有信封并用金色丝带系好的爱心艺术贺卡套装">
+          </a>
+          <h3>成员爱心艺术贺卡套装（5 张贺卡与信封）</h3>
+          <p class="product-description">五张贺卡组成的套装，印有成员创作的鲜艳爱心艺术图案，并配有信封，适合传递心意或作为礼物。</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
     <section class="newsletter-section" id="contact">
       <h2>订阅我们的邮件</h2>
       <form class="newsletter-form" data-newsletter-form>
@@ -459,6 +496,7 @@
       "diamond-painting": document.querySelector("#diamond-painting-products"),
       "beaded-sculpture": document.querySelector("#beaded-sculpture-products"),
       "beaded-bracelet": document.querySelector("#beaded-bracelet-products"),
+      "paintings-drawings": document.querySelector("#paintings-drawings-products"),
     };
     const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
 

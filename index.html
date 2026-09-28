@@ -167,6 +167,7 @@
         <button class="category-tab" type="button" data-category="diamond-painting" aria-pressed="false">Diamond Painting</button>
         <button class="category-tab" type="button" data-category="beaded-sculpture" aria-pressed="false">Beaded Sculpture</button>
         <button class="category-tab" type="button" data-category="beaded-bracelet" aria-pressed="false">Beaded Bracelet</button>
+        <button class="category-tab" type="button" data-category="paintings-drawings" aria-pressed="false">Paintings &amp; Drawings</button>
       </div>
     </section>
 
@@ -382,6 +383,42 @@
       </div>
     </section>
 
+    <section class="section merchandise-section" id="paintings-drawings-products">
+      <div class="listing-toolbar">
+        <span>Paintings &amp; Drawings</span>
+      </div>
+
+      <div class="merchandise-grid">
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/love-is-artwork.png" alt="Colorful abstract painting with a large green heart and the word Love">
+          </a>
+          <h3>Love Is Artwork</h3>
+          <p class="product-description">A vibrant original artwork centered on a bold green heart, layered with expressive brushstrokes, playful shapes, and joyful color.</p>
+          <p class="price">$50.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/member-drawing-art-block.png" alt="Hand-painted wooden art block showing a diverse group of people beneath a rainbow">
+          </a>
+          <h3>Member Drawing Art Block</h3>
+          <p class="product-description">A hand-painted wooden art block celebrating friendship, inclusion, and community with a colorful group portrait and rainbow border.</p>
+          <p class="price">$50.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+        <article class="merchandise-card">
+          <a class="merchandise-image" href="#paintings-drawings-products">
+            <img src="assets/images/member-heart-art-notecards.png" alt="Set of heart artwork notecards with envelopes tied together by a gold ribbon">
+          </a>
+          <h3>Member Heart Art Notecards - Set of 5 Cards with Envelopes</h3>
+          <p class="product-description">A set of five notecards featuring vibrant member-created heart artwork, paired with envelopes and ready for thoughtful notes or gifting.</p>
+          <p class="price">$30.00</p>
+          <button class="add-to-cart" type="button">ADD TO CART</button>
+        </article>
+      </div>
+    </section>
+
     <section class="newsletter-section" id="contact">
       <h2>Subscribe to our newsletter</h2>
       <form class="newsletter-form" data-newsletter-form>
@@ -461,6 +498,7 @@
       "diamond-painting": document.querySelector("#diamond-painting-products"),
       "beaded-sculpture": document.querySelector("#beaded-sculpture-products"),
       "beaded-bracelet": document.querySelector("#beaded-bracelet-products"),
+      "paintings-drawings": document.querySelector("#paintings-drawings-products"),
     };
     const merchandiseSectionList = Object.values(merchandiseSections).filter(Boolean);
 
