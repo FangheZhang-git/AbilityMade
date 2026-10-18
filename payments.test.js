@@ -23,6 +23,10 @@ test('charges catalog prices, collects US shipping, and uses stable retry keys',
   const { payments, body, calls } = await fixture();
   await payments.createSession(body); await payments.createSession(body);
   const params = calls[0].params;
+  assert.equal(params.get('metadata[schema_version]'), '2');
+  assert.equal(params.get('line_items[0][price_data][product_data][metadata][abilitymade_product_id]'), products[0].id);
+  assert.equal(params.get('payment_intent_data[metadata][abilitymade_reference]'), params.get('metadata[abilitymade_reference]'));
+  assert.match(params.get('metadata[catalog_revision]'), /^[a-f0-9]{64}$/);
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), String(products[0].unitAmount));
   assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
   assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '800');
@@ -72,19 +76,20 @@ test('only paid verified events create durable orders; concurrent duplicates and
     const raw = Buffer.from(JSON.stringify(event)); return instance.webhook(raw, sign(raw, env.STRIPE_WEBHOOK_SECRET));
   };
   await deliver();
-  assert.deepEqual(await payments.status('cs_test_fixture'), { status: 'pending' });
+  assert.equal((await fs.readdir(directory)).filter(n => n.startsWith('order-')).length, 0);
   event.data.object.payment_status = 'paid'; event.data.object.amount_total = 1;
   await assert.rejects(deliver(), { status: 400 });
   event.data.object.amount_total = products[0].unitAmount + 800;
   await Promise.all([deliver(), deliver(), deliver()]);
   const restarted = createPayments({ env });
   await deliver(restarted);
-  assert.deepEqual(await restarted.status('cs_test_fixture'), { status: 'paid' });
+  // Legacy webhook snapshot path remains supported; status now verifies Stripe.
   const files = (await fs.readdir(directory)).filter(f => f.startsWith('order-'));
   assert.equal(files.length, 1);
   const order = JSON.parse(await fs.readFile(path.join(directory, files[0]), 'utf8'));
   assert.equal(order.items[0].unitAmount, products[0].unitAmount);
-  assert.equal(order.fulfillmentStatus, 'awaiting_manual_review');
+  assert.equal(order.requiresHumanReview, true);
+  assert.equal('fulfillmentStatus' in order, false);
   assert.equal(order.shippingDetails.address.country, 'US');
   assert.equal((await fs.stat(path.join(directory, files[0]))).mode & 0o777, 0o600);
 });
@@ -95,7 +100,7 @@ test('storage errors fail the webhook so Stripe can retry; provider errors never
   const event = { type: 'checkout.session.completed', data: { object: { id: 'cs_test_fixture', payment_status: 'paid',
     metadata: { store: 'abilitymade', abilitymade_reference: 'a'.repeat(64) } } } };
   const raw = Buffer.from(JSON.stringify(event));
-  await assert.rejects(payments.webhook(raw, sign(raw, env.STRIPE_WEBHOOK_SECRET)), { code: 'ENOENT' });
+  await assert.rejects(payments.webhook(raw, sign(raw, env.STRIPE_WEBHOOK_SECRET)), { status: 503 });
 });
 test('catalog matches both storefronts including existing product additions', async () => {
   for (const filename of ['index.html', 'index-zh.html']) {

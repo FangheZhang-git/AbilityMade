@@ -177,7 +177,7 @@ test("serves the root favicon with an icon content type", { concurrency: false }
 
 
 test("private files cannot be downloaded", { concurrency: false }, async () => {
-  for (const pathname of ['/server.js', '/payments.js', '/data/products.json', '/.env',
+  for (const pathname of ['/server.js', '/recovery.js', '/scripts/recover-orders.cjs', '/payments.js', '/data/products.json', '/.env',
     '/gmail-token.json', '/package.json', '/AGENTS.md', '/Truist%20Folder/example.txt', '/%ZZ']) {
     assert.equal((await getResource(pathname)).status, 403, pathname);
   }

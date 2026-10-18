@@ -56,3 +56,9 @@ Create `.env` privately using `.env.example`, set `ORDER_DATA_DIR` to a private 
 - Immutable paid records represent the original payment, not the current refund/dispute state. Review Stripe before manual fulfillment and maintain manual refund/settlement records.
 
 References: [Stripe Checkout API](https://docs.stripe.com/api/checkout/sessions/create), [Stripe webhook verification](https://docs.stripe.com/events/manage-webhook-endpoints), [Railway volumes](https://docs.railway.com/volumes), [Railway backups](https://docs.railway.com/volumes/backups).
+
+## Payment reconstruction
+
+See [RECOVERY.md](RECOVERY.md) for schema-2 metadata, protected payment status,
+and the administrator-only separate-directory recovery procedure. No staging or
+production migration is performed automatically.

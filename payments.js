@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const products = require('./data/products.json');
+const { createRecovery, revision } = require('./recovery');
 const catalog = new Map(products.map(p => [p.id, p]));
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -74,13 +75,26 @@ function verifyEvent(raw, signature, secret, now = Date.now()) {
 }
 
 function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...args) } = {}) {
+  const recovery = createRecovery({ env, fetchImpl });
+  // Public traffic must not consume the signed webhook verifier budget.
+  const statusRecovery = createRecovery({ env, fetchImpl });
+  const statusCache = new Map();
+  let windowStart = 0, lookups = 0;
+  async function recover(sessionId, { write = false } = {}) {
+    const record = await recovery.reconstruct(sessionId);
+    if (!write) return record;
+    if (!env.ORDER_DATA_DIR) throw fail(503, 'storage_unavailable');
+    const directory = path.resolve(env.ORDER_DATA_DIR);
+    if (directory === __dirname || directory.startsWith(__dirname + path.sep)) throw fail(503, 'unsafe_storage');
+    return saveOnce(path.resolve(env.ORDER_DATA_DIR), 'order-' + hash(sessionId), record);
+  }
   async function createSession(body) {
     const config = configuration(env);
     const items = validateCart(body);
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
     const shipping = subtotal >= 12000 ? 0 : config.shipping;
     const snapshot = { items, subtotal, shipping, language: body.language, live: config.live };
-    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax }));
+    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, revision, environment: recovery.environment() }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);
     const params = new URLSearchParams({
       mode: 'payment', locale: body.language === 'zh-CN' ? 'zh' : 'en',
@@ -95,7 +109,15 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
       'shipping_options[0][shipping_rate_data][display_name]': body.language === 'zh-CN' ? '标准配送' : 'Standard shipping',
     });
+    const metadata = { store: 'abilitymade', abilitymade_reference: reference, schema_version: '2', catalog_revision: revision, environment: recovery.environment(), language: body.language };
+    for (const [key, value] of Object.entries(metadata)) {
+      params.set(`metadata[${key}]`, value);
+      params.set(`payment_intent_data[metadata][${key}]`, value);
+    }
     items.forEach((p, i) => {
+      for (const [key, value] of Object.entries({ ...metadata, abilitymade_product_id: p.id })) {
+        params.set(`line_items[${i}][price_data][product_data][metadata][${key}]`, value);
+      }
       params.set(`line_items[${i}][price_data][currency]`, 'usd');
       params.set(`line_items[${i}][price_data][unit_amount]`, String(p.unitAmount));
       params.set(`line_items[${i}][price_data][product_data][name]`, p.name);
@@ -121,10 +143,13 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     const session = event.data?.object;
     if (session?.metadata?.store !== 'abilitymade') return;
     if (session.payment_status !== 'paid') return;
+    if (session.metadata.schema_version === '2') { await recover(session.id, { write: true }); statusCache.delete(session.id); return; }
     const reference = session.metadata.abilitymade_reference;
     if (!/^[a-f0-9]{64}$/.test(reference || '') || !/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(session.id || '')) throw fail(400, 'invalid_event');
     const directory = path.resolve(env.ORDER_DATA_DIR);
-    const snapshot = JSON.parse(await fs.readFile(path.join(directory, `checkout-${reference}.json`), 'utf8'));
+    let snapshot;
+    try { snapshot = JSON.parse(await fs.readFile(path.join(directory, `checkout-${reference}.json`), 'utf8')); }
+    catch (error) { if (error.code !== 'ENOENT') throw error; await recover(session.id, { write: true }); statusCache.delete(session.id); return; }
     if (session.mode !== 'payment' || session.currency !== 'usd' || session.livemode !== snapshot.live ||
         event.livemode !== snapshot.live || session.amount_subtotal !== snapshot.subtotal ||
         session.total_details?.amount_shipping !== snapshot.shipping ||
@@ -134,7 +159,7 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       throw fail(400, 'order_mismatch');
     }
     await saveOnce(directory, 'order-' + hash(session.id), {
-      ...snapshot, status: 'paid', fulfillmentStatus: 'awaiting_manual_review',
+      ...snapshot, status: 'paid', requiresHumanReview: true,
       sessionId: session.id, paymentIntent: session.payment_intent, eventId: event.id,
       recordedAt: new Date().toISOString(), amountTotal: session.amount_total,
       tax: session.total_details.amount_tax, customer: session.customer_details,
@@ -144,15 +169,18 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
 
   async function status(sessionId) {
     if (!/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(sessionId || '')) throw fail(400, 'invalid_session');
-    if (!env.ORDER_DATA_DIR) throw fail(503, 'checkout_unavailable');
-    try {
-      await fs.access(path.join(env.ORDER_DATA_DIR, 'order-' + hash(sessionId) + '.json'));
-      return { status: 'paid' };
-    } catch (error) {
-      if (error.code === 'ENOENT') return { status: 'pending' };
-      throw error;
-    }
+    const now = Date.now(), cached = statusCache.get(sessionId);
+    if (cached && cached.until > now) return cached.promise;
+    if (now - windowStart >= 60000) { windowStart = now; lookups = 0; }
+    if (++lookups > 30) throw fail(429, 'rate_limited');
+    for (const [key, value] of statusCache) if (value.until <= now) statusCache.delete(key);
+    if (statusCache.size >= 200) throw fail(429, 'rate_limited');
+    // Share in-flight requests and cache failures. Never return PII or write files here.
+    const promise = statusRecovery.verify(sessionId).then(v => ({ status: v.status }));
+    statusCache.set(sessionId, { until: now + 30000, promise });
+    return promise;
   }
-  return { createSession, webhook, status };
+
+  return { createSession, webhook, status, recover };
 }
 module.exports = { createPayments, validateCart, verifyEvent, saveOnce };

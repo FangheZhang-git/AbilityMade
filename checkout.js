@@ -9,6 +9,8 @@
     unavailable: '在线支付暂不可用，请稍后再试或通过下方邮箱联系我们。',
     invalid: '购物车需要更新，请返回商店重新选择商品。',
     pending: '正在确认付款，请稍候…', paid: '付款已确认，感谢你的订单！',
+    review: '付款记录需要核对（可能涉及退款或争议）。请联系我们，请勿重复付款。',
+    unknown: '暂时无法核实付款状态。请稍后刷新或联系我们，请勿重复付款。',
     wait: '付款确认仍在处理中。请稍后刷新此页，或通过下方邮箱联系我们。请勿重复付款。',
     cancelled: '支付已取消，购物车商品仍然保留。', shop: '返回商店', contact: '联系我们',
   } : {
@@ -18,6 +20,8 @@
     unavailable: 'Online checkout is temporarily unavailable. Please try again later or contact us at the email below.',
     invalid: 'Your cart needs updating. Please return to the shop and select your items again.',
     pending: 'Confirming your payment. Please wait…', paid: 'Payment confirmed. Thank you for your order!',
+    review: 'This payment has a refund or dispute requiring review. Please contact us; do not pay again.',
+    unknown: 'Payment status is temporarily unavailable. Refresh later or contact us; do not pay again.',
     wait: 'Payment confirmation is still processing. Refresh this page later or contact us at the email below. Please do not pay again.',
     cancelled: 'Checkout was cancelled. Your cart is still here.', shop: 'Back to Shop', contact: 'Contact Us',
   };
@@ -51,8 +55,13 @@
     const check = async (attempt = 0) => {
       try {
         const response = await fetch('/api/checkout-status?session_id=' + encodeURIComponent(sessionId), { cache: 'no-store' });
-        if (!response.ok) throw new Error();
+        if (!response.ok) { status.textContent = copy.unknown; return; }
         const result = await response.json();
+        if (['refunded', 'partially_refunded', 'refund_pending', 'disputed'].includes(result.status)) {
+          status.textContent = copy.review;
+          document.querySelector('#checkout-intro').textContent = '';
+          return;
+        }
         if (result.status === 'paid') {
           status.textContent = copy.paid;
           document.querySelector('#checkout-intro').textContent = '';
@@ -60,7 +69,7 @@
           sessionStorage.removeItem('abilitymade-payment-attempt');
           return;
         }
-      } catch {}
+      } catch { status.textContent = copy.unknown; return; }
       if (attempt < 9) setTimeout(() => check(attempt + 1), 2000);
       else status.textContent = copy.wait;
     };

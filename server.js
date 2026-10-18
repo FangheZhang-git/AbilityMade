@@ -15,6 +15,7 @@ const newsletterSegmentId = process.env.RESEND_NEWSLETTER_SEGMENT_ID || "";
 const newsletterRateLimitWindowMs = 60 * 60 * 1000;
 const newsletterRateLimitMax = 10;
 const newsletterAttempts = new Map();
+const statusAttempts = new Map();
 
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
@@ -309,6 +310,12 @@ const handlePayments = async (req, res, pathname, url) => {
       return sendJson(res, 200, { received: true });
     }
     if (pathname === '/api/checkout-status') {
+      const now = Date.now();
+      for (const [key, v] of statusAttempts) if (v.until <= now) statusAttempts.delete(key);
+      const key = getClientAddress(req);
+      const v = statusAttempts.get(key) || { count: 0, until: now + 60000 };
+      if (++v.count > 60 || statusAttempts.size >= 10000) return sendJson(res, 429, { error: 'rate_limited' });
+      statusAttempts.set(key, v);
       return sendJson(res, 200, await payments.status(url.searchParams.get('session_id')));
     }
     const now = Date.now();
