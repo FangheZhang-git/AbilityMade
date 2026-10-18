@@ -114,7 +114,7 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>Free standard delivery over $120.</p>
-      <button class="cart-checkout" type="button" data-cart-checkout disabled>Request to Purchase</button>
+      <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -480,7 +480,7 @@
     const cartCopy = {
       remove: "Remove",
       empty: "Your cart is empty.",
-      checkout: "Request to Purchase",
+      checkout: "Checkout",
       shippingFree: "Your order qualifies for free standard delivery.",
       shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
     };
@@ -652,6 +652,7 @@
       const items = cart.map((item) => {
         const product = productCatalog.get(item.id);
         return product ? {
+          id: product.id,
           title: product.title,
           price: currencyFormatter.format(product.amount),
           quantity: item.quantity,
@@ -797,7 +798,7 @@
       if (count === 0) return;
 
       saveCheckoutRequest();
-      window.location.href = "checkout.html";
+      window.location.href = "checkout.html?language=en";
     });
 
     document.addEventListener("keydown", (event) => {
@@ -818,10 +819,6 @@
     if (checkoutStatus === "cancelled") {
       cartError.textContent = "Checkout was cancelled. Your cart is still here.";
       setCartOpen(true);
-    } else if (checkoutStatus === "success") {
-      cart = [];
-      saveCart();
-      renderCart();
     }
 
     newsletterForm?.addEventListener("submit", async (event) => {

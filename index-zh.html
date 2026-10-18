@@ -114,7 +114,7 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>订单满 $120 可享受标准配送。</p>
-      <button class="cart-checkout" type="button" data-cart-checkout disabled>提交购买请求</button>
+      <button class="cart-checkout" type="button" data-cart-checkout disabled>结账</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -478,7 +478,7 @@
     const cartCopy = {
       remove: "移除",
       empty: "你的购物车是空的。",
-      checkout: "提交购买请求",
+      checkout: "结账",
       shippingFree: "你的订单已满足标准配送条件。",
       shippingProgress: (remaining) => `还差 ${currencyFormatter.format(remaining)} 可享受标准配送。`,
     };
@@ -650,6 +650,7 @@
       const items = cart.map((item) => {
         const product = productCatalog.get(item.id);
         return product ? {
+          id: product.id,
           title: product.title,
           price: currencyFormatter.format(product.amount),
           quantity: item.quantity,
@@ -795,7 +796,7 @@
       if (count === 0) return;
 
       saveCheckoutRequest();
-      window.location.href = "checkout.html";
+      window.location.href = "checkout.html?language=zh-CN";
     });
 
     document.addEventListener("keydown", (event) => {
@@ -816,10 +817,6 @@
     if (checkoutStatus === "cancelled") {
       cartError.textContent = "结账已取消，你的购物车仍然保留。";
       setCartOpen(true);
-    } else if (checkoutStatus === "success") {
-      cart = [];
-      saveCart();
-      renderCart();
     }
 
     newsletterForm?.addEventListener("submit", async (event) => {

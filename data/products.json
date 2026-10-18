@@ -1,0 +1,112 @@
+[
+  {
+    "id": "frame-clutch-black-vine",
+    "name": "Black Floral Frame Clutch",
+    "unitAmount": 8000
+  },
+  {
+    "id": "frame-clutch-white-gold",
+    "name": "White Gold Frame Clutch",
+    "unitAmount": 8000
+  },
+  {
+    "id": "frame-clutch-black-gold",
+    "name": "Black Gold Floral Frame Clutch",
+    "unitAmount": 3000
+  },
+  {
+    "id": "frame-clutch-blue-bunny",
+    "name": "Blue Bunny Frame Clutch",
+    "unitAmount": 2000
+  },
+  {
+    "id": "frame-clutch-color-stripe",
+    "name": "Color Stripe Frame Clutch",
+    "unitAmount": 3000
+  },
+  {
+    "id": "frame-clutch-floral-stripe",
+    "name": "Floral Stripe Frame Clutch",
+    "unitAmount": 3500
+  },
+  {
+    "id": "frame-clutch-mint-flower",
+    "name": "Mint Floral Frame Clutch",
+    "unitAmount": 3000
+  },
+  {
+    "id": "diamond-painting-purple-flowers",
+    "name": "Diamond Painting - Purple Flowers",
+    "unitAmount": 30000
+  },
+  {
+    "id": "diamond-painting-colorful-floral",
+    "name": "Diamond Painting - Colorful Floral",
+    "unitAmount": 30000
+  },
+  {
+    "id": "diamond-painting-framed-portrait",
+    "name": "Diamond Painting - Framed Portrait",
+    "unitAmount": 20000
+  },
+  {
+    "id": "diamond-painting-bunny",
+    "name": "Diamond Painting - Starry Bunny",
+    "unitAmount": 20000
+  },
+  {
+    "id": "beaded-sculpture-green-tree",
+    "name": "Beaded Tree Sculpture",
+    "unitAmount": 10000
+  },
+  {
+    "id": "beaded-sculpture-red-fruit",
+    "name": "Beaded Fruit Sculpture",
+    "unitAmount": 7000
+  },
+  {
+    "id": "beaded-sculpture-yellow-flowers",
+    "name": "Beaded Yellow Flower Sculpture",
+    "unitAmount": 10000
+  },
+  {
+    "id": "beaded-sculpture-yellow-basket",
+    "name": "Beaded Flower Basket",
+    "unitAmount": 8000
+  },
+  {
+    "id": "beaded-bracelet-shell-strand-white",
+    "name": "White Tagua Nut Beaded Bracelet",
+    "unitAmount": 8000
+  },
+  {
+    "id": "beaded-bracelet-shell-strand-gold",
+    "name": "Gold Shell Beaded Bracelet",
+    "unitAmount": 8000
+  },
+  {
+    "id": "beaded-bracelet-shell-strand-natural",
+    "name": "Natural Shell Beaded Bracelet",
+    "unitAmount": 8000
+  },
+  {
+    "id": "beaded-bracelet-shell-loop",
+    "name": "Looped Shell Beaded Bracelet",
+    "unitAmount": 8000
+  },
+  {
+    "id": "love-is-artwork",
+    "name": "Love Is Artwork",
+    "unitAmount": 5000
+  },
+  {
+    "id": "member-drawing-art-block",
+    "name": "Member Drawing Art Block",
+    "unitAmount": 5000
+  },
+  {
+    "id": "member-heart-art-notecards",
+    "name": "Member Heart Art Notecards - Set of 5 Cards with Envelopes",
+    "unitAmount": 3000
+  }
+]

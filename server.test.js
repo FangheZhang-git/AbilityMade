@@ -174,3 +174,12 @@ test("serves the root favicon with an icon content type", { concurrency: false }
   assert.equal(response.status, 200);
   assert.equal(response.contentType, "image/x-icon");
 });
+
+
+test("private files cannot be downloaded", { concurrency: false }, async () => {
+  for (const pathname of ['/server.js', '/payments.js', '/data/products.json', '/.env',
+    '/gmail-token.json', '/package.json', '/AGENTS.md', '/Truist%20Folder/example.txt', '/%ZZ']) {
+    assert.equal((await getResource(pathname)).status, 403, pathname);
+  }
+  assert.equal((await getResource('/checkout.js')).status, 200);
+});
