@@ -131,8 +131,8 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     });
     if (!response.ok) throw fail(502, 'payment_provider_unavailable');
     const session = await response.json();
-    if (!session.url || new URL(session.url).origin !== 'https://checkout.stripe.com') throw fail(502, 'payment_provider_unavailable');
-    return { url: session.url };
+    if (!/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(session.id || '') || !session.url || new URL(session.url).origin !== 'https://checkout.stripe.com') throw fail(502, 'payment_provider_unavailable');
+    return { url: session.url, sessionId: session.id };
   }
 
   async function webhook(raw, signature) {

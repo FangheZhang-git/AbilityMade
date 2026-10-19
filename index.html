@@ -807,6 +807,11 @@
       }
     });
 
+    // Refresh stale tabs and back/forward cache after verified payment cart cleanup.
+    window.addEventListener('storage', (event) => {
+      if (event.key === cartStorageKey || event.key === null) { loadCart(); renderCart(); }
+    });
+    window.addEventListener('pageshow', () => { loadCart(); renderCart(); });
     loadCart();
     renderCart();
     applySearchResults();

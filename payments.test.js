@@ -14,7 +14,7 @@ async function fixture() {
   const calls = [];
   const payments = createPayments({ env, fetchImpl: async (url, options) => {
     calls.push({ url, options, params: new URLSearchParams(options.body) });
-    return new Response(JSON.stringify({ url: 'https://checkout.stripe.com/c/pay/cs_test_fixture' }), { status: 200 });
+    return new Response(JSON.stringify({ id: 'cs_test_fixture', url: 'https://checkout.stripe.com/c/pay/cs_test_fixture' }), { status: 200 });
   } });
   const body = { items: [{ id: products[0].id, quantity: 1, price: 1 }], language: 'en', requestId: crypto.randomUUID() };
   return { env, calls, payments, body, directory };

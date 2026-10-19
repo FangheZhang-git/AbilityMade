@@ -186,3 +186,25 @@ test('public verification budget exhaustion cannot starve signed webhook reconst
   await assert.rejects(p.status('cs_test_extra'),{status:429});
   assert.equal((await p.recover(f.state.s.id,{write:true})).status,'paid');
 });
+
+test('simulated decline and 3-D Secure incomplete states never create an order', async()=>{
+  for (const status of ['requires_payment_method','requires_action','processing','canceled']) {
+    const f=await fixture();f.state.s.payment_status='unpaid';f.state.s.status='open';f.state.p.status=status;
+    if(status==='requires_payment_method')f.state.p.last_payment_error={code:'card_declined',decline_code:'generic_decline'};
+    if(status==='requires_action')f.state.p.next_action={type:'use_stripe_sdk'};
+    assert.deepEqual(await f.payments.status(f.state.s.id),{status:'pending'});
+    await assert.rejects(f.payments.recover(f.state.s.id,{write:true}),{message:'payment_not_paid'});
+    assert.deepEqual(await fs.readdir(f.dir),[]);
+    // Even inconsistent 'paid' Session data cannot bypass PaymentIntent verification.
+    f.state.s.payment_status='paid';f.state.s.status='complete';
+    await assert.rejects(f.payments.recover(f.state.s.id,{write:true}),{message:'payment_mismatch'});
+    assert.deepEqual(await fs.readdir(f.dir),[]);
+  }
+});
+test('simulated completed authentication creates exactly one verified order',async()=>{
+ const f=await fixture();f.state.s.payment_status='unpaid';f.state.p.status='requires_action';
+ await assert.rejects(f.payments.recover(f.state.s.id,{write:true}),{message:'payment_not_paid'});
+ f.state.s.payment_status='paid';f.state.p.status='succeeded';
+ await f.payments.recover(f.state.s.id,{write:true});await f.payments.recover(f.state.s.id,{write:true});
+ assert.equal((await fs.readdir(f.dir)).filter(n=>n.startsWith('order-')).length,1);
+});

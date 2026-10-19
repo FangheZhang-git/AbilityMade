@@ -3,6 +3,7 @@
   const zh = query.get('language') === 'zh-CN';
   const language = zh ? 'zh-CN' : 'en';
   const copy = zh ? {
+    repeat: '这份购物车已付款。确定要再购买一次并创建一个单独的新订单吗？',
     title: '确认订单', intro: '确认商品后，前往安全支付页面。', button: '前往安全支付',
     note: '仅配送美国。商品金额满 $120 免标准运费。付款前会显示运费及适用税费。',
     empty: '购物车为空，请返回商店添加商品。', loading: '正在打开支付页面…',
@@ -14,6 +15,7 @@
     wait: '付款确认仍在处理中。请稍后刷新此页，或通过下方邮箱联系我们。请勿重复付款。',
     cancelled: '支付已取消，购物车商品仍然保留。', shop: '返回商店', contact: '联系我们',
   } : {
+    repeat: 'This cart was already paid for. Do you intentionally want to buy it again as a separate new order?',
     title: 'Review your order', intro: 'Review your items, then continue to secure payment.', button: 'Continue to secure payment',
     note: 'US shipping only. Free standard shipping on merchandise orders of $120 or more. Shipping and applicable tax are shown before payment.',
     empty: 'Your cart is empty. Return to the shop to add items.', loading: 'Opening secure payment…',
@@ -47,6 +49,23 @@
     row.textContent = `${item.title} × ${item.quantity} — ${item.price}`;
     document.querySelector('#checkout-items').append(row);
   }
+  const attemptKey = 'abilitymade-payment-attempt-v2';
+  const fingerprint = rows => JSON.stringify(rows.map(({ id, quantity }) => ({ id, quantity })).sort((a, b) => a.id.localeCompare(b.id)));
+  const readAttempt = () => JSON.parse(localStorage.getItem(attemptKey) || 'null');
+  // Only clear the exact submitted cart after server verification of its bound Session.
+  // Preserve edits made while Checkout was open, and retain the attempt for stale tabs.
+  const finishCart = id => {
+    try {
+      const attempt = readAttempt();
+      if (!attempt || attempt.sessionId !== id || attempt.paid) return;
+      attempt.paid = true;
+      localStorage.setItem(attemptKey, JSON.stringify(attempt));
+      const cart = JSON.parse(localStorage.getItem('abilitymade-cart-v1') || '[]');
+      if (fingerprint(cart) === attempt.fingerprint) localStorage.setItem('abilitymade-cart-v1', '[]');
+      const handoff = JSON.parse(localStorage.getItem('abilitymade-checkout-request-v1') || '{}');
+      if (Array.isArray(handoff.items) && fingerprint(handoff.items) === attempt.fingerprint) localStorage.removeItem('abilitymade-checkout-request-v1');
+    } catch { /* Storage unavailable: payment confirmation remains accurate. */ }
+  };
   const sessionId = query.get('session_id');
   if (sessionId) {
     button.hidden = true;
@@ -65,8 +84,7 @@
         if (result.status === 'paid') {
           status.textContent = copy.paid;
           document.querySelector('#checkout-intro').textContent = '';
-          // Preserve the cart: it may have changed in another tab while payment was open.
-          sessionStorage.removeItem('abilitymade-payment-attempt');
+          finishCart(sessionId);
           return;
         }
       } catch { status.textContent = copy.unknown; return; }
@@ -81,20 +99,28 @@
   button.disabled = false;
   if (query.has('cancelled')) status.textContent = copy.cancelled;
   button.addEventListener('click', async () => {
+    if (button.disabled) return;
     button.disabled = true;
     status.textContent = copy.loading;
-    try {
+    const submit = async () => {
       const cart = items.map(({ id, quantity }) => ({ id, quantity }));
-      const fingerprint = JSON.stringify(cart);
-      let attempt;
-      try { attempt = JSON.parse(sessionStorage.getItem('abilitymade-payment-attempt')); } catch {}
-      if (!attempt || attempt.fingerprint !== fingerprint || Date.now() - attempt.created > 23 * 60 * 60 * 1000) {
-        attempt = { fingerprint, requestId: crypto.randomUUID(), created: Date.now() };
-        sessionStorage.setItem('abilitymade-payment-attempt', JSON.stringify(attempt));
+      const cartFingerprint = fingerprint(cart);
+      let attempt = readAttempt();
+      if (attempt && attempt.fingerprint === cartFingerprint) {
+        if (attempt.paid) {
+          if (!window.confirm(copy.repeat)) { status.textContent = copy.paid; return; }
+          attempt = null;
+        }
+        // Do not silently renew an uncertain payment after Stripe's retry window.
+        if (attempt && Date.now() - attempt.created > 23 * 60 * 60 * 1000) { status.textContent = copy.unknown; return; }
+      }
+      if (!attempt || attempt.fingerprint !== cartFingerprint) {
+        attempt = { fingerprint: cartFingerprint, requestId: crypto.randomUUID(), language, created: Date.now() };
+        localStorage.setItem(attemptKey, JSON.stringify(attempt));
       }
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, language, requestId: attempt.requestId }),
+        body: JSON.stringify({ items: cart, language: attempt.language, requestId: attempt.requestId }),
       });
       if (!response.ok) {
         status.textContent = response.status === 400 ? copy.invalid : copy.unavailable;
@@ -102,7 +128,15 @@
       }
       const result = await response.json();
       if (new URL(result.url).origin !== 'https://checkout.stripe.com') throw new Error();
+      if (!/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(result.sessionId || '')) throw new Error();
+      attempt.sessionId = result.sessionId;
+      localStorage.setItem(attemptKey, JSON.stringify(attempt));
       location.assign(result.url);
+    };
+    try {
+      // Serialize tab retries so they share the same server idempotency key.
+      if (navigator.locks) await navigator.locks.request('abilitymade-checkout', submit);
+      else { status.textContent = copy.unavailable; }
     } catch { status.textContent = copy.unavailable; }
     finally { button.disabled = false; }
   });

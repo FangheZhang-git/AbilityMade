@@ -5,7 +5,7 @@
   "description": "Static storefront for AbilityMade.",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test server.test.js payments.test.js recovery.test.js scripts/email-outreach.test.js",
+    "test": "node --test checkout.test.js server.test.js payments.test.js recovery.test.js scripts/email-outreach.test.js",
     "outreach:dry-run": "node scripts/email-outreach.js dry-run --expected-count 10",
     "outreach:authorize": "node scripts/email-outreach.js authorize",
     "outreach:draft": "node scripts/email-outreach.js draft --expected-count 10",
