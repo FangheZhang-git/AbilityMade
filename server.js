@@ -6,7 +6,7 @@ const { createPayments } = require("./payments");
 const payments = createPayments();
 const root = __dirname;
 const publicFiles = new Set(['index.html', 'index-zh.html', 'our-story-in-full.html',
-  'our-story-in-full-zh.html', 'checkout.html', 'checkout.js', 'style.css', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
+  'our-story-in-full-zh.html', 'checkout.html', 'customer-policies.html', 'checkout.js', 'style.css', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 const purchaseRequestTo = process.env.PURCHASE_REQUEST_TO || "AbilityMade@gmail.com";
 const purchaseRequestFrom = process.env.PURCHASE_REQUEST_FROM || "";

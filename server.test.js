@@ -183,3 +183,9 @@ test("private files cannot be downloaded", { concurrency: false }, async () => {
   }
   assert.equal((await getResource('/checkout.js')).status, 200);
 });
+
+test('approved customer policy page is public while drafts and shipping implementation stay private', {concurrency:false}, async()=>{
+  const response=await getResource('/customer-policies.html');
+  assert.equal(response.status,200);
+  for(const pathname of ['/CUSTOMER_POLICIES_DRAFT.md','/shipping.js','/FULFILLMENT_LEDGER.md']) assert.equal((await getResource(pathname)).status,403);
+});

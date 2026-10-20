@@ -41,6 +41,9 @@
   const button = document.querySelector('#pay-button');
   const status = document.querySelector('#payment-status');
   button.textContent = copy.button;
+  const policyLink = document.querySelector('#policy-link');
+  policyLink.href = 'customer-policies.html#' + (zh ? 'zh' : 'en');
+  policyLink.textContent = zh ? '配送、退款、隐私及顾客支持' : 'Shipping, refunds, privacy & support';
   const shippingForm = document.querySelector('#shipping-form');
   const shippingField = key => document.querySelector('#shipping-' + key);
   const shippingLabels = zh ? { name: '收件人姓名', line1: '街道地址', line2: '公寓 / 房号（选填）', city: '城市', country: '配送地区', state: '州 / 华盛顿特区', postal_code: '邮政编码' }
