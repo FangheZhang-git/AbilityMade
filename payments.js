@@ -23,7 +23,7 @@ function configuration(env) {
     throw fail(503, 'checkout_unavailable');
   }
   const shipping = Number(env.SHIPPING_FLAT_RATE_CENTS);
-  if (!Number.isSafeInteger(shipping) || shipping > 100000) throw fail(503, 'checkout_unavailable');
+  if (shipping !== 1000) throw fail(503, 'checkout_unavailable');
   return { origin: origin.origin, directory, shipping, live, tax: env.STRIPE_AUTOMATIC_TAX === 'true' };
 }
 
@@ -92,6 +92,7 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     const config = configuration(env);
     const items = validateCart(body);
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
+    // One order-wide fee, regardless of supplier count. Approved deployment value: 1000.
     const shipping = subtotal >= 12000 ? 0 : config.shipping;
     const snapshot = { items, subtotal, shipping, language: body.language, live: config.live };
     const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, revision, environment: recovery.environment() }));

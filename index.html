@@ -53,7 +53,7 @@
 </head>
 <body>
   <div class="delivery-strip">
-    <strong>FREE</strong> standard delivery for online merchandise purchases $120 and above
+    US shipping only · $10 standard shipping per order below $120 · <strong>FREE</strong> at $120 or more in merchandise
   </div>
 
   <header class="site-header">
@@ -113,7 +113,7 @@
         <span>Subtotal</span>
         <strong data-cart-subtotal>$0.00</strong>
       </div>
-      <p data-cart-shipping>Free standard delivery over $120.</p>
+      <p data-cart-shipping>Standard shipping: $10 per order below $120; free at $120 or more.</p>
       <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
@@ -482,7 +482,7 @@
       empty: "Your cart is empty.",
       checkout: "Checkout",
       shippingFree: "Your order qualifies for free standard delivery.",
-      shippingProgress: (remaining) => `${currencyFormatter.format(remaining)} away from free standard delivery.`,
+      shippingProgress: (remaining) => `Standard shipping: $10 per order. ${currencyFormatter.format(remaining)} away from free standard delivery.`,
     };
     const newsletterCopy = {
       idle: "Subscribe",

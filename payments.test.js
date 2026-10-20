@@ -10,7 +10,7 @@ const sign = (raw, secret, t = Math.floor(Date.now() / 1000)) => `t=${t},v1=${cr
 async function fixture() {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'abilitymade-payments-'));
   const env = { STRIPE_SECRET_KEY: 'sk_test_fixture', STRIPE_WEBHOOK_SECRET: 'whsec_fixture',
-    ORDER_DATA_DIR: directory, PUBLIC_SITE_URL: 'https://example.com', SHIPPING_FLAT_RATE_CENTS: '800', STRIPE_AUTOMATIC_TAX: 'false' };
+    ORDER_DATA_DIR: directory, PUBLIC_SITE_URL: 'https://example.com', SHIPPING_FLAT_RATE_CENTS: '1000', STRIPE_AUTOMATIC_TAX: 'false' };
   const calls = [];
   const payments = createPayments({ env, fetchImpl: async (url, options) => {
     calls.push({ url, options, params: new URLSearchParams(options.body) });
@@ -29,7 +29,7 @@ test('charges catalog prices, collects US shipping, and uses stable retry keys',
   assert.match(params.get('metadata[catalog_revision]'), /^[a-f0-9]{64}$/);
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), String(products[0].unitAmount));
   assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
-  assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '800');
+  assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '1000');
   assert.equal(calls[0].options.headers['Idempotency-Key'], calls[1].options.headers['Idempotency-Key']);
   body.items[0].quantity = 2;
   await payments.createSession(body);
@@ -67,8 +67,8 @@ test('only paid verified events create durable orders; concurrent duplicates and
   const event = { id: 'evt_fixture', type: 'checkout.session.completed', livemode: false, data: { object: {
     id: 'cs_test_fixture', mode: 'payment', currency: 'usd', livemode: false, payment_status: 'unpaid',
     metadata: { store: 'abilitymade', abilitymade_reference: calls[0].params.get('metadata[abilitymade_reference]') },
-    amount_subtotal: products[0].unitAmount, amount_total: products[0].unitAmount + 800,
-    total_details: { amount_shipping: 800, amount_discount: 0, amount_tax: 0 },
+    amount_subtotal: products[0].unitAmount, amount_total: products[0].unitAmount + 1000,
+    total_details: { amount_shipping: 1000, amount_discount: 0, amount_tax: 0 },
     customer_details: { email: 'customer@example.com' },
     collected_information: { shipping_details: { name: 'Test customer', address: { country: 'US' } } },
   } } };
@@ -79,7 +79,7 @@ test('only paid verified events create durable orders; concurrent duplicates and
   assert.equal((await fs.readdir(directory)).filter(n => n.startsWith('order-')).length, 0);
   event.data.object.payment_status = 'paid'; event.data.object.amount_total = 1;
   await assert.rejects(deliver(), { status: 400 });
-  event.data.object.amount_total = products[0].unitAmount + 800;
+  event.data.object.amount_total = products[0].unitAmount + 1000;
   await Promise.all([deliver(), deliver(), deliver()]);
   const restarted = createPayments({ env });
   await deliver(restarted);
@@ -124,4 +124,36 @@ test('Railway checkout requires storage on its mounted volume', async () => {
   await assert.rejects(payments.createSession(body), { status: 503 });
   env.RAILWAY_VOLUME_MOUNT_PATH = directory;
   assert.ok((await payments.createSession(body)).url);
+});
+
+test('approved shipping is one $10 order fee below $120 and free at or above $120 in both languages', async () => {
+  for (const language of ['en', 'zh-CN']) {
+    const { payments, body, calls } = await fixture();
+    for (const [items, expected] of [
+      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'frame-clutch-black-gold', quantity: 1 }], '1000'], // $110, multiple products
+      [[{ id: 'frame-clutch-blue-bunny', quantity: 6 }], '0'], // exactly $120
+      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'member-drawing-art-block', quantity: 1 }], '0'], // $130
+    ]) {
+      await payments.createSession({ ...body, language, items, shipping: 1, supplierCount: 9, state: 'AK' });
+      const params = calls.at(-1).params;
+      assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), expected);
+      assert.equal(params.has('shipping_options[1][shipping_rate_data][fixed_amount][amount]'), false);
+      assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
+      assert.equal(params.has('shipping_address_collection[allowed_countries][1]'), false);
+      assert.equal(params.get('locale'), language === 'en' ? 'en' : 'zh');
+      assert.equal(params.get('ui_mode'), null); // Stripe-hosted default remains unchanged.
+    }
+  }
+});
+
+test('outdated shipping configuration blocks new checkout without affecting historical recovery', async () => {
+  const { payments, body, env, calls } = await fixture();
+  for (const rate of ['700', '800', '0', '1001']) {
+    env.SHIPPING_FLAT_RATE_CENTS = rate;
+    await assert.rejects(payments.createSession(body), {status:503, message:'checkout_unavailable'});
+  }
+  assert.equal(calls.length, 0);
+  env.SHIPPING_FLAT_RATE_CENTS = '1000';
+  await payments.createSession(body);
+  assert.equal(calls[0].params.get('automatic_tax[enabled]'), 'false');
 });

@@ -4,6 +4,10 @@ Blank working template; no supplier identities, rates, customer data, or actual 
 
 Stripe is the payment authority. Immutable payment/recovery files are evidence, not the fulfillment ledger. Recovery never marks an order shipped or settled. A recovered order starts on HOLD until a person reconciles it against this independent ledger and Stripe's current refund/dispute state.
 
+## Approved customer shipping policy
+
+Suppliers ship directly to customers. Charge $10 standard shipping once per customer order below $120 in merchandise, or $0 at $120 or more, for US addresses only. Multiple supplier sub-orders do not add customer shipping fees. Supplier carrier reimbursements are separate agreement-based ledger entries; do not copy the customer shipping fee onto every supplier payable. State-based customer rates are cancelled.
+
 ## Private order review register — one row per Checkout Session
 
 | Session reference (unique) | Internal order reference | Payment verified UTC | Financial state | Recovered? | Review state (HOLD/APPROVED) | Reviewer / approval UTC | Reason / evidence reference |
