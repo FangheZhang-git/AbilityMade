@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const products = require('./data/products.json');
+const { validateShipping, shippingHash } = require('./shipping');
 const { createRecovery, revision } = require('./recovery');
 const catalog = new Map(products.map(p => [p.id, p]));
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -91,11 +92,12 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
   async function createSession(body) {
     const config = configuration(env);
     const items = validateCart(body);
+    const shippingDetails = validateShipping(body.shippingDetails);
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
     // One order-wide fee, regardless of supplier count. Approved deployment value: 1000.
     const shipping = subtotal >= 12000 ? 0 : config.shipping;
-    const snapshot = { items, subtotal, shipping, language: body.language, live: config.live };
-    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, shippingDestinations: 'US,PR,GU', revision, environment: recovery.environment() }));
+    const snapshot = { items, subtotal, shipping, language: body.language, live: config.live, shippingDetails };
+    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, shippingDestinations: 'bound_v1', revision, environment: recovery.environment() }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);
     const params = new URLSearchParams({
       mode: 'payment', locale: body.language === 'zh-CN' ? 'zh' : 'en',
@@ -103,20 +105,25 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       cancel_url: `${config.origin}/checkout.html?language=${body.language}&cancelled=1`,
       'metadata[abilitymade_reference]': reference,
       'metadata[store]': 'abilitymade',
-      'shipping_address_collection[allowed_countries][0]': 'US',
-      'shipping_address_collection[allowed_countries][1]': 'PR',
-      'shipping_address_collection[allowed_countries][2]': 'GU',
       'automatic_tax[enabled]': String(config.tax),
       'shipping_options[0][shipping_rate_data][type]': 'fixed_amount',
       'shipping_options[0][shipping_rate_data][fixed_amount][amount]': String(shipping),
       'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
       'shipping_options[0][shipping_rate_data][display_name]': body.language === 'zh-CN' ? '标准配送' : 'Standard shipping',
     });
-    const metadata = { store: 'abilitymade', abilitymade_reference: reference, schema_version: '2', catalog_revision: revision, environment: recovery.environment(), language: body.language };
+    const metadata = { store: 'abilitymade', abilitymade_reference: reference, schema_version: '2', catalog_revision: revision, environment: recovery.environment(), language: body.language, shipping_mode: 'bound_v1', shipping_hash: shippingHash(shippingDetails) };
     for (const [key, value] of Object.entries(metadata)) {
       params.set(`metadata[${key}]`, value);
       params.set(`payment_intent_data[metadata][${key}]`, value);
     }
+    // Do not collect/edit delivery addresses in hosted Checkout. Billing may differ.
+    params.set('payment_intent_data[shipping][name]', shippingDetails.name);
+    for (const [key, value] of Object.entries(shippingDetails.address)) {
+      if (value) params.set(`payment_intent_data[shipping][address][${key}]`, value);
+    }
+    params.set('custom_text[submit][message]', body.language === 'zh-CN'
+      ? '配送地址已在 AbilityMade 确认。账单地址不会更改配送地址。需修改配送地址请返回商店。'
+      : 'Delivery uses the address confirmed on AbilityMade. Billing details do not change it. Return to the store to change delivery.');
     items.forEach((p, i) => {
       for (const [key, value] of Object.entries({ ...metadata, abilitymade_product_id: p.id })) {
         params.set(`line_items[${i}][price_data][product_data][metadata][${key}]`, value);

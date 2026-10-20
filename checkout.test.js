@@ -8,10 +8,10 @@ const items = [{ id: 'fixture', quantity: 1, title: 'Fixture', price: '$80' }];
 const fingerprint = JSON.stringify([{ id: 'fixture', quantity: 1 }]);
 function setup({ search = '', status = 'paid', storage = new Map(), error = false, confirm = false } = {}) {
   const nodes = new Map(), calls = [], timers = [], redirects = [];
-  const node = key => { if (!nodes.has(key)) nodes.set(key, { disabled: true, append() {}, addEventListener(_, fn) { this.click = fn; } }); return nodes.get(key); };
+  const node = key => { if (!nodes.has(key)) nodes.set(key, { value: ({'#shipping-country':'US','#shipping-state':'CA','#shipping-name':'Synthetic','#shipping-line1':'123 Test Street','#shipping-line2':'','#shipping-city':'Test City','#shipping-postal_code':'90001'})[key] || '', reportValidity: () => true, disabled: true, append() {}, addEventListener(_, fn) { this.click = fn; } }); return nodes.get(key); };
   const localStorage = { getItem: k => storage.get(k) ?? null, setItem: (k,v) => storage.set(k,v), removeItem: k => storage.delete(k) };
   vm.runInNewContext(source, {
-    window: { confirm: () => confirm }, URL, URLSearchParams, Date, localStorage, crypto: { randomUUID: () => '00000000-0000-4000-8000-000000000000' },
+    window: { confirm: () => confirm }, URL, URLSearchParams, Date, localStorage, TextEncoder, Uint8Array, crypto: { subtle: require('node:crypto').webcrypto.subtle, randomUUID: () => '00000000-0000-4000-8000-000000000000' },
     navigator: { locks: { request: async (_, fn) => fn() } },
     location: { search, assign: url => redirects.push(url) }, setTimeout: fn => timers.push(fn),
     document: { documentElement: {}, querySelector: node, querySelectorAll: () => [node('link1'),node('link2')], createElement: () => ({}) },
@@ -56,4 +56,17 @@ test('refreshing old success does not remove deliberately re-added items; repeat
  setup({storage,search:'?session_id=cs_test_fixture'});await settle();assert.equal(storage.get(cartKey),JSON.stringify(items));
  const ui=setup({storage,confirm:true});await ui.nodes.get('#pay-button').click();assert.equal(ui.calls.length,1);
  assert.notEqual(JSON.parse(ui.calls[0].options.body).requestId,'existing');
+});
+
+test('invalid delivery form never contacts provider; address edits require confirmation and do not store raw address',async()=>{
+ const storage=saved(),ui=setup({storage});
+ ui.nodes.get('#shipping-form').reportValidity=()=>false;
+ await ui.nodes.get('#pay-button').click();assert.equal(ui.calls.length,0);
+ ui.nodes.get('#shipping-form').reportValidity=()=>true;
+ await ui.nodes.get('#pay-button').click();assert.equal(ui.calls.length,1);
+ const request=JSON.parse(ui.calls[0].options.body);
+ assert.equal(request.shippingDetails.address.country,'US');
+ assert.equal(storage.get(attemptKey).includes('123 Test Street'),false);
+ ui.nodes.get('#shipping-line1').value='456 Changed Street';
+ await ui.nodes.get('#pay-button').click();assert.equal(ui.calls.length,1);
 });

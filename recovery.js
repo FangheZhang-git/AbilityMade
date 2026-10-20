@@ -1,5 +1,6 @@
 // Stripe payment recovery. Never writes operational ledgers or initiates payments.
 const crypto = require('node:crypto');
+const { validateShipping, shippingHash } = require('./shipping');
 const revision = crypto.createHash('sha256').update(JSON.stringify(require('./data/products.json'))).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
 const sessionPattern = /^cs_(?:test_|live_)?[a-zA-Z0-9]+$/;
@@ -71,6 +72,16 @@ function createRecovery({ env, fetchImpl }) {
     if (p.id !== s.payment_intent || p.status !== 'succeeded' || p.currency !== 'usd' || p.livemode !== live ||
         !Number.isSafeInteger(s.amount_total) || s.amount_total <= 0 || p.amount !== s.amount_total || p.amount_received !== s.amount_total ||
         (!isLegacy && (p.metadata?.abilitymade_reference !== s.metadata.abilitymade_reference || p.metadata?.store !== 'abilitymade'))) throw fail(409, 'payment_mismatch');
+    let boundShipping;
+    if (s.metadata.shipping_mode === 'bound_v1') {
+      try {
+        boundShipping = validateShipping(p.shipping);
+        if (p.metadata?.shipping_mode !== 'bound_v1' ||
+            p.metadata?.shipping_hash !== s.metadata.shipping_hash ||
+            shippingHash(boundShipping) !== s.metadata.shipping_hash ||
+            s.shipping_address_collection != null) throw new Error();
+      } catch { throw fail(409, 'shipping_mismatch'); }
+    } else if (s.metadata.shipping_mode) throw fail(409, 'shipping_mismatch');
     const refunds = await list('refunds?payment_intent=' + p.id);
     const disputes = await list('disputes?payment_intent=' + p.id);
     if (refunds.some(r => r.payment_intent !== p.id || r.currency !== 'usd' || !Number.isSafeInteger(r.amount) || r.amount < 0) ||
@@ -80,7 +91,7 @@ function createRecovery({ env, fetchImpl }) {
     const refundPending = refunds.some(r => !['succeeded', 'failed', 'canceled'].includes(r.status));
     const disputeReview = disputes.some(d => !['won', 'warning_closed'].includes(d.status));
     const status = disputeReview ? 'disputed' : refundPending ? 'refund_pending' : refunded === s.amount_total ? 'refunded' : refunded ? 'partially_refunded' : 'paid';
-    return { status, session: s, isLegacy, refunded, disputes: disputes.map(d => ({ id: d.id, status: d.status })) };
+    return { status, session: s, isLegacy, boundShipping, refunded, disputes: disputes.map(d => ({ id: d.id, status: d.status })) };
   }
   async function reconstruct(id) {
     const v = await verify(id), s = v.session;
@@ -106,7 +117,7 @@ function createRecovery({ env, fetchImpl }) {
       if (JSON.stringify(items.map(p => [p.id, p.quantity, p.unitAmount])) !== JSON.stringify(expected) || s.amount_total !== (expected.length === 1 ? 8700 : 12000)) throw fail(409, 'legacy_order_mismatch');
     }
     const subtotal = items.reduce((n,p) => n + p.unitAmount * p.quantity, 0), t = s.total_details;
-    const shipping = s.collected_information?.shipping_details || s.shipping_details;
+    const shipping = v.boundShipping || s.collected_information?.shipping_details || s.shipping_details;
     const language = v.isLegacy ? ({ en: 'en', zh: 'zh-CN' })[s.locale] : s.metadata.language;
     if (new Set(items.map(p=>p.id)).size !== items.length || s.amount_subtotal !== subtotal ||
         !t || !Number.isSafeInteger(t.amount_shipping) || t.amount_shipping < 0 || !Number.isSafeInteger(t.amount_tax) || t.amount_tax < 0 ||

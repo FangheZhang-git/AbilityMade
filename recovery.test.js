@@ -242,3 +242,33 @@ test('territory recovery still requires complete street city and postal code',as
     assert.deepEqual(await fs.readdir(dir),[]);
   }
 });
+
+test('bound delivery survives total snapshot loss, webhook retries and separate recovery; billing cannot override it',async()=>{
+ const {state,payments,env,dir}=await fixture();
+ const {shippingHash}=require('./shipping');
+ state.p.shipping={name:'Synthetic',address:{line1:'123 Test Street',line2:'',city:'Hagatna',country:'GU',state:'GU',postal_code:'96910'}};
+ state.s.metadata.shipping_mode=state.p.metadata.shipping_mode='bound_v1';
+ state.s.metadata.shipping_hash=state.p.metadata.shipping_hash=shippingHash(state.p.shipping);
+ delete state.s.collected_information;
+ state.s.customer_details.address={country:'AS',state:'AS',postal_code:'96799'}; // Billing only.
+ const raw=Buffer.from(JSON.stringify({type:'checkout.session.completed',data:{object:state.s}}));
+ const t=Math.floor(Date.now()/1000),sig=`t=${t},v1=${crypto.createHmac('sha256',env.STRIPE_WEBHOOK_SECRET).update(t+'.').update(raw).digest('hex')}`;
+ await Promise.all([payments.webhook(raw,sig),payments.webhook(raw,sig)]);
+ const names=(await fs.readdir(dir)).filter(n=>n.startsWith('order-'));
+ assert.equal(names.length,1);
+ const order=JSON.parse(await fs.readFile(path.join(dir,names[0]),'utf8'));
+ assert.deepEqual(order.shippingDetails,state.p.shipping);
+ assert.deepEqual((await payments.recover(state.s.id)).shippingDetails,state.p.shipping);
+});
+test('missing, changed or unsupported bound address fails closed without order writes',async()=>{
+ for(const mutation of [x=>delete x.p.shipping,x=>x.p.shipping.address.line1='Changed',x=>x.p.shipping.address.country='AS',x=>x.p.metadata.shipping_hash='b'.repeat(64),x=>x.s.shipping_address_collection={allowed_countries:['US']}]){
+  const {state,payments,dir}=await fixture();
+  state.p.shipping=structuredClone(state.s.collected_information.shipping_details);
+  state.p.shipping.address.postal_code="90001";
+  state.s.metadata.shipping_mode=state.p.metadata.shipping_mode='bound_v1';
+  state.s.metadata.shipping_hash=state.p.metadata.shipping_hash=require('./shipping').shippingHash(state.p.shipping);
+  mutation(state);
+  await assert.rejects(payments.recover(state.s.id,{write:true}),{message:'shipping_mismatch'});
+  assert.deepEqual(await fs.readdir(dir),[]);
+ }
+});

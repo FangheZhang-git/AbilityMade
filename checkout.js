@@ -41,6 +41,24 @@
   const button = document.querySelector('#pay-button');
   const status = document.querySelector('#payment-status');
   button.textContent = copy.button;
+  const shippingForm = document.querySelector('#shipping-form');
+  const shippingField = key => document.querySelector('#shipping-' + key);
+  const shippingLabels = zh ? { name: '收件人姓名', line1: '街道地址', line2: '公寓 / 房号（选填）', city: '城市', country: '配送地区', state: '州 / 华盛顿特区', postal_code: '邮政编码' }
+    : { name: 'Full name', line1: 'Street address', line2: 'Apartment / suite (optional)', city: 'City', country: 'Destination', state: 'State / DC', postal_code: 'ZIP code' };
+  for (const [key, label] of Object.entries(shippingLabels)) document.querySelector('#label-' + key).textContent = label;
+  document.querySelector('#shipping-title').textContent = zh ? '配送地址' : 'Delivery address';
+  document.querySelector('#shipping-lock-note').textContent = zh ? '此地址用于配送。在 Stripe 输入的账单地址不会更改配送地址。' : 'This is your delivery address. Billing details entered at Stripe will not change it.';
+  if (zh) {
+    for (const [id, text] of Object.entries({'destination-us':'美国（50 州及华盛顿特区）','destination-pr':'波多黎各','destination-gu':'关岛','state-select':'请选择'})) document.querySelector('#' + id).textContent = text;
+  }
+  const updateDestination = () => {
+    const us = shippingField('country').value === 'US';
+    shippingField('state').required = us;
+    document.querySelector('#state-field').hidden = !us;
+  };
+  shippingField('country').addEventListener('change', updateDestination);
+  shippingForm.addEventListener('submit', event => event.preventDefault());
+  updateDestination();
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('abilitymade-checkout-request-v1') || '{}'); } catch {}
   const items = Array.isArray(saved?.items) ? saved.items : [];
@@ -69,6 +87,7 @@
   const sessionId = query.get('session_id');
   if (sessionId) {
     button.hidden = true;
+    shippingForm.hidden = true;
     document.querySelector('#checkout-items').hidden = true;
     document.querySelector('#checkout-intro').textContent = copy.pending;
     const check = async (attempt = 0) => {
@@ -99,10 +118,19 @@
   button.disabled = false;
   if (query.has('cancelled')) status.textContent = copy.cancelled;
   button.addEventListener('click', async () => {
-    if (button.disabled) return;
+    if (button.disabled || !shippingForm.reportValidity()) return;
     button.disabled = true;
     status.textContent = copy.loading;
     const submit = async () => {
+      const country = shippingField('country').value;
+      const shippingDetails = { name: shippingField('name').value.trim(), address: {
+        line1: shippingField('line1').value.trim(), line2: shippingField('line2').value.trim(),
+        city: shippingField('city').value.trim(), country,
+        state: country === 'US' ? shippingField('state').value : country,
+        postal_code: shippingField('postal_code').value.trim(),
+      } };
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(shippingDetails)));
+      const shippingKey = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
       const cart = items.map(({ id, quantity }) => ({ id, quantity }));
       const cartFingerprint = fingerprint(cart);
       let attempt = readAttempt();
@@ -114,16 +142,22 @@
         // Do not silently renew an uncertain payment after Stripe's retry window.
         if (attempt && Date.now() - attempt.created > 23 * 60 * 60 * 1000) { status.textContent = copy.unknown; return; }
       }
+      if (attempt?.shippingKey && attempt.shippingKey !== shippingKey) {
+        if (attempt.sessionId && !window.confirm(zh ? '配送地址已更改。请确保之前的支付页面已关闭且未付款。要创建新结账吗？' : 'Delivery address changed. Make sure the previous payment page is closed and unpaid. Create a new checkout?')) { status.textContent = copy.unknown; return; }
+        attempt = null;
+      }
       if (!attempt || attempt.fingerprint !== cartFingerprint) {
         attempt = { fingerprint: cartFingerprint, requestId: crypto.randomUUID(), language, created: Date.now() };
         localStorage.setItem(attemptKey, JSON.stringify(attempt));
       }
+      attempt.shippingKey = shippingKey;
+      localStorage.setItem(attemptKey, JSON.stringify(attempt));
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: cart, language: attempt.language, requestId: attempt.requestId }),
+        body: JSON.stringify({ items: cart, language: attempt.language, requestId: attempt.requestId, shippingDetails }),
       });
       if (!response.ok) {
-        status.textContent = response.status === 400 ? copy.invalid : copy.unavailable;
+        status.textContent = response.status === 400 ? (zh ? '请检查商品和配送地址。仅支持美国 50 州及特区、波多黎各和关岛，请填写匹配的邮编。' : 'Check your items and delivery address. Only the 50 US states, DC, Puerto Rico and Guam are supported; enter a matching ZIP code.') : copy.unavailable;
         return;
       }
       const result = await response.json();

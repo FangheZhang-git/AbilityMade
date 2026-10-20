@@ -1109,3 +1109,8 @@ main > .story-section:first-child {
   }
 
 }
+
+.shipping-form { display: grid; gap: 12px; margin: 24px 0; }
+.shipping-form label { display: grid; gap: 5px; }
+.shipping-form input, .shipping-form select { width: 100%; min-width: 0; padding: 10px; font: inherit; border: 1px solid #777; border-radius: 4px; box-sizing: border-box; }
+.shipping-form[hidden], .shipping-form [hidden] { display: none; }

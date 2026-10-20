@@ -16,7 +16,7 @@ async function fixture() {
     calls.push({ url, options, params: new URLSearchParams(options.body) });
     return new Response(JSON.stringify({ id: 'cs_test_fixture', url: 'https://checkout.stripe.com/c/pay/cs_test_fixture' }), { status: 200 });
   } });
-  const body = { items: [{ id: products[0].id, quantity: 1, price: 1 }], language: 'en', requestId: crypto.randomUUID() };
+  const body = { shippingDetails: {name:'Synthetic',address:{line1:'123 Test Street',city:'Test City',state:'CA',postal_code:'90001',country:'US'}}, items: [{ id: products[0].id, quantity: 1, price: 1 }], language: 'en', requestId: crypto.randomUUID() };
   return { env, calls, payments, body, directory };
 }
 test('charges catalog prices, collects US shipping, and uses stable retry keys', async () => {
@@ -28,7 +28,8 @@ test('charges catalog prices, collects US shipping, and uses stable retry keys',
   assert.equal(params.get('payment_intent_data[metadata][abilitymade_reference]'), params.get('metadata[abilitymade_reference]'));
   assert.match(params.get('metadata[catalog_revision]'), /^[a-f0-9]{64}$/);
   assert.equal(params.get('line_items[0][price_data][unit_amount]'), String(products[0].unitAmount));
-  assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
+  assert.equal(params.has('shipping_address_collection[allowed_countries][0]'), false);
+  assert.equal(params.get('payment_intent_data[shipping][address][country]'), 'US');
   assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '1000');
   assert.equal(calls[0].options.headers['Idempotency-Key'], calls[1].options.headers['Idempotency-Key']);
   body.items[0].quantity = 2;
@@ -138,8 +139,9 @@ test('approved shipping is one $10 order fee below $120 and free at or above $12
       const params = calls.at(-1).params;
       assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), expected);
       assert.equal(params.has('shipping_options[1][shipping_rate_data][fixed_amount][amount]'), false);
-      assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
-      assert.deepEqual([...params].filter(([k]) => k.startsWith('shipping_address_collection[allowed_countries]')).map(([,v]) => v), ['US', 'PR', 'GU']);
+      assert.equal(params.has('shipping_address_collection[allowed_countries][0]'), false);
+  assert.equal(params.get('payment_intent_data[shipping][address][country]'), 'US');
+      assert.equal([...params].some(([k]) => k.startsWith('shipping_address_collection')), false);
       assert.equal(params.get('locale'), language === 'en' ? 'en' : 'zh');
       assert.equal(params.get('ui_mode'), null); // Stripe-hosted default remains unchanged.
     }
@@ -156,4 +158,27 @@ test('outdated shipping configuration blocks new checkout without affecting hist
   env.SHIPPING_FLAT_RATE_CENTS = '1000';
   await payments.createSession(body);
   assert.equal(calls[0].params.get('automatic_tax[enabled]'), 'false');
+});
+
+test('unsupported delivery cannot create a Stripe Session, including direct API and ZIP bypasses', async () => {
+  const {payments,body,calls}=await fixture();
+  const original=body.shippingDetails;
+  for(const [country,state,postal_code] of [['AS','AS','96799'],['MP','MP','96950'],['VI','VI','00801'],['UM','UM','96898'],['US','AS','96799'],['US','MP','96950'],['US','VI','00801'],['US','UM','96898'],['US','HI','96898'],['US','CA','96799'],['US','CA','96950'],['US','CA','00801'],['US','AA','09000'],['PR','VI','00801'],['GU','GU','96950']]) {
+    await assert.rejects(payments.createSession({...body,shippingDetails:{...original,address:{...original.address,country,state,postal_code}}}),{message:'invalid_shipping'});
+  }
+  await assert.rejects(payments.createSession({...body,shippingDetails:undefined}),{message:'invalid_shipping'});
+  assert.equal(calls.length,0);
+});
+test('approved destinations bind address and metadata to PaymentIntent with no hosted delivery editing',async()=>{
+ const {payments,body,calls}=await fixture();
+ for(const [country,state,postal_code] of [['US','AK','99501'],['US','HI','96813'],['US','DC','20001'],['PR','','00901'],['GU','','96910']]) {
+  await payments.createSession({...body,shippingDetails:{...body.shippingDetails,address:{...body.shippingDetails.address,country,state,postal_code}}});
+  const params=calls.at(-1).params;
+  assert.equal(params.get('payment_intent_data[shipping][address][country]'),country);
+  assert.equal(params.get('payment_intent_data[shipping][address][postal_code]'),postal_code);
+  assert.equal(params.get('metadata[shipping_mode]'),'bound_v1');
+  assert.equal(params.get('metadata[shipping_hash]'),params.get('payment_intent_data[metadata][shipping_hash]'));
+  assert.equal([...params].some(([k])=>k.startsWith('shipping_address_collection')),false);
+ }
+ assert.equal(new Set(calls.map(c=>c.options.headers['Idempotency-Key'])).size,5);
 });
