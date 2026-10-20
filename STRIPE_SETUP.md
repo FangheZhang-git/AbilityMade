@@ -1,6 +1,6 @@
 # AbilityMade Stripe Checkout setup
 
-The local implementation replaces purchase-request checkout with Stripe-hosted Checkout. It uses USD prices from `data/products.json`, US shipping addresses, free standard shipping at a merchandise subtotal of $120, and one $10 standard shipping fee per order below $120, including orders containing products from multiple suppliers. Suppliers ship directly to customers. The state-based shipping proposal is cancelled; keep Stripe-hosted Checkout and US-only address collection. On October 20, 2026, the owner confirmed that Stripe Payments and Payouts are activated and Truist Bank is connected. This is owner-confirmed; no credentials or account details were inspected during this review.
+The local implementation replaces purchase-request checkout with Stripe-hosted Checkout. It uses USD prices from `data/products.json`, shipping addresses in US (all 50 states and DC), PR and GU, free standard shipping at a merchandise subtotal of $120, and one $10 standard shipping fee per order below $120, including orders containing products from multiple suppliers. Suppliers ship directly to customers. The state-based shipping proposal is cancelled; keep Stripe-hosted Checkout and US/PR/GU address collection (AS, MP, VI and UM excluded). On October 20, 2026, the owner confirmed that Stripe Payments and Payouts are activated and Truist Bank is connected. This is owner-confirmed; no credentials or account details were inspected during this review.
 
 ## Configuration
 

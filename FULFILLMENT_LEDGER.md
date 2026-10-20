@@ -6,7 +6,7 @@ Stripe is the payment authority. Immutable payment/recovery files are evidence, 
 
 ## Approved customer shipping policy
 
-Suppliers ship directly to customers. Charge $10 standard shipping once per customer order below $120 in merchandise, or $0 at $120 or more, for US addresses only. Multiple supplier sub-orders do not add customer shipping fees. Supplier carrier reimbursements are separate agreement-based ledger entries; do not copy the customer shipping fee onto every supplier payable. State-based customer rates are cancelled.
+Suppliers ship directly to customers. Charge $10 standard shipping once per customer order below $120 in merchandise, or $0 at $120 or more, for all 50 US states, DC, Puerto Rico (PR) and Guam (GU); AS, MP, VI and UM are excluded (hosted address checks pending). Multiple supplier sub-orders do not add customer shipping fees. AbilityMade pays suppliers’ shipping fees, recorded separately under agreed payment timing; do not copy the customer shipping fee onto every supplier payable. State-based customer rates are cancelled.
 
 ## Private order review register — one row per Checkout Session
 
@@ -54,3 +54,18 @@ Two shipped items × 1,200 supplier cents + 500 shipping cents − 300 reviewed 
 ## Durability and access
 
 The operational ledger cannot be reconstructed from Stripe. Before production, choose an existing private document location with restricted access and version history, plus a separately recoverable copy after every shipment or settlement change. Test retrieval of an earlier version. Do not depend solely on Railway's order volume or a public repository. No external document or backup is created by this template; storage choice and operational recovery remain launch requirements. Avoid adding subscriptions until existing resources are assessed.
+
+## Owner decisions: coordination, cancellation and damage review
+
+AbilityMade collects customer payments through Stripe, coordinates orders and pays suppliers’ shipping fees; suppliers dispatch directly. Customer shipping remains one $10 fee below $120 or free at $120+, including multiple suppliers. Approved scope is all 50 states, DC, Puerto Rico (PR) and Guam (GU); AS, MP, VI and UM are excluded, but hosted destination testing remains a launch requirement (see CUSTOMER_POLICIES_DRAFT.md). Do not treat supplier cost as the customer shipping charge or assume free customer shipping means no supplier cost.
+
+No voluntary cancellation after purchase. Preserve legally required cancellation/refund rights, including shipment-delay remedies. Cancelling an unpaid Checkout Session is distinct from cancelling a purchased order. For arrival damage, request photos privately, record an evidence reference and review decision, and issue a justified refund manually through Stripe consistent with consumer rights. Do not put photos, addresses or customer correspondence in this ledger. Ordinary return periods, refund-processing deadlines and support-response targets remain pending approval.
+
+### Supplier shipping payments — separate from merchandise settlement
+
+| Shipping payment ID (unique) | Session reference | Supplier sub-order ID | Supplier ID | Package ID | Destination region (state/territory only) | Quote/invoice reference | Approved shipping cents | Actual shipping cents | Currency | Payment state (HOLD/APPROVED/PAID) | Approved by / UTC | Paid UTC | Non-sensitive payment reference | Settlement entry or exclusion reference | Reconciled by / UTC |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+
+Link every supplier shipping payment to its package/sub-order, shipment tracking and fulfillment state in the existing tables. Payment does not prove dispatch: mark SHIPPED only on shipment evidence. Record advance payments separately from shipped-item merchandise payables. Payment timing and approval limits must be agreed; no automated transfer is authorized. Aggregate customer shipping once per order, supplier costs per actual shipment. Split a single invoice explicitly if it covers multiple packages; never count the full invoice twice.
+
+If shipping is paid separately, exclude it from later supplier settlement reimbursement and link the exclusion to this payment ID. If paid through a monthly batch, link the same amount/ID once to that batch rather than paying again. Preserve PAID history; append credits/adjustments for label cancellations, carrier refunds or errors. Resolve ambiguous transfers before retrying. Record actual quote-versus-cost variance, especially Alaska/Hawaii/territories, and investigate insufficient margin before accepting commitments; do not impose an unapproved customer surcharge.

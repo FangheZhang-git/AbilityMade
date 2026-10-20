@@ -95,7 +95,7 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     // One order-wide fee, regardless of supplier count. Approved deployment value: 1000.
     const shipping = subtotal >= 12000 ? 0 : config.shipping;
     const snapshot = { items, subtotal, shipping, language: body.language, live: config.live };
-    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, revision, environment: recovery.environment() }));
+    const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, shippingDestinations: 'US,PR,GU', revision, environment: recovery.environment() }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);
     const params = new URLSearchParams({
       mode: 'payment', locale: body.language === 'zh-CN' ? 'zh' : 'en',
@@ -104,6 +104,8 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       'metadata[abilitymade_reference]': reference,
       'metadata[store]': 'abilitymade',
       'shipping_address_collection[allowed_countries][0]': 'US',
+      'shipping_address_collection[allowed_countries][1]': 'PR',
+      'shipping_address_collection[allowed_countries][2]': 'GU',
       'automatic_tax[enabled]': String(config.tax),
       'shipping_options[0][shipping_rate_data][type]': 'fixed_amount',
       'shipping_options[0][shipping_rate_data][fixed_amount][amount]': String(shipping),

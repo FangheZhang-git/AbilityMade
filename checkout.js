@@ -5,7 +5,7 @@
   const copy = zh ? {
     repeat: '这份购物车已付款。确定要再购买一次并创建一个单独的新订单吗？',
     title: '确认订单', intro: '确认商品后，前往安全支付页面。', button: '前往安全支付',
-    note: '仅配送美国。商品金额未满 $120，每笔订单标准运费为 $10；满 $120 免标准运费。多个供应商的商品也只收取一次运费。商品由供应商直接寄送。适用税费将在付款前显示。',
+    note: '仅配送美国 50 州、华盛顿特区、波多黎各及关岛。商品金额未满 $120，每笔订单标准运费为 $10；满 $120 免标准运费。多个供应商的商品也只收取一次运费。商品由供应商直接寄送。适用税费将在付款前显示。',
     empty: '购物车为空，请返回商店添加商品。', loading: '正在打开支付页面…',
     unavailable: '在线支付暂不可用，请稍后再试或通过下方邮箱联系我们。',
     invalid: '购物车需要更新，请返回商店重新选择商品。',
@@ -17,7 +17,7 @@
   } : {
     repeat: 'This cart was already paid for. Do you intentionally want to buy it again as a separate new order?',
     title: 'Review your order', intro: 'Review your items, then continue to secure payment.', button: 'Continue to secure payment',
-    note: 'US shipping only. Standard shipping is $10 per order below $120 in merchandise, and free at $120 or more. One shipping fee covers all suppliers. Suppliers ship directly to you. Applicable tax is shown before payment.',
+    note: 'Shipping to all 50 US states, DC, Puerto Rico and Guam only. Standard shipping is $10 per order below $120 in merchandise, and free at $120 or more. One shipping fee covers all suppliers. Suppliers ship directly to you. Applicable tax is shown before payment.',
     empty: 'Your cart is empty. Return to the shop to add items.', loading: 'Opening secure payment…',
     unavailable: 'Online checkout is temporarily unavailable. Please try again later or contact us at the email below.',
     invalid: 'Your cart needs updating. Please return to the shop and select your items again.',
@@ -34,7 +34,7 @@
   const links = document.querySelectorAll('.checkout-nav-links a');
   links[0].href = shop + '#shop'; links[0].textContent = copy.shop;
   links[1].href = shop + '#contact'; links[1].textContent = copy.contact;
-  document.querySelector('.delivery-strip').textContent = zh ? '美国配送 · 未满 $120 运费 $10 · 满 $120 免标准运费' : 'US shipping · $10 below $120 · Free standard shipping at $120+';
+  document.querySelector('.delivery-strip').textContent = zh ? '美国 50 州及特区、波多黎各、关岛配送 · 未满 $120 运费 $10 · 满 $120 免标准运费' : 'US (50 states + DC), PR & GU · $10 below $120 · Free standard shipping at $120+';
   document.querySelector('#checkout-title').textContent = copy.title;
   document.querySelector('#checkout-intro').textContent = copy.intro;
   document.querySelector('#checkout-note').textContent = copy.note;

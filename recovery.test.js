@@ -208,3 +208,37 @@ test('simulated completed authentication creates exactly one verified order',asy
  await f.payments.recover(f.state.s.id,{write:true});await f.payments.recover(f.state.s.id,{write:true});
  assert.equal((await fs.readdir(f.dir)).filter(n=>n.startsWith('order-')).length,1);
 });
+
+// Synthetic provider responses only; these do not validate Stripe's hosted address UI.
+test('US including AK HI DC and PR GU recover original addresses and historical charges', async () => {
+  for (const [country, stateCode] of [['US','CA'],['US','AK'],['US','HI'],['US','DC'],['PR',null],['GU',null],['PR','PR'],['GU','GU']]) {
+    const {state,payments,dir}=await fixture();
+    const address=state.s.collected_information.shipping_details.address;
+    address.country=country; address.state=stateCode;
+    const record=await payments.recover(state.s.id);
+    assert.deepEqual(record.shippingDetails.address,address);
+    assert.equal(record.amountTotal,8200); assert.equal(record.shipping,700);
+    await payments.recover(state.s.id,{write:true});
+    await payments.recover(state.s.id,{write:true});
+    assert.equal((await fs.readdir(dir)).filter(n=>n.startsWith('order-')).length,1);
+  }
+});
+test('excluded countries and excluded territories entered as US cannot reconstruct fulfillable orders',async()=>{
+  for(const [country,region] of [['AS','AS'],['MP','MP'],['VI','VI'],['UM','UM'],['CA','ON'],['US','AS'],['US','MP'],['US','VI'],['US','UM'],['US','American Samoa']]){
+    const {state,payments,dir}=await fixture();
+    Object.assign(state.s.collected_information.shipping_details.address,{country,state:region});
+    // A destination problem must never misrepresent a verified payment as unpaid.
+    assert.deepEqual(await payments.status(state.s.id),{status:'paid'});
+    await assert.rejects(payments.recover(state.s.id,{write:true}),{message:'incomplete_order'});
+    assert.deepEqual(await fs.readdir(dir),[]);
+  }
+});
+test('territory recovery still requires complete street city and postal code',async()=>{
+  for(const country of ['PR','GU']) for(const field of ['line1','city','postal_code']) {
+    const {state,payments,dir}=await fixture();
+    const address=state.s.collected_information.shipping_details.address;
+    address.country=country; delete address.state; address[field]=' ';
+    await assert.rejects(payments.recover(state.s.id,{write:true}),{message:'incomplete_order'});
+    assert.deepEqual(await fs.readdir(dir),[]);
+  }
+});

@@ -28,3 +28,9 @@ Storage-disabled or Web-Locks-unavailable browsers fail safely instead of launch
 No production launch is recommended until these gates are resolved. Stripe payment history supports reconstruction of payment records; it does not replace supplier fulfillment and settlement history.
 
 See PRODUCTION_CONFIG.md for the unapplied live configuration and final validation sequence.
+
+## October 20 owner policy update — supersedes conflicting earlier policy proposals
+
+Shipping scope approved: all 50 states, DC, Puerto Rico (PR) and Guam (GU); AS, MP, VI and UM are excluded; one $10 fee below $120/free at $120+. AbilityMade collects payment through Stripe, coordinates fulfillment and pays supplier shipping; suppliers ship directly. No voluntary cancellation after purchase, except applicable-law rights including delays. Arrival damage: photos requested, human assessment, justified manual refund consistent with consumer rights. Return periods and service-response timeframes remain unapproved. Use CUSTOMER_POLICIES_DRAFT.md and FULFILLMENT_LEDGER.md for current details.
+
+Checkout now requests exactly US, PR and GU; recovery accepts those countries and does not require a separate state for PR/GU. AS, MP, VI and UM are excluded. Hosted Sandbox tests remain required: US (including AK/HI/DC), PR and GU, and attempts to select excluded countries or enter excluded territories under US. Local mocks and documented country options do not prove hosted address validation. A post-payment recovery rejection cannot prevent a charge; if an excluded destination can pass hosted Checkout, resolve it before launch. Keep Automatic Tax false; supplier costs/delivery estimates and legal/tax obligations remain unresolved.

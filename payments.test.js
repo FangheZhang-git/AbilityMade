@@ -139,7 +139,7 @@ test('approved shipping is one $10 order fee below $120 and free at or above $12
       assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), expected);
       assert.equal(params.has('shipping_options[1][shipping_rate_data][fixed_amount][amount]'), false);
       assert.equal(params.get('shipping_address_collection[allowed_countries][0]'), 'US');
-      assert.equal(params.has('shipping_address_collection[allowed_countries][1]'), false);
+      assert.deepEqual([...params].filter(([k]) => k.startsWith('shipping_address_collection[allowed_countries]')).map(([,v]) => v), ['US', 'PR', 'GU']);
       assert.equal(params.get('locale'), language === 'en' ? 'en' : 'zh');
       assert.equal(params.get('ui_mode'), null); // Stripe-hosted default remains unchanged.
     }

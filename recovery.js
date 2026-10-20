@@ -112,7 +112,11 @@ function createRecovery({ env, fetchImpl }) {
         !t || !Number.isSafeInteger(t.amount_shipping) || t.amount_shipping < 0 || !Number.isSafeInteger(t.amount_tax) || t.amount_tax < 0 ||
         t.amount_discount !== 0 || s.amount_total !== subtotal + t.amount_shipping + t.amount_tax ||
         !['en','zh-CN'].includes(language) || !s.customer_details?.email || !shipping?.name ||
-        shipping.address?.country !== 'US' || !['line1','city','postal_code','state'].every(k=>shipping.address[k]) ||
+        !['US', 'PR', 'GU'].includes(shipping.address?.country) ||
+        !['line1','city','postal_code'].every(k=>typeof shipping.address[k] === 'string' && shipping.address[k].trim()) ||
+        (shipping.address.state != null && typeof shipping.address.state !== 'string') ||
+        (shipping.address.country === 'US' && !shipping.address.state?.trim()) ||
+        ['AS','MP','VI','UM','AMERICAN SAMOA','NORTHERN MARIANA ISLANDS','US VIRGIN ISLANDS','U.S. VIRGIN ISLANDS','UNITED STATES MINOR OUTLYING ISLANDS'].includes(shipping.address.state?.trim().toUpperCase()) ||
         (!v.isLegacy && !/^[a-f0-9]{64}$/.test(s.metadata.catalog_revision || ''))) throw fail(409, 'incomplete_order');
     return { schemaVersion: 2, items, subtotal, shipping: t.amount_shipping, language, live: s.livemode,
       status: 'paid', financialStatusAtRecovery: v.status, refundedAtRecovery: v.refunded,
