@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192x192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="style.css?v=mix-cart">
+  <link rel="stylesheet" href="style.css?v=checkout-soft">
 </head>
 <body class="checkout-page">
   <div class="delivery-strip">
@@ -32,15 +32,24 @@
 
   <main class="checkout-main">
     <section class="checkout-panel" aria-labelledby="checkout-title">
-      <div class="checkout-thank-you">
-        <h1 id="checkout-title">Thank you for shopping :)</h1>
+      <div class="checkout-heading">
+        <p class="checkout-eyebrow" data-checkout-copy="eyebrow">Made with care. Chosen by you.</p>
+        <h1 id="checkout-title">Review your order</h1>
+        <p class="checkout-message" id="checkout-intro">Review your items, then continue to secure payment.</p>
       </div>
 
-      <p class="checkout-message" id="checkout-intro">Review your items, then continue to secure payment.</p>
-      <div id="checkout-items"></div>
-      <p id="checkout-note">Shipping to all 50 US states, DC, Puerto Rico and Guam only. Standard shipping is $10 per order below $120 in merchandise, and free at $120 or more. One shipping fee covers all suppliers. Suppliers ship directly to you. Applicable tax is shown before payment.</p>
-<p><a id="policy-link" href="customer-policies.html#en" target="_blank" rel="noopener">Shipping, refunds, privacy & support</a></p>
-<form id="shipping-form" class="shipping-form">
+      <div class="checkout-layout">
+        <section class="checkout-order" aria-labelledby="order-heading">
+          <div class="checkout-section-heading">
+            <h2 id="order-heading" data-checkout-copy="order">Your selection</h2>
+            <a class="checkout-edit" href="index.html#shop" data-checkout-copy="edit">Continue shopping ↗</a>
+          </div>
+          <div id="checkout-items"></div>
+          <div class="checkout-subtotal" id="checkout-subtotal" hidden>
+            <span data-checkout-copy="subtotal">Merchandise subtotal</span>
+            <strong id="subtotal-amount"></strong>
+          </div>
+          <form id="shipping-form" class="shipping-form">
 <h2 id="shipping-title">Delivery address</h2>
 <label><span id="label-name">Full name</span><input id="shipping-name" autocomplete="shipping name" maxlength="100" required></label>
 <label><span id="label-line1">Street address</span><input id="shipping-line1" autocomplete="shipping address-line1" maxlength="200" required></label>
@@ -51,9 +60,25 @@
 <label><span id="label-postal_code">ZIP code</span><input id="shipping-postal_code" autocomplete="shipping postal-code" pattern="[0-9]{5}(-[0-9]{4})?" maxlength="10" required></label>
 <p id="shipping-lock-note">This is your delivery address. Billing details entered at Stripe will not change it.</p>
 </form>
-      <button class="button-link shopping-submit" id="pay-button" type="button" disabled>Continue to secure payment</button>
-      <p class="form-status" id="payment-status" role="status" aria-live="polite"></p>
-      <p><a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a></p>
+          <p class="checkout-order-caption" data-checkout-copy="caption">Thoughtful pieces. A more inclusive world.</p>
+        </section>
+
+        <aside class="checkout-payment" aria-labelledby="payment-heading">
+          <span class="checkout-lock" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+          </span>
+          <h2 id="payment-heading" data-checkout-copy="payment">A little closer to yours</h2>
+          <p class="checkout-payment-intro" data-checkout-copy="secure">Continue to Stripe to complete your purchase securely.</p>
+          <div class="checkout-delivery">
+            <h3 data-checkout-copy="delivery">Delivery &amp; shipping</h3>
+            <p id="checkout-note">Shipping to all 50 US states, DC, Puerto Rico and Guam only. Standard shipping is $10 per order below $120 in merchandise, and free at $120 or more. One shipping fee covers all suppliers. Suppliers ship directly to you. Applicable tax is shown before payment.</p>
+            <p><a id="policy-link" href="customer-policies.html#en" target="_blank" rel="noopener">Shipping, refunds, privacy & support</a></p>
+          </div>
+          <button class="button-link shopping-submit" id="pay-button" type="button" disabled>Continue to secure payment</button>
+          <p class="form-status" id="payment-status" role="status" aria-live="polite"></p>
+        </aside>
+      </div>
+      <p class="checkout-help"><span data-checkout-copy="help">Need a hand with your order?</span> <a href="mailto:AbilityMade@gmail.com">AbilityMade@gmail.com</a></p>
     </section>
   </main>
 

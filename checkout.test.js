@@ -8,13 +8,13 @@ const items = [{ id: 'fixture', quantity: 1, title: 'Fixture', price: '$80' }];
 const fingerprint = JSON.stringify([{ id: 'fixture', quantity: 1 }]);
 function setup({ search = '', status = 'paid', storage = new Map(), error = false, confirm = false } = {}) {
   const nodes = new Map(), calls = [], timers = [], redirects = [];
-  const node = key => { if (!nodes.has(key)) nodes.set(key, { value: ({'#shipping-country':'US','#shipping-state':'CA','#shipping-name':'Synthetic','#shipping-line1':'123 Test Street','#shipping-line2':'','#shipping-city':'Test City','#shipping-postal_code':'90001'})[key] || '', reportValidity: () => true, disabled: true, append() {}, addEventListener(_, fn) { this.click = fn; } }); return nodes.get(key); };
+  const node = key => { if (!nodes.has(key)) nodes.set(key, { value: ({'#shipping-country':'US','#shipping-state':'CA','#shipping-name':'Synthetic','#shipping-line1':'123 Test Street','#shipping-line2':'','#shipping-city':'Test City','#shipping-postal_code':'90001'})[key] || '', reportValidity: () => true, disabled: true, classList: { add() {} }, append() {}, addEventListener(_, fn) { this.click = fn; } }); return nodes.get(key); };
   const localStorage = { getItem: k => storage.get(k) ?? null, setItem: (k,v) => storage.set(k,v), removeItem: k => storage.delete(k) };
   vm.runInNewContext(source, {
     window: { confirm: () => confirm }, URL, URLSearchParams, Date, localStorage, TextEncoder, Uint8Array, crypto: { subtle: require('node:crypto').webcrypto.subtle, randomUUID: () => '00000000-0000-4000-8000-000000000000' },
     navigator: { locks: { request: async (_, fn) => fn() } },
     location: { search, assign: url => redirects.push(url) }, setTimeout: fn => timers.push(fn),
-    document: { documentElement: {}, querySelector: node, querySelectorAll: () => [node('link1'),node('link2')], createElement: () => ({}) },
+    document: { documentElement: {}, querySelector: node, querySelectorAll: selector => selector === '.checkout-nav-links a' ? [node('link1'),node('link2')] : ['eyebrow', 'order', 'edit', 'subtotal', 'caption', 'payment', 'secure', 'delivery', 'help'].map(key => Object.assign(node('copy-' + key), { dataset: { checkoutCopy: key } })), createElement: () => ({ setAttribute() {}, append() {} }) },
     fetch: async (url, options) => { calls.push({url,options}); if(error) throw Error('offline'); return { ok: true, json: async () => url.includes('checkout-status') ? { status } : { sessionId: 'cs_test_fixture', url: 'https://checkout.stripe.com/c/pay/fixture' } }; },
   });
   return {storage,nodes,calls,timers,redirects};

@@ -27,10 +27,25 @@
     wait: 'Payment confirmation is still processing. Refresh this page later or contact us at the email below. Please do not pay again.',
     cancelled: 'Checkout was cancelled. Your cart is still here.', shop: 'Back to Shop', contact: 'Contact Us',
   };
+  const designCopy = zh ? {
+    eyebrow: '用心制作，为你而选。', order: '已选商品', edit: '继续选购 ↗',
+    subtotal: '商品小计', caption: '用心之作，让世界更包容。',
+    payment: '心选好物，即将属于你', secure: '前往 Stripe，安全完成付款。',
+    delivery: '配送与运费', help: '订单需要帮助？',
+  } : {
+    eyebrow: 'Made with care. Chosen by you.', order: 'Your selection', edit: 'Continue shopping ↗',
+    subtotal: 'Merchandise subtotal', caption: 'Thoughtful pieces. A more inclusive world.',
+    payment: 'A little closer to yours', secure: 'Continue to Stripe to complete your purchase securely.',
+    delivery: 'Delivery & shipping', help: 'Need a hand with your order?',
+  };
+  document.querySelectorAll('[data-checkout-copy]').forEach(element => {
+    element.textContent = designCopy[element.dataset.checkoutCopy];
+  });
   document.documentElement.lang = language;
   document.title = `${zh ? '结账' : 'Checkout'} | AbilityMade`;
   const shop = zh ? 'index-zh.html' : 'index.html';
   document.querySelector('.logo').href = shop;
+  document.querySelector('.checkout-edit').href = shop + '#shop';
   const links = document.querySelectorAll('.checkout-nav-links a');
   links[0].href = shop + '#shop'; links[0].textContent = copy.shop;
   links[1].href = shop + '#contact'; links[1].textContent = copy.contact;
@@ -65,10 +80,28 @@
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem('abilitymade-checkout-request-v1') || '{}'); } catch {}
   const items = Array.isArray(saved?.items) ? saved.items : [];
-  for (const item of items) {
-    const row = document.createElement('p');
-    row.textContent = `${item.title} × ${item.quantity} — ${item.price}`;
+  for (const [index, item] of items.entries()) {
+    const row = document.createElement('div');
+    row.className = 'checkout-item';
+    const number = document.createElement('span');
+    number.className = 'checkout-item-number';
+    number.setAttribute('aria-hidden', 'true');
+    number.textContent = String(index + 1).padStart(2, '0');
+    const details = document.createElement('div');
+    const title = document.createElement('h3');
+    title.textContent = item.title;
+    const quantity = document.createElement('p');
+    quantity.textContent = zh ? `数量：${item.quantity}` : `Quantity: ${item.quantity}`;
+    details.append(title, quantity);
+    const price = document.createElement('span');
+    price.className = 'checkout-item-price';
+    price.textContent = zh ? `${item.price} / 件` : `${item.price} each`;
+    row.append(number, details, price);
     document.querySelector('#checkout-items').append(row);
+  }
+  if (items.length && typeof saved.subtotal === 'string') {
+    document.querySelector('#subtotal-amount').textContent = saved.subtotal;
+    document.querySelector('#checkout-subtotal').hidden = false;
   }
   const attemptKey = 'abilitymade-payment-attempt-v2';
   const fingerprint = rows => JSON.stringify(rows.map(({ id, quantity }) => ({ id, quantity })).sort((a, b) => a.id.localeCompare(b.id)));
@@ -91,7 +124,10 @@
   if (sessionId) {
     button.hidden = true;
     shippingForm.hidden = true;
-    document.querySelector('#checkout-items').hidden = true;
+    document.querySelector('.checkout-order').hidden = true;
+    document.querySelector('.checkout-layout').classList.add('checkout-confirmation');
+    document.querySelector('#payment-heading').textContent = zh ? '订单状态' : 'Order status';
+    document.querySelector('.checkout-payment-intro').hidden = true;
     document.querySelector('#checkout-intro').textContent = copy.pending;
     const check = async (attempt = 0) => {
       try {
