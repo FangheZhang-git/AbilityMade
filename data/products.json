@@ -108,5 +108,45 @@
     "id": "member-heart-art-notecards",
     "name": "Member Heart Art Notecards - Set of 5 Cards with Envelopes",
     "unitAmount": 3000
+  },
+  {
+    "id": "sticker-poor-impulse-control-crow",
+    "name": "Poor Impulse Control Crow Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-blelele-snake",
+    "name": "Blelele Snake Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-octopus-bicycle",
+    "name": "Octopus Bicycle Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-folk-art-clear",
+    "name": "Folk Art Clear Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-cluck-around",
+    "name": "Cluck Around and Find Out Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-cozy-bookshelf",
+    "name": "Cozy Bookshelf Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-doing-my-best",
+    "name": "Doing My Gosh Dang Best Sticker",
+    "unitAmount": 750
+  },
+  {
+    "id": "sticker-kiss-every-bug",
+    "name": "Kiss Every Bug Bumper Sticker",
+    "unitAmount": 1200
   }
 ]

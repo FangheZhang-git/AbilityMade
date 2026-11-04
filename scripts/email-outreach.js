@@ -15,32 +15,44 @@ const DEFAULT_CREDENTIALS = path.resolve(process.cwd(), 'gmail-credentials.json'
 const DEFAULT_TOKEN = path.resolve(process.cwd(), 'gmail-token.json');
 const DEFAULT_LOG = path.resolve(process.cwd(), '.abilitymade-email-log.json');
 const VALID_STATUSES = new Set(['not prepared', 'drafted', 'sent', 'failed']);
+const QUEUE_SPREADSHEETS = Object.freeze({
+  supplier: '1sB1NgOgOp81m0z8HOopqilvA8I6srG-mht_2DZsm6cY',
+  hotel: '1nTVu5rgIYW4bdnAuNGqdngUGRpO7RKCqXwNZCWukbA0',
+  outlet: '1YXXayb0KyttQgfKsyTS28045TfNlUgGb-58NE2vI6iQ',
+});
 
 function usage() {
   return `Usage:
   node scripts/email-outreach.js dry-run [--file PATH] [--log PATH] [--expected-count NUMBER]
   node scripts/email-outreach.js authorize [--credentials PATH] [--token PATH]
   node scripts/email-outreach.js draft --confirm-drafts [--file PATH] [--log PATH] [--credentials PATH] [--token PATH] [--expected-count NUMBER]
-  node scripts/email-outreach.js queue-dry-run --spreadsheet-id ID [--sheet-name NAME]
-  node scripts/email-outreach.js queue-import --spreadsheet-id ID --file PATH --expected-count NUMBER --record-prefix PREFIX --confirm-import [--sheet-name NAME]
-  node scripts/email-outreach.js queue-draft --spreadsheet-id ID --confirm-drafts [--sheet-name NAME]
-  node scripts/email-outreach.js queue-send-preflight --spreadsheet-id ID --expected-send-count NUMBER [--sheet-name NAME]
-  node scripts/email-outreach.js queue-send --spreadsheet-id ID --confirm-send --expected-send-count NUMBER [--sheet-name NAME]
-  node scripts/email-outreach.js queue-mark-failed --spreadsheet-id ID --record-id ID --failure-reason TEXT --confirm-failure [--sheet-name NAME]
+  node scripts/email-outreach.js queue-dry-run (--queue supplier|hotel|outlet | --spreadsheet-id ID) [--sheet-name NAME]
+  node scripts/email-outreach.js queue-import (--queue supplier|hotel|outlet | --spreadsheet-id ID) --file PATH --expected-count NUMBER [--record-prefix PREFIX] [--approved-shared-recipient EMAIL ...] --confirm-import [--sheet-name NAME]
+  node scripts/email-outreach.js queue-replace (--queue supplier|hotel|outlet | --spreadsheet-id ID) --file PATH --expected-count NUMBER [--record-prefix PREFIX] [--record-start NUMBER] [--source-count NUMBER --consolidate] [--approved-shared-recipient EMAIL ...] --confirm-replace [--sheet-name NAME]
+  node scripts/email-outreach.js queue-approve-drafts (--queue supplier|hotel|outlet | --spreadsheet-id ID) --record-prefix PREFIX --record-start NUMBER --expected-count NUMBER --confirm-draft-approval [--sheet-name NAME]
+  node scripts/email-outreach.js queue-approve-send (--queue supplier|hotel|outlet | --spreadsheet-id ID) --record-prefix PREFIX --record-start NUMBER --expected-count NUMBER --confirm-send-approval [--sheet-name NAME]
+  node scripts/email-outreach.js queue-draft (--queue supplier|hotel|outlet | --spreadsheet-id ID) --confirm-drafts [--sheet-name NAME]
+  node scripts/email-outreach.js queue-send-preflight (--queue supplier|hotel|outlet | --spreadsheet-id ID) --expected-send-count NUMBER [--sheet-name NAME]
+  node scripts/email-outreach.js queue-send (--queue supplier|hotel|outlet | --spreadsheet-id ID) --confirm-send --expected-send-count NUMBER [--sheet-name NAME]
+  node scripts/email-outreach.js queue-mark-failed (--queue supplier|hotel|outlet | --spreadsheet-id ID) --record-id ID --failure-reason TEXT --confirm-failure [--sheet-name NAME]
 
 Safety: queue-send sends only previously created drafts after a full content-hash preflight.`;
 }
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const [command, ...rest] = argv;
-  const options = { command, file: DEFAULT_SOURCE, credentials: DEFAULT_CREDENTIALS, token: DEFAULT_TOKEN, log: DEFAULT_LOG, expectedCount: null, expectedSendCount: null, spreadsheetId: null, sheetName: 'Outreach Queue', recordPrefix: 'WI', confirmDrafts: false, confirmImport: false, confirmSend: false, confirmFailure: false, recordId: null, failureReason: null };
+  const options = { command, file: DEFAULT_SOURCE, credentials: DEFAULT_CREDENTIALS, token: DEFAULT_TOKEN, log: DEFAULT_LOG, expectedCount: null, expectedSendCount: null, sourceCount: null, consolidate: false, spreadsheetId: null, queue: null, sheetName: 'Outreach Queue', recordPrefix: null, recordStart: 1, approvedSharedRecipients: [], confirmDraftApproval: false, confirmSendApproval: false, confirmDrafts: false, confirmImport: false, confirmReplace: false, confirmSend: false, confirmFailure: false, recordId: null, failureReason: null };
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
     if (arg === '--confirm-drafts') options.confirmDrafts = true;
+    else if (arg === '--confirm-draft-approval') options.confirmDraftApproval = true;
+    else if (arg === '--confirm-send-approval') options.confirmSendApproval = true;
     else if (arg === '--confirm-import') options.confirmImport = true;
+    else if (arg === '--confirm-replace') options.confirmReplace = true;
+    else if (arg === '--consolidate') options.consolidate = true;
     else if (arg === '--confirm-send') options.confirmSend = true;
     else if (arg === '--confirm-failure') options.confirmFailure = true;
-    else if (['--file', '--credentials', '--token', '--log', '--expected-count', '--expected-send-count', '--spreadsheet-id', '--sheet-name', '--record-prefix', '--record-id', '--failure-reason'].includes(arg)) {
+    else if (['--file', '--credentials', '--token', '--log', '--expected-count', '--expected-send-count', '--source-count', '--spreadsheet-id', '--queue', '--sheet-name', '--record-prefix', '--record-start', '--record-id', '--failure-reason', '--approved-shared-recipient'].includes(arg)) {
       const value = rest[index + 1];
       if (!value) throw new Error(`Missing value for ${arg}`);
       if (arg === '--expected-count') {
@@ -49,7 +61,17 @@ function parseArgs(argv) {
       } else if (arg === '--expected-send-count') {
         options.expectedSendCount = Number(value);
         if (!Number.isInteger(options.expectedSendCount) || options.expectedSendCount < 1) throw new Error('--expected-send-count must be a positive integer');
+      } else if (arg === '--source-count') {
+        options.sourceCount = Number(value);
+        if (!Number.isInteger(options.sourceCount) || options.sourceCount < 1) throw new Error('--source-count must be a positive integer');
+      } else if (arg === '--record-start') {
+        options.recordStart = Number(value);
+        if (!Number.isInteger(options.recordStart) || options.recordStart < 1) throw new Error('--record-start must be a positive integer');
       } else if (arg === '--spreadsheet-id') options.spreadsheetId = value.trim();
+      else if (arg === '--queue') {
+        options.queue = value.trim().toLowerCase();
+        if (!QUEUE_SPREADSHEETS[options.queue]) throw new Error('--queue must be supplier, hotel, or outlet');
+      }
       else if (arg === '--sheet-name') options.sheetName = value;
       else if (arg === '--record-prefix') {
         options.recordPrefix = value.trim().toUpperCase();
@@ -57,10 +79,18 @@ function parseArgs(argv) {
       }
       else if (arg === '--record-id') options.recordId = value.trim();
       else if (arg === '--failure-reason') options.failureReason = value.trim();
+      else if (arg === '--approved-shared-recipient') {
+        const recipient = value.trim().toLowerCase();
+        if (!isEmail(recipient)) throw new Error('--approved-shared-recipient must be an email address');
+        options.approvedSharedRecipients.push(recipient);
+      }
       else options[arg.slice(2)] = path.resolve(value);
       index += 1;
     } else throw new Error(`Unknown option: ${arg}`);
   }
+  if (options.queue && options.spreadsheetId) throw new Error('Use either --queue or --spreadsheet-id, not both');
+  if (options.queue) options.spreadsheetId = QUEUE_SPREADSHEETS[options.queue];
+  if (!options.recordPrefix) options.recordPrefix = options.queue === 'outlet' ? 'OUTLET' : 'WI';
   return options;
 }
 
@@ -69,6 +99,15 @@ function parseField(block, name, required = true) {
   const match = block.match(new RegExp(`^\\*\\*${escaped}:\\*\\* (.+?)(?: {2})?$`, 'm'));
   if (!match && required) throw new Error(`Missing ${name}`);
   return match?.[1] ?? null;
+}
+
+function parseFirstField(block, names, required = true) {
+  for (const name of names) {
+    const value = parseField(block, name, false);
+    if (value) return value;
+  }
+  if (required) throw new Error(`Missing ${names.join(' or ')}`);
+  return null;
 }
 
 export function parseCampaign(markdown) {
@@ -80,18 +119,27 @@ export function parseCampaign(markdown) {
     const blockStart = heading.index;
     const blockEnd = headings[index + 1]?.index ?? markdown.length;
     const block = markdown.slice(blockStart, blockEnd).replace(/\n---\s*$/, '');
-    const bodyMarker = /\n### Body[ \t]*\n(?:\n)?/;
+    const bodyMarker = /\n### (?:Body|Email Body)[ \t]*\n(?:\n)?/;
     const bodyMatch = bodyMarker.exec(block);
     if (!bodyMatch) throw new Error(`Missing Body section in entry ${heading[1]}`);
-    const body = block.slice(bodyMatch.index + bodyMatch[0].length).replace(/\n+$/, '');
+    const body = block
+      .slice(bodyMatch.index + bodyMatch[0].length)
+      .replace(/\[([^\]]+)\]\(mailto\\?:\1\)/gi, '$1')
+      .replace(/\n+$/, '');
+    const organization = parseFirstField(block, ['Organization', 'Outlet Name', 'Outlet or Shopping Mall Name'], false);
+    const hotel = parseField(block, 'Hotel', false);
+    const propertiesCovered = parseField(block, 'Properties Covered', false);
+    if (organization && hotel && organization !== hotel) throw new Error(`Entry ${heading[1]} has conflicting Organization and Hotel fields`);
     const entry = {
       number: Number(heading[1]),
-      organization: parseField(block, 'Organization'),
-      recipient: parseField(block, 'Recipient'),
+      organization: organization ?? hotel ?? (propertiesCovered ? heading[2] : null),
+      recipient: parseFirstField(block, ['Recipient', 'Recipient Email Address']),
       alternativeRecipient: parseField(block, 'Alternative Recipient', false),
-      subject: parseField(block, 'Subject'),
+      subject: parseFirstField(block, ['Subject', 'Subject Line']),
+      propertiesCovered,
       body,
     };
+    if (!entry.organization) throw new Error(`Missing Organization, Hotel, or Properties Covered in entry ${entry.number}`);
     if (entry.organization !== heading[2]) throw new Error(`Heading/Organization mismatch in entry ${entry.number}`);
     return entry;
   });
@@ -101,7 +149,7 @@ function isEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export function validateCampaign(entries, expectedCount = null) {
+export function validateCampaign(entries, expectedCount = null, approvedSharedRecipients = new Set()) {
   const errors = [];
   const recipientOwners = new Map();
   if (expectedCount !== null && entries.length !== expectedCount) errors.push(`Expected ${expectedCount} entries, found ${entries.length}`);
@@ -115,7 +163,7 @@ export function validateCampaign(entries, expectedCount = null) {
     if (/\r/.test(entry.body)) errors.push(`Entry ${entry.number} contains unsupported CR line endings`);
     if (/^(To|Cc|Bcc|Subject):/mi.test(entry.body)) errors.push(`Entry ${entry.number} body contains an unsafe mail header-like line`);
     const normalized = entry.recipient.toLowerCase();
-    if (recipientOwners.has(normalized)) errors.push(`Duplicate recipient ${entry.recipient} in entries ${recipientOwners.get(normalized)} and ${entry.number}`);
+    if (recipientOwners.has(normalized) && !approvedSharedRecipients.has(normalized)) errors.push(`Duplicate recipient ${entry.recipient} in entries ${recipientOwners.get(normalized)} and ${entry.number}`);
     else recipientOwners.set(normalized, entry.number);
   });
   if (errors.length) throw new Error(`Campaign validation failed:\n- ${errors.join('\n- ')}`);
@@ -126,6 +174,7 @@ const QUEUE_HEADERS = [
   'Draft ID', 'Approved Content Hash', 'Draft Content Hash', 'Result', 'Updated At', 'Error', 'Duplicate Check',
 ];
 const QUEUE_STATUSES = new Set(['Editing', 'Approved for draft', 'Drafted', 'Approved to send', 'Sent', 'Failed', 'Do not contact']);
+const APPROVED_SHARED_RECIPIENT = 'APPROVED SHARED RECIPIENT';
 
 export function parseQueueValues(values) {
   if (!Array.isArray(values) || values.length < 1) throw new Error('Queue has no header row');
@@ -161,6 +210,7 @@ export function validateQueue(rows) {
   const recipients = new Map();
   for (const row of rows) {
     if (!row.recordId) errors.push(`Row ${row.sheetRow}: missing Record ID`);
+    else if (!/^[A-Z]{2,8}-\d{3}$/.test(row.recordId)) errors.push(`Row ${row.sheetRow}: malformed Record ID ${row.recordId}`);
     else if (recordIds.has(row.recordId)) errors.push(`Rows ${recordIds.get(row.recordId)} and ${row.sheetRow}: duplicate Record ID ${row.recordId}`);
     else recordIds.set(row.recordId, row.sheetRow);
     if (!QUEUE_STATUSES.has(row.status)) errors.push(`Row ${row.sheetRow}: invalid Status ${JSON.stringify(row.status)}`);
@@ -169,12 +219,32 @@ export function validateQueue(rows) {
     }
     if (!isEmail(row.recipient)) errors.push(`Row ${row.sheetRow}: invalid recipient ${row.recipient}`);
     const normalized = row.recipient.toLowerCase();
-    if (recipients.has(normalized)) errors.push(`Rows ${recipients.get(normalized)} and ${row.sheetRow}: duplicate recipient ${row.recipient}`);
-    else recipients.set(normalized, row.sheetRow);
-    if (row.duplicateCheck && row.duplicateCheck !== 'OK') errors.push(`Row ${row.sheetRow}: duplicate check is ${row.duplicateCheck}`);
+    const recipientRows = recipients.get(normalized) ?? [];
+    recipientRows.push(row);
+    recipients.set(normalized, recipientRows);
+    if (row.duplicateCheck && !['OK', APPROVED_SHARED_RECIPIENT].includes(row.duplicateCheck)) errors.push(`Row ${row.sheetRow}: duplicate check is ${row.duplicateCheck}`);
     if (['Drafted', 'Approved to send', 'Sent'].includes(row.status) && !row.draftId) errors.push(`Row ${row.sheetRow}: ${row.status} status requires Draft ID`);
   }
+  for (const recipientRows of recipients.values()) {
+    if (recipientRows.length < 2) continue;
+    if (recipientRows.every((row) => row.duplicateCheck === APPROVED_SHARED_RECIPIENT)) continue;
+    errors.push(`Rows ${recipientRows.map((row) => row.sheetRow).join(' and ')}: duplicate recipient ${recipientRows[0].recipient}`);
+  }
   if (errors.length) throw new Error(`Queue validation failed:\n- ${errors.join('\n- ')}`);
+}
+
+export function selectDraftCandidates(rows, confirmDrafts) {
+  if (!confirmDrafts) throw new Error('Queue draft creation requires the explicit --confirm-drafts flag');
+  return rows.filter((row) => row.status === 'Approved for draft');
+}
+
+export function selectSendCandidates(rows, expectedSendCount) {
+  if (!expectedSendCount) throw new Error('Queue sending requires --expected-send-count');
+  const candidates = rows.filter((row) => row.status === 'Approved to send');
+  if (candidates.length !== expectedSendCount) {
+    throw new Error(`Refusing to send: expected ${expectedSendCount} Approved to send rows, found ${candidates.length}`);
+  }
+  return candidates;
 }
 
 export function queueContentHash(row) {
@@ -324,7 +394,7 @@ function quoteSheetName(name) {
 
 async function loadQueue(options, token) {
   if (!options.spreadsheetId) throw new Error('Queue commands require --spreadsheet-id');
-  const range = `${quoteSheetName(options.sheetName)}!A1:N101`;
+  const range = `${quoteSheetName(options.sheetName)}!A1:N1000`;
   const data = await sheetsRequest(token, options.spreadsheetId, `values/${encodeURIComponent(range)}?majorDimension=ROWS`);
   const rows = parseQueueValues(data.values ?? []);
   validateQueue(rows);
@@ -351,12 +421,14 @@ async function queueImport(options, rows, token) {
   if (!options.expectedCount) throw new Error('Queue import requires --expected-count');
   const markdown = await readFile(options.file, 'utf8');
   const entries = parseCampaign(markdown);
-  validateCampaign(entries, options.expectedCount);
+  const approvedSharedRecipients = new Set(options.approvedSharedRecipients);
+  if (options.queue === 'outlet' && approvedSharedRecipients.size) throw new Error('Outlet imports do not allow shared-recipient exceptions; use one email per recipient across the full outlet history');
+  validateCampaign(entries, options.expectedCount, options.queue === 'outlet' ? new Set() : approvedSharedRecipients);
 
   const existingRecipients = new Map(rows.map((row) => [row.recipient.toLowerCase(), row.recordId]));
   for (const entry of entries) {
     const existing = existingRecipients.get(entry.recipient.toLowerCase());
-    if (existing) throw new Error(`Refusing import: ${entry.recipient} already exists as ${existing}`);
+    if (existing && (options.queue === 'outlet' || !approvedSharedRecipients.has(entry.recipient.toLowerCase()))) throw new Error(`Refusing import: ${entry.recipient} already exists as ${existing}`);
   }
   const prefixPattern = new RegExp(`^${options.recordPrefix}-(\\d+)$`);
   const numericIds = rows.map((row) => prefixPattern.exec(row.recordId)?.[1]).filter(Boolean).map(Number);
@@ -365,20 +437,125 @@ async function queueImport(options, rows, token) {
   const values = entries.map((entry, index) => {
     const sheetRow = firstRow + index;
     const recordId = `${options.recordPrefix}-${String(nextNumber + index).padStart(3, '0')}`;
-    return [recordId, 'Editing', entry.organization, entry.recipient, entry.subject, entry.body, '', '', '', '', 'Imported for review; Gmail not called', new Date().toISOString(), '', `=IF(COUNTIF($D:$D,D${sheetRow})=1,"OK","DUPLICATE")`];
+    const duplicateCheck = approvedSharedRecipients.has(entry.recipient.toLowerCase())
+      ? APPROVED_SHARED_RECIPIENT
+      : `=IF(COUNTIF($D:$D,D${sheetRow})=1,"OK","DUPLICATE")`;
+    return [recordId, 'Editing', entry.organization, entry.recipient, entry.subject, entry.body, '', '', '', '', 'Imported for review; Gmail not called', new Date().toISOString(), '', duplicateCheck];
   });
   const range = `${quoteSheetName(options.sheetName)}!A${firstRow}:N${firstRow + values.length - 1}`;
+  const sharedExistingUpdates = rows
+    .filter((row) => approvedSharedRecipients.has(row.recipient.toLowerCase()))
+    .map((row) => ({ range: `${quoteSheetName(options.sheetName)}!N${row.sheetRow}`, values: [[APPROVED_SHARED_RECIPIENT]] }));
   await sheetsRequest(token, options.spreadsheetId, 'values:batchUpdate', {
-    method: 'POST', body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: [{ range, values }] }),
+    method: 'POST', body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: [...sharedExistingUpdates, { range, values }] }),
   });
   console.log(`IMPORTED ${values.length} rows as ${values[0][0]} through ${values.at(-1)[0]}; all are Editing. Gmail was not called.`);
 }
 
+async function queueReplace(options, rows, token) {
+  if (!options.confirmReplace) throw new Error('Queue replacement requires the explicit --confirm-replace flag');
+  if (!options.expectedCount) throw new Error('Queue replacement requires --expected-count');
+  const markdown = await readFile(options.file, 'utf8');
+  const entries = parseCampaign(markdown);
+  validateCampaign(entries, options.expectedCount, new Set(options.approvedSharedRecipients));
+
+  const sourceCount = options.sourceCount ?? entries.length;
+  if (sourceCount !== entries.length && !options.consolidate) throw new Error('Shrinking a replacement requires the explicit --consolidate flag');
+  if (sourceCount < entries.length) throw new Error('--source-count cannot be smaller than --expected-count');
+  const targetIds = Array.from({ length: sourceCount }, (_, index) => `${options.recordPrefix}-${String(options.recordStart + index).padStart(3, '0')}`);
+  const targets = targetIds.map((recordId) => rows.find((row) => row.recordId === recordId));
+  if (targets.some((row) => !row)) throw new Error(`Refusing replacement: expected existing records ${targetIds[0]} through ${targetIds.at(-1)}`);
+  for (let index = 0; index < targets.length; index += 1) {
+    const row = targets[index];
+    if (row.status !== 'Editing') throw new Error(`Refusing replacement: ${row.recordId} is ${row.status}, expected Editing`);
+    if (row.draftId || row.approvedContentHash || row.draftContentHash) throw new Error(`Refusing replacement: ${row.recordId} has draft or approval data`);
+    if (!options.consolidate) {
+      const entry = entries[index];
+      if (row.organization !== entry.organization) throw new Error(`Refusing replacement: organization mismatch for ${row.recordId}`);
+      if (row.recipient.toLowerCase() !== entry.recipient.toLowerCase()) throw new Error(`Refusing replacement: recipient mismatch for ${row.recordId}`);
+    }
+  }
+
+  if (options.consolidate) {
+    const before = targets.map((row) => row.organization).sort();
+    const after = entries.flatMap((entry) => entry.propertiesCovered ? entry.propertiesCovered.split(';').map((name) => name.trim()) : [entry.organization]).sort();
+    if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error('Refusing consolidation: source and replacement property sets do not match exactly');
+  }
+
+  const firstRow = targets[0].sheetRow;
+  const lastSourceRow = targets.at(-1).sheetRow;
+  if (lastSourceRow - firstRow + 1 !== targets.length) throw new Error('Refusing replacement: target records are not contiguous');
+  const values = entries.map((entry, index) => {
+    const sheetRow = firstRow + index;
+    const duplicateCheck = options.approvedSharedRecipients.includes(entry.recipient.toLowerCase())
+      ? APPROVED_SHARED_RECIPIENT
+      : `=IF(COUNTIF($D:$D,D${sheetRow})=1,"OK","DUPLICATE")`;
+    const recordId = `${options.recordPrefix}-${String(options.recordStart + index).padStart(3, '0')}`;
+    return [recordId, 'Editing', entry.organization, entry.recipient, entry.subject, entry.body, '', '', '', '', 'Replaced from corrected source; Gmail not called', new Date().toISOString(), '', duplicateCheck];
+  });
+  const replacementLastRow = firstRow + values.length - 1;
+  const range = `${quoteSheetName(options.sheetName)}!A${firstRow}:N${replacementLastRow}`;
+  await sheetsRequest(token, options.spreadsheetId, 'values:batchUpdate', {
+    method: 'POST', body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data: [{ range, values }] }),
+  });
+  if (lastSourceRow > replacementLastRow) {
+    const clearRange = `${quoteSheetName(options.sheetName)}!A${replacementLastRow + 1}:N${lastSourceRow}`;
+    await sheetsRequest(token, options.spreadsheetId, `values/${encodeURIComponent(clearRange)}:clear`, { method: 'POST', body: '{}' });
+  }
+  console.log(`REPLACED ${sourceCount} Editing source rows with ${values.length} rows ${values[0][0]} through ${values.at(-1)[0]}; Gmail was not called.`);
+}
+
+async function queueApproveDrafts(options, rows, token) {
+  if (!options.confirmDraftApproval) throw new Error('Draft approval requires the explicit --confirm-draft-approval flag');
+  if (!options.expectedCount) throw new Error('Draft approval requires --expected-count');
+  const targetIds = Array.from({ length: options.expectedCount }, (_, index) => `${options.recordPrefix}-${String(options.recordStart + index).padStart(3, '0')}`);
+  const targets = targetIds.map((recordId) => rows.find((row) => row.recordId === recordId));
+  if (targets.some((row) => !row)) throw new Error(`Refusing approval: expected existing records ${targetIds[0]} through ${targetIds.at(-1)}`);
+  const alreadyApproved = rows.filter((row) => row.status === 'Approved for draft' && !targetIds.includes(row.recordId));
+  if (alreadyApproved.length) throw new Error(`Refusing approval: unexpected rows already Approved for draft: ${alreadyApproved.map((row) => row.recordId).join(', ')}`);
+  for (const row of targets) {
+    if (row.status !== 'Editing') throw new Error(`Refusing approval: ${row.recordId} is ${row.status}, expected Editing`);
+    if (row.draftId || row.approvedContentHash || row.draftContentHash) throw new Error(`Refusing approval: ${row.recordId} has draft or approval data`);
+  }
+  const now = new Date().toISOString();
+  const data = targets.flatMap((row) => [
+    { range: `${quoteSheetName(options.sheetName)}!B${row.sheetRow}`, values: [['Approved for draft']] },
+    { range: `${quoteSheetName(options.sheetName)}!K${row.sheetRow}:L${row.sheetRow}`, values: [['Approved by user for draft creation', now]] },
+  ]);
+  await sheetsRequest(token, options.spreadsheetId, 'values:batchUpdate', {
+    method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data }),
+  });
+  console.log(`APPROVED FOR DRAFT: ${targetIds.join(', ')}. Gmail was not called.`);
+}
+
+async function queueApproveSend(options, rows, token) {
+  if (!options.confirmSendApproval) throw new Error('Send approval requires the explicit --confirm-send-approval flag');
+  if (!options.expectedCount) throw new Error('Send approval requires --expected-count');
+  const targetIds = Array.from({ length: options.expectedCount }, (_, index) => `${options.recordPrefix}-${String(options.recordStart + index).padStart(3, '0')}`);
+  const targets = targetIds.map((recordId) => rows.find((row) => row.recordId === recordId));
+  if (targets.some((row) => !row)) throw new Error(`Refusing send approval: expected existing records ${targetIds[0]} through ${targetIds.at(-1)}`);
+  const unexpected = rows.filter((row) => row.status === 'Approved to send' && !targetIds.includes(row.recordId));
+  if (unexpected.length) throw new Error(`Refusing send approval: unexpected rows already Approved to send: ${unexpected.map((row) => row.recordId).join(', ')}`);
+  for (const row of targets) {
+    if (row.status !== 'Drafted') throw new Error(`Refusing send approval: ${row.recordId} is ${row.status}, expected Drafted`);
+    if (!row.draftId || !row.approvedContentHash || !row.draftContentHash) throw new Error(`Refusing send approval: ${row.recordId} is missing draft or content-hash data`);
+    if (row.approvedContentHash !== row.draftContentHash || row.approvedContentHash !== queueContentHash(row)) throw new Error(`Refusing send approval: ${row.recordId} content hashes do not match`);
+  }
+  const now = new Date().toISOString();
+  const data = targets.flatMap((row) => [
+    { range: `${quoteSheetName(options.sheetName)}!B${row.sheetRow}`, values: [['Approved to send']] },
+    { range: `${quoteSheetName(options.sheetName)}!K${row.sheetRow}:L${row.sheetRow}`, values: [['Approved by user to send; preflight required', now]] },
+  ]);
+  await sheetsRequest(token, options.spreadsheetId, 'values:batchUpdate', {
+    method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data }),
+  });
+  console.log(`APPROVED TO SEND: ${targetIds.join(', ')}. Gmail was not called.`);
+}
+
 async function queueDraft(options, rows, token) {
-  if (!options.confirmDrafts) throw new Error('Queue draft creation requires the explicit --confirm-drafts flag');
+  const approved = selectDraftCandidates(rows, options.confirmDrafts);
   const profile = await gmailRequest(token, 'profile');
   if (profile.emailAddress?.toLowerCase() !== EXPECTED_SENDER) throw new Error(`Refusing to create drafts: authenticated as ${profile.emailAddress}, expected ${EXPECTED_SENDER}`);
-  const approved = rows.filter((row) => row.status === 'Approved for draft');
   if (approved.length === 0) return console.log('No rows are Approved for draft; no Gmail calls were made.');
   for (const row of approved) {
     if (row.draftId) throw new Error(`Row ${row.sheetRow} already has Draft ID ${row.draftId}`);
@@ -431,11 +608,7 @@ export function parseRawMessage(raw) {
 }
 
 async function preflightQueueSend(options, rows, token) {
-  if (!options.expectedSendCount) throw new Error('Queue sending requires --expected-send-count');
-  const candidates = rows.filter((row) => row.status === 'Approved to send');
-  if (candidates.length !== options.expectedSendCount) {
-    throw new Error(`Refusing to send: expected ${options.expectedSendCount} Approved to send rows, found ${candidates.length}`);
-  }
+  const candidates = selectSendCandidates(rows, options.expectedSendCount);
   const profile = await gmailRequest(token, 'profile');
   if (profile.emailAddress?.toLowerCase() !== EXPECTED_SENDER) throw new Error(`Refusing to send: authenticated as ${profile.emailAddress}, expected ${EXPECTED_SENDER}`);
 
@@ -513,14 +686,17 @@ async function createDrafts(options, entries, log) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  if (!['dry-run', 'authorize', 'draft', 'queue-dry-run', 'queue-import', 'queue-draft', 'queue-send-preflight', 'queue-send', 'queue-mark-failed'].includes(options.command)) throw new Error(usage());
+  if (!['dry-run', 'authorize', 'draft', 'queue-dry-run', 'queue-import', 'queue-replace', 'queue-approve-drafts', 'queue-approve-send', 'queue-draft', 'queue-send-preflight', 'queue-send', 'queue-mark-failed'].includes(options.command)) throw new Error(usage());
   if (options.command === 'authorize') return authorize(options.credentials, options.token);
-  if (['queue-dry-run', 'queue-import', 'queue-draft', 'queue-send-preflight', 'queue-send', 'queue-mark-failed'].includes(options.command)) {
+  if (['queue-dry-run', 'queue-import', 'queue-replace', 'queue-approve-drafts', 'queue-approve-send', 'queue-draft', 'queue-send-preflight', 'queue-send', 'queue-mark-failed'].includes(options.command)) {
     const token = await accessToken(options.credentials, options.token);
     const rows = await loadQueue(options, token);
     printQueueSummary(rows);
     if (options.command === 'queue-dry-run') return console.log('\nQUEUE DRY RUN: the sheet was read, but no Gmail API calls or sheet writes were made.');
     if (options.command === 'queue-import') return queueImport(options, rows, token);
+    if (options.command === 'queue-replace') return queueReplace(options, rows, token);
+    if (options.command === 'queue-approve-drafts') return queueApproveDrafts(options, rows, token);
+    if (options.command === 'queue-approve-send') return queueApproveSend(options, rows, token);
     if (options.command === 'queue-draft') return queueDraft(options, rows, token);
     if (options.command === 'queue-mark-failed') return queueMarkFailed(options, rows, token);
     if (options.command === 'queue-send-preflight') {
@@ -531,7 +707,7 @@ async function main() {
   }
   const markdown = await readFile(options.file, 'utf8');
   const entries = parseCampaign(markdown);
-  validateCampaign(entries, options.expectedCount);
+  validateCampaign(entries, options.expectedCount, new Set(options.approvedSharedRecipients));
   const sourceHash = createHash('sha256').update(markdown).digest('hex');
   const log = await loadLog(options.log);
   syncLog(log, entries, sourceHash);
