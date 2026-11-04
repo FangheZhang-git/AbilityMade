@@ -5,6 +5,7 @@ const path = require('node:path');
 const products = require('./data/products.json');
 const { validateShipping, shippingHash } = require('./shipping');
 const { createRecovery, revision } = require('./recovery');
+const { validPrice, MAX_CENTS } = require('./pricing');
 const catalog = new Map(products.map(p => [p.id, p]));
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -33,6 +34,7 @@ function validateCart(body) {
       !/^[0-9a-f-]{36}$/i.test(body.requestId || '') || !['en', 'zh-CN'].includes(body.language)) {
     throw fail(400, 'invalid_cart');
   }
+  if (body.currency !== undefined && body.currency !== 'usd') throw fail(400, 'invalid_currency');
   const seen = new Set();
   return body.items.map(item => {
     const product = catalog.get(item?.id);
@@ -40,7 +42,11 @@ function validateCart(body) {
       throw fail(400, 'invalid_cart');
     }
     seen.add(item.id);
-    return { ...product, quantity: item.quantity };
+    const unitAmount = item.unitAmount === undefined ? product.unitAmount : item.unitAmount;
+    if (!validPrice(unitAmount, product.unitAmount) || (item.currency !== undefined && item.currency !== 'usd')) {
+      throw fail(400, 'invalid_price');
+    }
+    return { ...product, unitAmount, quantity: item.quantity };
   }).sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -96,6 +102,7 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
     // One order-wide fee, regardless of supplier count. Approved deployment value: 1000.
     const shipping = subtotal >= 12000 ? 0 : config.shipping;
+    if (subtotal + shipping > MAX_CENTS) throw fail(400, 'amount_too_large');
     const snapshot = { items, subtotal, shipping, language: body.language, live: config.live, shippingDetails };
     const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, shippingDestinations: 'bound_v1', revision, environment: recovery.environment() }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);

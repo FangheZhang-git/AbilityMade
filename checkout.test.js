@@ -70,3 +70,17 @@ test('invalid delivery form never contacts provider; address edits require confi
  ui.nodes.get('#shipping-line1').value='456 Changed Street';
  await ui.nodes.get('#pay-button').click();assert.equal(ui.calls.length,1);
 });
+
+test('checkout forwards selected cents and does not clear a cart with changed prices', async () => {
+  const storage = saved();
+  const selected = [{ ...items[0], unitAmount: 9123, price: '$91.23' }];
+  storage.set(cartKey, JSON.stringify(selected));
+  storage.set(handoffKey, JSON.stringify({ items: selected }));
+  const ui = setup({ storage });
+  await ui.nodes.get('#pay-button').click();
+  assert.equal(JSON.parse(ui.calls[0].options.body).items[0].unitAmount, 9123);
+  storage.set(cartKey, JSON.stringify([{ ...selected[0], unitAmount: 9999 }]));
+  setup({ storage, search: '?session_id=cs_test_fixture' });
+  await settle();
+  assert.equal(JSON.parse(storage.get(cartKey))[0].unitAmount, 9999);
+});

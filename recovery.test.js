@@ -272,3 +272,26 @@ test('missing, changed or unsupported bound address fails closed without order w
   assert.deepEqual(await fs.readdir(dir),[]);
  }
 });
+
+test('custom per-unit prices survive signed v2 webhooks, tax, and duplicate delivery', async () => {
+  const { state, payments, env, dir } = await fixture();
+  state.rows[0].price.unit_amount = 9123;
+  state.rows[0].quantity = 2;
+  state.rows[0].amount_subtotal = state.s.amount_subtotal = 18246;
+  state.s.total_details.amount_shipping = 0;
+  state.s.total_details.amount_tax = 1234;
+  state.s.amount_total = state.p.amount = state.p.amount_received = 19480;
+  const raw = Buffer.from(JSON.stringify({ type: 'checkout.session.completed', data: { object: state.s } }));
+  const t = Math.floor(Date.now() / 1000);
+  const signature = `t=${t},v1=${crypto.createHmac('sha256', env.STRIPE_WEBHOOK_SECRET).update(t + '.').update(raw).digest('hex')}`;
+  await payments.webhook(raw, signature);
+  await payments.webhook(raw, signature);
+  const files = (await fs.readdir(dir)).filter(name => name.startsWith('order-'));
+  assert.equal(files.length, 1);
+  const order = JSON.parse(await fs.readFile(path.join(dir, files[0])));
+  assert.equal(order.items[0].unitAmount, 9123);
+  assert.equal(order.items[0].quantity, 2);
+  assert.equal(order.subtotal, 18246);
+  assert.equal(order.tax, 1234);
+  assert.equal(order.amountTotal, 19480);
+});

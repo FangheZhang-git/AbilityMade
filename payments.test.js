@@ -182,3 +182,42 @@ test('approved destinations bind address and metadata to PaymentIntent with no h
  }
  assert.equal(new Set(calls.map(c=>c.options.headers['Idempotency-Key'])).size,5);
 });
+
+test('flexible prices use exact cents, preserve per-unit quantities, shipping and retry identity', async () => {
+  const { payments, body, calls, directory } = await fixture();
+  const cheap = products.find(p => p.unitAmount < 3000);
+  for (const language of ['en', 'zh-CN']) {
+    body.language = language;
+    body.items = [{ id: cheap.id, quantity: 2, unitAmount: 3001 }];
+    await payments.createSession(body);
+    const params = calls.at(-1).params;
+    assert.equal(params.get('line_items[0][price_data][unit_amount]'), '3001');
+    assert.equal(params.get('line_items[0][quantity]'), '2');
+    assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '1000');
+    const snapshot = JSON.parse(await fs.readFile(path.join(directory, 'checkout-' + params.get('metadata[abilitymade_reference]') + '.json')));
+    assert.equal(snapshot.subtotal, 6002);
+    assert.equal(snapshot.items[0].unitAmount, 3001);
+    body.items[0].unitAmount = 6000;
+    await payments.createSession(body);
+    assert.equal(calls.at(-1).params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '0');
+    assert.notEqual(params.get('metadata[abilitymade_reference]'), calls.at(-1).params.get('metadata[abilitymade_reference]'));
+  }
+  body.items = products.slice(0, 2).map((p, i) => ({ id: p.id, quantity: i + 1, unitAmount: p.unitAmount + 123 }));
+  await payments.createSession(body);
+  const sorted = [...body.items].sort((a,b) => a.id.localeCompare(b.id));
+  sorted.forEach((item,i) => assert.equal(calls.at(-1).params.get(`line_items[${i}][price_data][unit_amount]`), String(item.unitAmount)));
+});
+
+test('server rejects manipulated custom amounts and currencies before Stripe calls', async () => {
+  const { payments, body, calls } = await fixture();
+  for (const unitAmount of [null, '', '8000', -1, 0, products[0].unitAmount - 1, 8000.01, 100000000, Number.MAX_SAFE_INTEGER]) {
+    await assert.rejects(payments.createSession({ ...body, items: [{ ...body.items[0], unitAmount, minimum: 0, total: 1 }] }), { status: 400 });
+  }
+  await assert.rejects(payments.createSession({ ...body, currency: 'eur' }), { status: 400 });
+  await assert.rejects(payments.createSession({ ...body, items: [{ ...body.items[0], currency: 'eur' }] }), { status: 400 });
+  await assert.rejects(payments.createSession({ ...body, items: [{ ...body.items[0], unitAmount: 99999999, quantity: 2 }] }), { status: 400 });
+  assert.equal(calls.length, 0);
+  body.items[0].unitAmount = products[0].unitAmount;
+  await payments.createSession(body);
+  assert.equal(calls.length, 1);
+});

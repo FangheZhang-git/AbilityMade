@@ -114,6 +114,9 @@
         <strong data-cart-subtotal>$0.00</strong>
       </div>
       <p data-cart-shipping>Standard shipping: $10 per order below $120; free at $120 or more.</p>
+      <div class="cart-row"><span>Shipping</span><span data-cart-shipping-amount></span></div>
+      <div class="cart-row cart-tax"><span>Tax</span><span>Applicable tax calculated at payment</span></div>
+      <div class="cart-row cart-grand-total"><span>Total before tax</span><strong data-cart-total></strong></div>
       <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout</button>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
@@ -539,6 +542,7 @@
     <p><a href="customer-policies.html#en">Shipping, refunds, privacy & support</a></p>
   </footer>
 
+  <script src="pricing.js"></script>
   <script>
     const categoryTabs = document.querySelectorAll(".category-tab");
     const productCards = [...document.querySelectorAll(".merchandise-card")];
@@ -561,6 +565,9 @@
     const checkoutRequestStorageKey = "abilitymade-checkout-request-v1";
     const currencyFormatter = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
     const cartCopy = {
+      minimum: 'Minimum per unit', yourPrice: 'Your price per unit (USD)', help: 'Choose a little more to support the artist, if you wish.',
+      invalidPrice: minimum => `Enter at least ${minimum}, with up to two decimal places.`,
+      limit: 'Please reduce the price or quantity. Maximum order before tax is $999,999.99.', line: 'Item total', correct: 'Please check your item prices to continue.',
       remove: "Remove",
       empty: "Your cart is empty.",
       checkout: "Checkout",
@@ -683,7 +690,7 @@
       return imagePath.split("/").pop().replace(/\.[a-z0-9]+$/i, "").toLowerCase();
     };
 
-    const getPriceAmount = (priceText) => Number.parseFloat(priceText.replace(/[^0-9.]/g, "")) || 0;
+    const getPriceAmount = (priceText) => AbilityPricing.parseCents(priceText.replace(/[^0-9.]/g, "")) || 0;
 
     const getProductData = (card) => {
       const image = card.querySelector("img");
@@ -709,6 +716,8 @@
         cart = Array.isArray(savedCart)
           ? savedCart.filter((item) => productCatalog.has(item.id)).map((item) => ({
             id: item.id,
+            priceInput: typeof item.priceInput === 'string' ? item.priceInput : (productCatalog.get(item.id).amount / 100).toFixed(2),
+            unitAmount: typeof item.priceInput === 'string' ? AbilityPricing.parseCents(item.priceInput) : productCatalog.get(item.id).amount,
             quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1)),
           }))
           : [];
@@ -721,13 +730,15 @@
       localStorage.setItem(cartStorageKey, JSON.stringify(cart));
     };
 
+    const validCartPrice = item => AbilityPricing.validPrice(item.unitAmount, productCatalog.get(item.id).amount);
+    const cartIsValid = () => cart.every(validCartPrice) && getCartTotals().subtotal <= AbilityPricing.MAX_CENTS;
     const getCartTotals = () => cart.reduce((totals, item) => {
       const product = productCatalog.get(item.id);
       if (!product) return totals;
 
       return {
         count: totals.count + item.quantity,
-        subtotal: totals.subtotal + product.amount * item.quantity,
+        subtotal: totals.subtotal + (validCartPrice(item) ? item.unitAmount * item.quantity : 0),
       };
     }, { count: 0, subtotal: 0 });
 
@@ -738,14 +749,15 @@
         return product ? {
           id: product.id,
           title: product.title,
-          price: currencyFormatter.format(product.amount),
+          price: currencyFormatter.format(item.unitAmount / 100),
+          unitAmount: item.unitAmount,
           quantity: item.quantity,
         } : null;
       }).filter(Boolean);
 
       localStorage.setItem(checkoutRequestStorageKey, JSON.stringify({
         items,
-        subtotal: currencyFormatter.format(subtotal),
+        subtotal: currencyFormatter.format(subtotal / 100),
       }));
     };
 
@@ -753,9 +765,7 @@
       cartDrawer.setAttribute("aria-hidden", String(!isOpen));
       cartOverlay.hidden = !isOpen;
       document.body.classList.toggle("cart-is-open", isOpen);
-      if (isOpen) {
-        cartError.textContent = "";
-      }
+
     };
 
     const updateCartItem = (id, quantity) => {
@@ -771,7 +781,7 @@
       if (existingItem) {
         existingItem.quantity = Math.min(99, existingItem.quantity + 1);
       } else {
-        cart.push({ id: product.id, quantity: 1 });
+        cart.push({ id: product.id, quantity: 1, unitAmount: product.amount, priceInput: (product.amount / 100).toFixed(2) });
       }
 
       saveCart();
@@ -779,15 +789,35 @@
       setCartOpen(true);
     };
 
-    const renderCart = () => {
+    const updateCartSummary = () => {
       const { count, subtotal } = getCartTotals();
+      const valid = cartIsValid();
+      const shipping = count && subtotal < 12000 ? 1000 : 0;
       cartCount.textContent = String(count);
-      cartSubtotal.textContent = currencyFormatter.format(subtotal);
-      cartShipping.textContent = subtotal >= 120
-        ? cartCopy.shippingFree
-        : cartCopy.shippingProgress(Math.max(0, 120 - subtotal));
-      checkoutButton.disabled = count === 0;
+      cartSubtotal.textContent = valid ? currencyFormatter.format(subtotal / 100) : '—';
+      document.querySelector('[data-cart-shipping-amount]').textContent = valid ? currencyFormatter.format(shipping / 100) : '—';
+      document.querySelector('[data-cart-total]').textContent = valid ? currencyFormatter.format((subtotal + shipping) / 100) : '—';
+      cartShipping.textContent = subtotal >= 12000 ? cartCopy.shippingFree : cartCopy.shippingProgress(Math.max(0, 12000 - subtotal) / 100);
+      cartError.textContent = valid ? '' : subtotal > AbilityPricing.MAX_CENTS ? cartCopy.limit : cartCopy.correct;
+      checkoutButton.disabled = count === 0 || !valid;
       checkoutButton.textContent = cartCopy.checkout;
+    };
+
+    const updatePriceState = (row, item) => {
+      const input = row.querySelector('[data-cart-price]');
+      const error = row.querySelector('.cart-price-error');
+      const valid = validCartPrice(item);
+      input.setAttribute('aria-invalid', String(!valid));
+      error.textContent = '';
+      if (!valid) {
+        const minimum = currencyFormatter.format(productCatalog.get(item.id).amount / 100);
+        error.textContent = /^\d{7,}/.test(item.priceInput) ? cartCopy.limit : cartCopy.invalidPrice(minimum);
+      }
+      row.querySelector('[data-line-total]').textContent = valid ? currencyFormatter.format(item.unitAmount * item.quantity / 100) : '—';
+    };
+
+    const renderCart = () => {
+      updateCartSummary();
       cartItemsContainer.innerHTML = "";
       cartEmpty.hidden = cart.length > 0;
 
@@ -801,7 +831,14 @@
           <img src="${product.imagePath}" alt="${product.alt}">
           <div class="cart-item-main">
             <h3>${product.title}</h3>
-            <strong>${currencyFormatter.format(product.amount)}</strong>
+            <p class="cart-minimum">${cartCopy.minimum} · ${currencyFormatter.format(product.amount / 100)}</p>
+            <div class="cart-price-panel">
+              <label for="price-${product.id}">${cartCopy.yourPrice}</label>
+              <div class="cart-price-field"><span aria-hidden="true">$</span><input id="price-${product.id}" data-cart-price="${product.id}" type="text" inputmode="decimal" maxlength="16" autocomplete="off" aria-describedby="help-${product.id} error-${product.id}"></div>
+              <p id="help-${product.id}" class="cart-price-help">${cartCopy.help}</p>
+              <p id="error-${product.id}" class="cart-price-error" aria-live="polite"></p>
+            </div>
+            <p class="cart-line-total">${cartCopy.line} <strong data-line-total></strong></p>
             <div class="cart-item-actions">
               <div class="cart-quantity" aria-label="Quantity for ${product.title}">
                 <button type="button" data-cart-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>
@@ -812,9 +849,22 @@
             </div>
           </div>
         `;
+        row.querySelector('[data-cart-price]').value = item.priceInput;
+        updatePriceState(row, item);
         cartItemsContainer.append(row);
       });
     };
+
+    cartItemsContainer.addEventListener('input', event => {
+      const id = event.target.dataset.cartPrice;
+      if (!id) return;
+      const item = cart.find(item => item.id === id);
+      item.priceInput = event.target.value;
+      item.unitAmount = AbilityPricing.parseCents(item.priceInput);
+      saveCart();
+      updatePriceState(event.target.closest('.cart-item'), item);
+      updateCartSummary();
+    });
 
     categoryTabs.forEach((tab) => {
       tab.addEventListener("click", () => {
@@ -879,7 +929,7 @@
 
     checkoutButton.addEventListener("click", () => {
       const { count } = getCartTotals();
-      if (count === 0) return;
+      if (count === 0 || !cartIsValid()) return;
 
       saveCheckoutRequest();
       window.location.href = "checkout.html?language=en";

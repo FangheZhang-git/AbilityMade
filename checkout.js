@@ -104,7 +104,7 @@
     document.querySelector('#checkout-subtotal').hidden = false;
   }
   const attemptKey = 'abilitymade-payment-attempt-v2';
-  const fingerprint = rows => JSON.stringify(rows.map(({ id, quantity }) => ({ id, quantity })).sort((a, b) => a.id.localeCompare(b.id)));
+  const fingerprint = rows => JSON.stringify(rows.map(({ id, quantity, unitAmount }) => ({ id, quantity, ...(unitAmount === undefined ? {} : { unitAmount }) })).sort((a, b) => a.id.localeCompare(b.id)));
   const readAttempt = () => JSON.parse(localStorage.getItem(attemptKey) || 'null');
   // Only clear the exact submitted cart after server verification of its bound Session.
   // Preserve edits made while Checkout was open, and retain the attempt for stale tabs.
@@ -170,7 +170,7 @@
       } };
       const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(shippingDetails)));
       const shippingKey = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
-      const cart = items.map(({ id, quantity }) => ({ id, quantity }));
+      const cart = items.map(({ id, quantity, unitAmount }) => ({ id, quantity, ...(unitAmount === undefined ? {} : { unitAmount }) }));
       const cartFingerprint = fingerprint(cart);
       let attempt = readAttempt();
       if (attempt && attempt.fingerprint === cartFingerprint) {
