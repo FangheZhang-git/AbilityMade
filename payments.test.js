@@ -79,7 +79,7 @@ test('only paid verified events create durable orders; concurrent duplicates and
   await Promise.all([deliver(), deliver(), deliver()]);
   const restarted = createPayments({ env });
   await deliver(restarted);
-  assert.deepEqual(await restarted.status('cs_test_fixture'), { status: 'paid' });
+  assert.deepEqual(await restarted.status('cs_test_fixture'), { status: 'paid', fulfillment_type: 'online' });
   const files = (await fs.readdir(directory)).filter(f => f.startsWith('order-'));
   assert.equal(files.length, 1);
   const order = JSON.parse(await fs.readFile(path.join(directory, files[0]), 'utf8'));

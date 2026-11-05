@@ -1,0 +1,52 @@
+const {test,expect}=require('@playwright/test');
+const products=require('../data/products.json');
+for(const language of ['en','zh-CN']) {
+ test(`scans, refresh, prices, cart isolation and checkout: ${language}`,async ({page}) => {
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  const shop=language==='en'?'/index.html':'/index-zh.html';
+  await page.goto(shop);
+  await page.locator('.add-to-cart').first().click();
+  const onlinePrice=page.locator('[data-cart-price]').first();
+  await onlinePrice.fill('81.23');await onlinePrice.blur();
+  await page.locator('[data-cart-checkout]').click();
+  await expect(page).toHaveURL(/checkout.html/);
+  await expect(page.locator('#subtotal-amount')).toContainText('81.23');
+  let online;
+  await page.route('**/api/create-checkout-session',async route=>{online=route.request().postDataJSON();await route.fulfill({status:503,json:{error:'mock'}});});
+  await page.locator('#pay-button').click();
+  await expect.poll(()=>online?.items[0].unitAmount).toBe(8123);
+  await page.unroute('**/api/create-checkout-session');
+  await page.goto(`/exhibition/add/${products[0].id}?language=${language}`);
+  await expect(page.locator('.exhibition-item')).toHaveCount(1);
+  const quantity=()=>page.locator('.exhibition-item').first().locator('input').first();
+  await expect(quantity()).toHaveValue('1');
+  await page.reload();await expect(quantity()).toHaveValue('1');
+  const price=()=>page.locator('.exhibition-item').first().locator('input').nth(1);
+  await price().fill('82.34');await price().blur();
+  await page.goto(`/exhibition/add/${products[0].id}`);await expect(quantity()).toHaveValue('2');
+  await expect(price()).toHaveValue('82.34');
+  await page.goto(`/exhibition/add/${products[1].id}`);await expect(page.locator('.exhibition-item')).toHaveCount(2);
+  await page.reload();await expect(quantity()).toHaveValue('2');
+  await expect(page.locator('#shipping')).toContainText('$0.00');
+  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('abilitymade-cart-v1'))[0])).toMatchObject({quantity:1,unitAmount:8123});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.locator('#pay')).toBeDisabled();await page.locator('#pickup').check();
+  let submitted;
+  await page.route('**/api/create-checkout-session',async route=>{submitted=route.request().postDataJSON();await route.fulfill({status:503,json:{error:'mock'}});});
+  await page.locator('#pay').click();
+  await expect.poll(()=>submitted?.fulfillment_type).toBe('onsite');
+  expect(submitted.pickupConfirmed).toBe(true);expect(submitted.items[0]).toMatchObject({quantity:2,unitAmount:8234});
+  await page.locator('#language').click();await expect(quantity()).toHaveValue('2');
+  await page.goBack();await expect(quantity()).toHaveValue('2');
+  await page.screenshot({path:test.info().outputPath('cart.png'),fullPage:true});
+  expect(errors).toEqual([]);
+ });
+}
+test('success redirect alone never authorizes collection; verified online order cannot confirm pickup',async ({page})=>{
+ await page.route('**/api/checkout-status*',route=>route.fulfill({json:{status:'paid',fulfillment_type:'online'}}));
+ await page.goto('/exhibition.html?session_id=cs_test_mock');
+ await expect(page.locator('#title')).not.toHaveText('Payment Successful!');
+ await page.unroute('**/api/checkout-status*');
+ await page.route('**/api/checkout-status*',route=>route.fulfill({json:{status:'paid',fulfillment_type:'onsite'}}));
+ await page.reload();await expect(page.locator('#title')).toHaveText('Payment Successful!');
+});

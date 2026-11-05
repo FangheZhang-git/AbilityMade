@@ -115,6 +115,7 @@
       </div>
       <p data-cart-shipping>Free standard delivery over $120.</p>
       <button class="cart-checkout" type="button" data-cart-checkout disabled>Checkout</button>
+      <a href="/exhibition.html?language=en">Exhibition pickup cart (separate)</a>
       <p class="cart-error" data-cart-error role="alert"></p>
     </div>
   </aside>
@@ -702,6 +703,24 @@
       return [product.id, product];
     }));
 
+    cartItemsContainer.addEventListener("change", (event) => {
+      const input = event.target.closest("[data-cart-price]");
+      if (!input) return;
+      const value = input.value;
+      const amount = /^\d+(?:\.\d{1,2})?$/.test(value) ? Math.round(Number(value) * 100) : NaN;
+      const product = productCatalog.get(input.dataset.cartPrice);
+      if (!product || !Number.isSafeInteger(amount) || amount < Math.round(product.amount * 100) || amount > 99999999) {
+        input.setCustomValidity("Enter an amount at or above the minimum price.");
+        input.reportValidity();
+        checkoutButton.disabled = true;
+        return;
+      }
+      input.setCustomValidity("");
+      const item = cart.find(item => item.id === input.dataset.cartPrice);
+      if (item) item.unitAmount = amount;
+      saveCart(); renderCart();
+    });
+
     const loadCart = () => {
       try {
         const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
@@ -709,6 +728,7 @@
           ? savedCart.filter((item) => productCatalog.has(item.id)).map((item) => ({
             id: item.id,
             quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity, 10) || 1)),
+            unitAmount: Number.isSafeInteger(item.unitAmount) && item.unitAmount >= Math.round(productCatalog.get(item.id).amount * 100) ? item.unitAmount : Math.round(productCatalog.get(item.id).amount * 100),
           }))
           : [];
       } catch {
@@ -726,7 +746,7 @@
 
       return {
         count: totals.count + item.quantity,
-        subtotal: totals.subtotal + product.amount * item.quantity,
+        subtotal: totals.subtotal + (item.unitAmount ?? Math.round(product.amount * 100)) / 100 * item.quantity,
       };
     }, { count: 0, subtotal: 0 });
 
@@ -737,7 +757,8 @@
         return product ? {
           id: product.id,
           title: product.title,
-          price: currencyFormatter.format(product.amount),
+          price: currencyFormatter.format((item.unitAmount ?? Math.round(product.amount * 100)) / 100),
+          unitAmount: item.unitAmount ?? Math.round(product.amount * 100),
           quantity: item.quantity,
         } : null;
       }).filter(Boolean);
@@ -770,7 +791,7 @@
       if (existingItem) {
         existingItem.quantity = Math.min(99, existingItem.quantity + 1);
       } else {
-        cart.push({ id: product.id, quantity: 1 });
+        cart.push({ id: product.id, quantity: 1, unitAmount: Math.round(product.amount * 100) });
       }
 
       saveCart();
@@ -800,7 +821,8 @@
           <img src="${product.imagePath}" alt="${product.alt}">
           <div class="cart-item-main">
             <h3>${product.title}</h3>
-            <strong>${currencyFormatter.format(product.amount)}</strong>
+            <strong>Minimum: ${currencyFormatter.format(product.amount)}</strong>
+            <label>Your price per item (USD) <input data-cart-price="${product.id}" type="number" min="${product.amount}" max="999999.99" step="0.01" value="${((item.unitAmount ?? Math.round(product.amount * 100)) / 100).toFixed(2)}" style="width:110px;padding:6px"></label>
             <div class="cart-item-actions">
               <div class="cart-quantity" aria-label="Quantity for ${product.title}">
                 <button type="button" data-cart-decrease="${product.id}" aria-label="Decrease ${product.title}">-</button>

@@ -1,0 +1,51 @@
+# Exhibition QR checkout
+
+Implemented locally on `feature/exhibition-qr-checkout`. Nothing has been deployed.
+
+## Review and run
+
+Use Node 20+, `npm ci`, `npm test`, then `npx playwright install chromium webkit` and `npm run test:browser`. Browser tests start a localhost server without payment credentials and mock checkout responses. Unit tests mock Stripe and Resend. No live payments are needed.
+
+Run `npm start`, then open `/exhibition/labels` for all printable labels, or scan a QR / visit `/exhibition/add/PRODUCT_ID`. The separate cart is `/exhibition.html`. Use `?language=zh-CN` or its language switch for Chinese. Ordinary storefront Add to Cart buttons still use the online cart.
+
+## Catalog and labels
+
+`data/products.json` remains the authoritative minimum-price catalog. Existing products, IDs, prices and images are unchanged. Every catalog entry is automatically eligible for dynamic QR generation; no per-product code changes or migration are needed. Keep IDs permanent. Optional `active:false` or `available:false` disables purchase; no inventory tracking was added. Optional `nameZh`, `image`, and `maxUnitAmount` support future catalog entries. Existing bilingual names/images are read from storefront markup for display only. Keep the existing storefront/catalog consistency convention when adding products.
+
+- `/exhibition/qr/PRODUCT_ID.svg`: scalable QR download.
+- `/exhibition/qr/PRODUCT_ID.png`: 1200px PNG download.
+- `/exhibition/label/PRODUCT_ID.svg`: branded printable label with current minimum price.
+- `/exhibition/labels`: all active labels, browser Print / Save as PDF.
+
+Codes use `qrcode` 1.5.4 with a four-module quiet zone and medium error correction. They encode the stable ID URL under `PUBLIC_SITE_URL`, defaulting to `https://abilitymade.net`. Regenerate displayed labels after price/name changes; the QR itself remains valid. Printed labels need a physical phone scan before use. Links become usable publicly only after an authorized deployment.
+
+## Carts, prices and shipping
+
+On-site state uses `abilitymade-onsite-cart-v1`; online cart and checkout handoff keys remain separate. Each redirect from a permanent QR URL receives a fresh receipt. Items and processed receipts are stored together before removing scan parameters from browser history. Refresh/back/retry of that receipt does not add again; a fresh scan increments quantity and keeps the customer's chosen per-unit price. Web Locks serialize same-origin on-site writes in supported browsers. Browser storage must be enabled. Carts are retained on cancellation and after payment, so customers should review/remove previous items before another order.
+
+Both storefront carts support editable per-unit prices. The inspected baseline had fixed-price checkout, so editable pricing was added rather than assumed to exist. The server re-reads catalog prices, checks availability, integer-cent amounts, minimum prices, optional product maximums, quantities 1–99, unique rows, and a 99,999,999-cent cart ceiling. QR parameters cannot specify trusted prices.
+
+The server defaults legacy checkout requests to `online`. Online shipping remains the configured US flat rate below $120 and zero at/above $120. `onsite` requires explicit physical-collection acknowledgement, omits all Stripe shipping options/address collection, and stores shipping as exactly zero. It cannot create a delivery order. Both Checkout Session and PaymentIntent metadata identify fulfillment; private immutable snapshots and paid orders carry the same classification. Existing old snapshots default to online. A checkbox is an acknowledgement, not geolocation or proof of physical presence.
+
+## Payment confirmation and taxes
+
+The existing Stripe HTTP integration and pinned API version are retained. Signed, amount-validated Stripe webhooks create paid orders atomically and idempotently; the success page polls those records. An on-site success message additionally requires the verified order's fulfillment type to be onsite. Visiting a success URL alone never authorizes collection. Delayed payments remain pending. This does not implement item pickup tracking or prevent someone re-showing an old paid receipt; exhibition operating procedures must address that.
+
+**Tax limitation: automatic-tax on-site checkout is intentionally blocked.** The existing integration has no trusted exhibition address/location, and customer-billing-location taxation is not necessarily correct for physical pickup. When `STRIPE_AUTOMATIC_TAX=true`, on-site creation returns `503 onsite_tax_configuration_required`; online automatic tax remains unchanged. No tax exemption or venue rate was invented. The existing explicit false setting is preserved for mock tests / a separately approved no-tax configuration; do not disable tax simply to bypass this guard. Venue-specific tax configuration and validation remain required before launching where tax applies. Thus this is not yet a production-complete tax solution.
+
+## Changed feature files
+
+`exhibition.js`, `exhibition-cart.js`, `exhibition-client.js`, `exhibition.html`, `exhibition.css`, `exhibition.test.js`, `browser-tests/exhibition.spec.js`, `playwright.config.js`, `payments.js`, `payments.test.js`, `server.js`, `index.html`, `index-zh.html`, `checkout.js`, `package.json`, `package-lock.json`, and this guide. Test artifacts are ignored.
+
+Existing uncommitted Stripe/storefront prerequisites are recorded in a separate prerequisite commit so the feature commit can be reviewed on its own. Unrelated outreach changes remain outside both commits. No credentials or order data are staged.
+
+## Before production
+
+1. Review the prerequisite and feature commits, including price limits and collection operating procedures.
+2. Resolve venue tax sourcing/configuration; do not bypass the automatic-tax guard.
+3. Complete the existing `STRIPE_SETUP.md` checks: approved shipping rate, persistent private order volume/backups, Stripe sandbox webhook and payment-method validation.
+4. Test actual hosted Stripe Checkout in sandbox, including English/Chinese, tax, cancellation, delayed payments, signature retries, restart persistence and mobile devices. Local mocks do not verify Stripe account configuration.
+5. Test printed labels with physical phones. Confirm the production origin and label prices.
+6. Obtain separate authorization before pushing to main or deploying to Railway. No such action occurred during this task.
+
+References: https://github.com/soldair/node-qrcode and https://docs.stripe.com/api/checkout/sessions/create .

@@ -2,8 +2,8 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const products = require('./data/products.json');
-const catalog = new Map(products.map(p => [p.id, p]));
+const { getCatalog } = require('./exhibition');
+const MAX_AMOUNT = 99999999;
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
 
@@ -31,14 +31,18 @@ function validateCart(body) {
       !/^[0-9a-f-]{36}$/i.test(body.requestId || '') || !['en', 'zh-CN'].includes(body.language)) {
     throw fail(400, 'invalid_cart');
   }
+  const catalog = new Map(getCatalog().map(p => [p.id, p]));
   const seen = new Set();
   return body.items.map(item => {
     const product = catalog.get(item?.id);
-    if (!product || seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+    if (!product || product.active === false || product.available === false || seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
       throw fail(400, 'invalid_cart');
     }
     seen.add(item.id);
-    return { ...product, quantity: item.quantity };
+    const amount = item.unitAmount === undefined ? product.unitAmount : item.unitAmount;
+    if (!Number.isSafeInteger(amount) || amount < product.unitAmount || amount > MAX_AMOUNT ||
+        (product.maxUnitAmount !== undefined && amount > product.maxUnitAmount)) throw fail(400, 'invalid_price');
+    return { ...product, minimumUnitAmount: product.unitAmount, unitAmount: amount, quantity: item.quantity };
   }).sort((a, b) => a.id.localeCompare(b.id));
 }
 
@@ -76,16 +80,26 @@ function verifyEvent(raw, signature, secret, now = Date.now()) {
 function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...args) } = {}) {
   async function createSession(body) {
     const config = configuration(env);
+    const fulfillment = body?.fulfillment_type === undefined ? 'online' : body.fulfillment_type;
+    if (!['online', 'onsite'].includes(fulfillment)) throw fail(400, 'invalid_fulfillment');
+    if (fulfillment === 'onsite' && (body.pickupConfirmed !== true || body.shippingAddress || body.shipping_details)) {
+      throw fail(400, 'physical_collection_required');
+    }
+    // Automatic tax currently sources the customer's address, not an exhibition's location.
+    // Do not silently charge the wrong venue tax or claim a tax exemption.
+    if (fulfillment === 'onsite' && config.tax) throw fail(503, 'onsite_tax_configuration_required');
     const items = validateCart(body);
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
-    const shipping = subtotal >= 12000 ? 0 : config.shipping;
-    const snapshot = { items, subtotal, shipping, language: body.language, live: config.live };
+    if (!Number.isSafeInteger(subtotal) || subtotal > MAX_AMOUNT) throw fail(400, 'invalid_total');
+    const shipping = fulfillment === 'onsite' || subtotal >= 12000 ? 0 : config.shipping;
+    const snapshot = { items, subtotal, shipping, fulfillment_type: fulfillment, language: body.language, live: config.live };
+    const page = fulfillment === 'onsite' ? 'exhibition.html' : 'checkout.html';
     const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);
     const params = new URLSearchParams({
       mode: 'payment', locale: body.language === 'zh-CN' ? 'zh' : 'en',
-      success_url: `${config.origin}/checkout.html?language=${body.language}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${config.origin}/checkout.html?language=${body.language}&cancelled=1`,
+      success_url: `${config.origin}/${page}?language=${body.language}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${config.origin}/${page}?language=${body.language}&cancelled=1`,
       'metadata[abilitymade_reference]': reference,
       'metadata[store]': 'abilitymade',
       'shipping_address_collection[allowed_countries][0]': 'US',
@@ -95,6 +109,17 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
       'shipping_options[0][shipping_rate_data][display_name]': body.language === 'zh-CN' ? '标准配送' : 'Standard shipping',
     });
+    params.set('metadata[fulfillment_type]', fulfillment);
+    params.set('payment_intent_data[metadata][fulfillment_type]', fulfillment);
+    params.set('payment_intent_data[metadata][abilitymade_reference]', reference);
+    if (fulfillment === 'onsite') {
+      for (const key of [...params.keys()]) {
+        if (key.startsWith('shipping_')) params.delete(key);
+      }
+      params.set('custom_text[submit][message]', body.language === 'zh-CN'
+        ? '仅限展览现场自取，不提供配送。付款确认后方可取走商品。'
+        : 'Exhibition collection only. No delivery. Collect items only after payment is confirmed.');
+    }
     items.forEach((p, i) => {
       params.set(`line_items[${i}][price_data][currency]`, 'usd');
       params.set(`line_items[${i}][price_data][unit_amount]`, String(p.unitAmount));
@@ -134,11 +159,12 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       throw fail(400, 'order_mismatch');
     }
     await saveOnce(directory, 'order-' + hash(session.id), {
-      ...snapshot, status: 'paid', fulfillmentStatus: 'awaiting_manual_review',
+      ...snapshot, status: 'paid', fulfillment_type: snapshot.fulfillment_type || 'online',
+      fulfillmentStatus: snapshot.fulfillment_type === 'onsite' ? 'ready_for_collection' : 'awaiting_manual_review',
       sessionId: session.id, paymentIntent: session.payment_intent, eventId: event.id,
       recordedAt: new Date().toISOString(), amountTotal: session.amount_total,
       tax: session.total_details.amount_tax, customer: session.customer_details,
-      shippingDetails: session.collected_information?.shipping_details || session.shipping_details,
+      shippingDetails: snapshot.fulfillment_type === 'onsite' ? undefined : session.collected_information?.shipping_details || session.shipping_details,
     });
   }
 
@@ -146,8 +172,8 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     if (!/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(sessionId || '')) throw fail(400, 'invalid_session');
     if (!env.ORDER_DATA_DIR) throw fail(503, 'checkout_unavailable');
     try {
-      await fs.access(path.join(env.ORDER_DATA_DIR, 'order-' + hash(sessionId) + '.json'));
-      return { status: 'paid' };
+      const order = JSON.parse(await fs.readFile(path.join(env.ORDER_DATA_DIR, 'order-' + hash(sessionId) + '.json'), 'utf8'));
+      return { status: order.status, fulfillment_type: order.fulfillment_type || 'online' };
     } catch (error) {
       if (error.code === 'ENOENT') return { status: 'pending' };
       throw error;

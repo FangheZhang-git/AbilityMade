@@ -111,7 +111,7 @@
     button.disabled = true;
     status.textContent = copy.loading;
     try {
-      const cart = items.map(({ id, quantity }) => ({ id, quantity }));
+      const cart = items.map(({ id, quantity, unitAmount }) => ({ id, quantity, unitAmount }));
       const fingerprint = JSON.stringify(cart);
       let attempt;
       try { attempt = JSON.parse(sessionStorage.getItem('abilitymade-payment-attempt')); } catch {}

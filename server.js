@@ -4,9 +4,10 @@ const path = require("node:path");
 
 const { createPayments } = require("./payments");
 const payments = createPayments();
+const { handleExhibition } = require("./exhibition");
 const root = __dirname;
 const publicFiles = new Set(['index.html', 'index-zh.html', 'our-story-in-full.html',
-  'our-story-in-full-zh.html', 'checkout.html', 'checkout.js', 'style.css', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
+  'our-story-in-full-zh.html', 'checkout.html', 'checkout.js', 'exhibition.html', 'exhibition-client.js', 'exhibition-cart.js', 'exhibition.css', 'style.css', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 const purchaseRequestTo = process.env.PURCHASE_REQUEST_TO || "AbilityMade@gmail.com";
 const purchaseRequestFrom = process.env.PURCHASE_REQUEST_FROM || "";
@@ -505,6 +506,14 @@ const handleNewsletterSubscribe = async (req, res) => {
 
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${port}`);
+
+  if (url.pathname.startsWith('/exhibition/') || url.pathname === '/api/exhibition/catalog') {
+    handleExhibition(req, res, url).catch(() => {
+      if (!res.headersSent) sendJson(res, 500, { error: 'exhibition_unavailable' });
+      else res.end();
+    });
+    return;
+  }
 
   if (["/api/create-checkout-session", "/api/stripe-webhook", "/api/checkout-status"].includes(url.pathname)) {
     handlePayments(req, res, url.pathname, url);
