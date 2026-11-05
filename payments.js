@@ -2,11 +2,12 @@
 const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const products = require('./data/products.json');
+const { getCatalog } = require('./exhibition');
+const checkoutConfig = require('./checkout-config');
 const { validateShipping, shippingHash } = require('./shipping');
 const { createRecovery, revision } = require('./recovery');
 const { validPrice, MAX_CENTS } = require('./pricing');
-const catalog = new Map(products.map(p => [p.id, p]));
+
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
 
@@ -19,14 +20,14 @@ function configuration(env) {
       directory === __dirname || directory.startsWith(__dirname + path.sep) ||
       (env.RAILWAY_ENVIRONMENT_ID && (!mount || (directory !== mount && !directory.startsWith(mount + path.sep)))) ||
       !/^\d+$/.test(env.SHIPPING_FLAT_RATE_CENTS || '') ||
-      !['true', 'false'].includes(env.STRIPE_AUTOMATIC_TAX) ||
+      (!checkoutConfig.taxCollectionPaused && !['true', 'false'].includes(env.STRIPE_AUTOMATIC_TAX)) ||
       (live && (env.STRIPE_LIVE_ENABLED !== 'true' || origin.protocol !== 'https:')) ||
       (!live && origin.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(origin.hostname))) {
     throw fail(503, 'checkout_unavailable');
   }
   const shipping = Number(env.SHIPPING_FLAT_RATE_CENTS);
   if (shipping !== 1000) throw fail(503, 'checkout_unavailable');
-  return { origin: origin.origin, directory, shipping, live, tax: env.STRIPE_AUTOMATIC_TAX === 'true' };
+  return { origin: origin.origin, directory, shipping, live, tax: !checkoutConfig.taxCollectionPaused && env.STRIPE_AUTOMATIC_TAX === 'true' };
 }
 
 function validateCart(body) {
@@ -35,15 +36,16 @@ function validateCart(body) {
     throw fail(400, 'invalid_cart');
   }
   if (body.currency !== undefined && body.currency !== 'usd') throw fail(400, 'invalid_currency');
+  const catalog = new Map(getCatalog().map(p => [p.id, p]));
   const seen = new Set();
   return body.items.map(item => {
     const product = catalog.get(item?.id);
-    if (!product || seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+    if (!product || product.active === false || product.available === false || seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
       throw fail(400, 'invalid_cart');
     }
     seen.add(item.id);
     const unitAmount = item.unitAmount === undefined ? product.unitAmount : item.unitAmount;
-    if (!validPrice(unitAmount, product.unitAmount) || (item.currency !== undefined && item.currency !== 'usd')) {
+    if (!validPrice(unitAmount, product.unitAmount) || (product.maxUnitAmount !== undefined && unitAmount > product.maxUnitAmount) || (item.currency !== undefined && item.currency !== 'usd')) {
       throw fail(400, 'invalid_price');
     }
     return { ...product, unitAmount, quantity: item.quantity };
@@ -97,19 +99,24 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
   }
   async function createSession(body) {
     const config = configuration(env);
+    const fulfillment = body?.fulfillment_type === undefined ? 'online' : body.fulfillment_type;
+    if (!['online', 'onsite'].includes(fulfillment)) throw fail(400, 'invalid_fulfillment');
+    if (fulfillment === 'onsite' && (body.pickupConfirmed !== true || body.shippingDetails || body.shippingAddress || body.shipping_details)) throw fail(400, 'physical_collection_required');
+    if (fulfillment === 'onsite' && config.tax) throw fail(503, 'onsite_tax_configuration_required');
     const items = validateCart(body);
-    const shippingDetails = validateShipping(body.shippingDetails);
+    const shippingDetails = fulfillment === 'online' ? validateShipping(body.shippingDetails) : undefined;
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
     // One order-wide fee, regardless of supplier count. Approved deployment value: 1000.
-    const shipping = subtotal >= 12000 ? 0 : config.shipping;
+    const shipping = fulfillment === 'onsite' || subtotal >= 12000 ? 0 : config.shipping;
     if (subtotal + shipping > MAX_CENTS) throw fail(400, 'amount_too_large');
-    const snapshot = { items, subtotal, shipping, language: body.language, live: config.live, shippingDetails };
+    const snapshot = { items, subtotal, shipping, fulfillment_type: fulfillment, language: body.language, live: config.live, shippingDetails };
     const reference = hash(JSON.stringify({ ...snapshot, requestId: body.requestId, tax: config.tax, schema: 2, shippingDestinations: 'bound_v1', revision, environment: recovery.environment() }));
     await saveOnce(config.directory, 'checkout-' + reference, snapshot);
+    const page = fulfillment === 'onsite' ? 'exhibition.html' : 'checkout.html';
     const params = new URLSearchParams({
       mode: 'payment', locale: body.language === 'zh-CN' ? 'zh' : 'en',
-      success_url: `${config.origin}/checkout.html?language=${body.language}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${config.origin}/checkout.html?language=${body.language}&cancelled=1`,
+      success_url: `${config.origin}/${page}?language=${body.language}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${config.origin}/${page}?language=${body.language}&cancelled=1`,
       'metadata[abilitymade_reference]': reference,
       'metadata[store]': 'abilitymade',
       'automatic_tax[enabled]': String(config.tax),
@@ -118,19 +125,27 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
       'shipping_options[0][shipping_rate_data][display_name]': body.language === 'zh-CN' ? '标准配送' : 'Standard shipping',
     });
-    const metadata = { store: 'abilitymade', abilitymade_reference: reference, schema_version: '2', catalog_revision: revision, environment: recovery.environment(), language: body.language, shipping_mode: 'bound_v1', shipping_hash: shippingHash(shippingDetails) };
+    const metadata = { store: 'abilitymade', abilitymade_reference: reference, schema_version: '2', catalog_revision: revision, environment: recovery.environment(), language: body.language, fulfillment_type: fulfillment, shipping_mode: fulfillment === 'onsite' ? 'onsite_v1' : 'bound_v1', ...(shippingDetails ? { shipping_hash: shippingHash(shippingDetails) } : {}) };
     for (const [key, value] of Object.entries(metadata)) {
       params.set(`metadata[${key}]`, value);
       params.set(`payment_intent_data[metadata][${key}]`, value);
     }
     // Do not collect/edit delivery addresses in hosted Checkout. Billing may differ.
-    params.set('payment_intent_data[shipping][name]', shippingDetails.name);
-    for (const [key, value] of Object.entries(shippingDetails.address)) {
-      if (value) params.set(`payment_intent_data[shipping][address][${key}]`, value);
+    if (fulfillment === 'online') {
+      params.set('payment_intent_data[shipping][name]', shippingDetails.name);
+      for (const [key, value] of Object.entries(shippingDetails.address)) {
+        if (value) params.set(`payment_intent_data[shipping][address][${key}]`, value);
+      }
+      params.set('custom_text[submit][message]', body.language === 'zh-CN'
+        ? '配送地址已在 AbilityMade 确认。账单地址不会更改配送地址。需修改配送地址请返回商店。'
+        : 'Delivery uses the address confirmed on AbilityMade. Billing details do not change it. Return to the store to change delivery.');
+    } else {
+      for (const key of [...params.keys()]) if (key.startsWith('shipping_')) params.delete(key);
+      params.set('custom_text[submit][message]', body.language === 'zh-CN'
+        ? '仅限展览现场自取，不提供配送。付款确认后方可取走商品。'
+        : 'Exhibition collection only. No delivery. Collect items only after payment is confirmed.');
     }
-    params.set('custom_text[submit][message]', body.language === 'zh-CN'
-      ? '配送地址已在 AbilityMade 确认。账单地址不会更改配送地址。需修改配送地址请返回商店。'
-      : 'Delivery uses the address confirmed on AbilityMade. Billing details do not change it. Return to the store to change delivery.');
+    // Only server-selected inline prices; never forward manual or dynamic tax rates.
     items.forEach((p, i) => {
       for (const [key, value] of Object.entries({ ...metadata, abilitymade_product_id: p.id })) {
         params.set(`line_items[${i}][price_data][product_data][metadata][${key}]`, value);
@@ -177,10 +192,11 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     }
     await saveOnce(directory, 'order-' + hash(session.id), {
       ...snapshot, status: 'paid', requiresHumanReview: true,
+      ...(snapshot.fulfillment_type === 'onsite' ? { fulfillmentStatus: 'ready_for_collection' } : {}),
       sessionId: session.id, paymentIntent: session.payment_intent, eventId: event.id,
       recordedAt: new Date().toISOString(), amountTotal: session.amount_total,
       tax: session.total_details.amount_tax, customer: session.customer_details,
-      shippingDetails: session.collected_information?.shipping_details || session.shipping_details,
+      shippingDetails: snapshot.fulfillment_type === 'onsite' ? undefined : snapshot.shippingDetails || session.collected_information?.shipping_details || session.shipping_details,
     });
   }
 
@@ -193,7 +209,7 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     for (const [key, value] of statusCache) if (value.until <= now) statusCache.delete(key);
     if (statusCache.size >= 200) throw fail(429, 'rate_limited');
     // Share in-flight requests and cache failures. Never return PII or write files here.
-    const promise = statusRecovery.verify(sessionId).then(v => ({ status: v.status }));
+    const promise = statusRecovery.verify(sessionId).then(v => ({ status: v.status, ...(v.session.metadata.fulfillment_type ? { fulfillment_type: v.session.metadata.fulfillment_type } : {}) }));
     statusCache.set(sessionId, { until: now + 30000, promise });
     return promise;
   }

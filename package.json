@@ -5,7 +5,7 @@
   "description": "Static storefront for AbilityMade.",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test cart.test.js pricing.test.js checkout.test.js server.test.js payments.test.js recovery.test.js scripts/email-outreach.test.js",
+    "test": "node --test cart.test.js pricing.test.js checkout.test.js server.test.js payments.test.js exhibition.test.js recovery.test.js scripts/email-outreach.test.js",
     "outreach:dry-run": "node scripts/email-outreach.js dry-run --expected-count 10",
     "outreach:authorize": "node scripts/email-outreach.js authorize",
     "outreach:draft": "node scripts/email-outreach.js draft --expected-count 10",
@@ -14,10 +14,17 @@
     "outreach:queue-draft": "node scripts/email-outreach.js queue-draft",
     "outreach:queue-send-preflight": "node scripts/email-outreach.js queue-send-preflight",
     "outreach:queue-send": "node scripts/email-outreach.js queue-send",
-    "outreach:queue-mark-failed": "node scripts/email-outreach.js queue-mark-failed"
+    "outreach:queue-mark-failed": "node scripts/email-outreach.js queue-mark-failed",
+    "test:browser": "playwright test"
   },
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {}
+  "dependencies": {
+    "qrcode": "1.5.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "jsqr": "1.4.0"
+  }
 }

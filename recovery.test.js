@@ -295,3 +295,41 @@ test('custom per-unit prices survive signed v2 webhooks, tax, and duplicate deli
   assert.equal(order.tax, 1234);
   assert.equal(order.amountTotal, 19480);
 });
+
+test('on-site v2 payments recover without delivery data, retain custom prices and verify refunds', async () => {
+  for (const language of ['en', 'zh-CN']) {
+    const {state,payments,env,dir}=await fixture();
+    Object.assign(state.s.metadata,{fulfillment_type:'onsite',shipping_mode:'onsite_v1',language});
+    Object.assign(state.p.metadata,state.s.metadata);
+    delete state.s.collected_information;
+    state.s.total_details.amount_shipping=0;
+    state.s.amount_total=state.p.amount=state.p.amount_received=state.s.amount_subtotal;
+    const raw=Buffer.from(JSON.stringify({type:'checkout.session.completed',data:{object:state.s}}));
+    const t=Math.floor(Date.now()/1000);
+    const sig=`t=${t},v1=${crypto.createHmac('sha256',env.STRIPE_WEBHOOK_SECRET).update(t+'.').update(raw).digest('hex')}`;
+    await Promise.all([payments.webhook(raw,sig),payments.webhook(raw,sig)]);
+    const files=(await fs.readdir(dir)).filter(n=>n.startsWith('order-'));
+    assert.equal(files.length,1);
+    const record=JSON.parse(await fs.readFile(path.join(dir,files[0])));
+    assert.equal(record.fulfillment_type,'onsite');assert.equal(record.shipping,0);
+    assert.equal(record.shippingDetails,undefined);assert.equal(record.language,language);
+    assert.equal(record.items[0].unitAmount,7500);
+    assert.equal(record.fulfillmentStatus,'ready_for_collection');
+    assert.deepEqual(await payments.status(state.s.id),{status:'paid',fulfillment_type:'onsite'});
+    state.refunds=[{id:'re_fixture',payment_intent:state.p.id,currency:'usd',amount:7500,status:'succeeded'}];
+    // Independent reconstruction reads the current financial state, never mutates refunds.
+    assert.equal((await payments.recover(state.s.id)).financialStatusAtRecovery,'refunded');
+  }
+});
+test('on-site verification rejects shipping charges, delivery data and mismatched pickup metadata',async()=>{
+ for(const mutate of [x=>x.s.total_details.amount_shipping=1000,x=>x.p.metadata.fulfillment_type='online',
+   x=>x.s.metadata.shipping_mode='bound_v1',x=>x.p.shipping={name:'unexpected'},
+   x=>x.s.shipping_address_collection={allowed_countries:['US']},x=>x.s.metadata.fulfillment_type='unknown']){
+  const {state,payments,dir}=await fixture();
+  Object.assign(state.s.metadata,{fulfillment_type:'onsite',shipping_mode:'onsite_v1'});
+  Object.assign(state.p.metadata,state.s.metadata);delete state.s.collected_information;
+  state.s.total_details.amount_shipping=0;state.s.amount_total=state.p.amount=state.p.amount_received=7500;
+  mutate(state);await assert.rejects(payments.recover(state.s.id,{write:true}),{message:'shipping_mismatch'});
+  assert.deepEqual(await fs.readdir(dir),[]);
+ }
+});

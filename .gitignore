@@ -27,3 +27,7 @@ Wisconsin_email_1_batch.md
 Wisconsin_email_2_batch.md
 CODEX_HANDOFF.md
 tmp/
+
+# Local browser test artifacts
+test-results/
+playwright-report/

@@ -68,3 +68,7 @@ production migration is performed automatically.
 The local configuration example now specifies `SHIPPING_FLAT_RATE_CENTS=1000`; the server requires explicit runtime configuration and refuses new Checkout Sessions unless this value is 1000. Historical webhook processing and recovery do not use this new-session check. Do not deploy the new $10 customer copy with an old $7 staging setting. When authorized, apply the variable and code together and verify a newly created Checkout Session before enabling customer checkout. No Railway variables were changed by this local update.
 
 Do not rewrite old Checkout snapshots, paid orders, historical Stripe amounts, or recovery fixtures. Existing $87/$120 sandbox purchases retain their original shipping charges. Before a production price change, reconcile/expire older open Sessions under an approved procedure so stale quotes cannot conflict with new storefront copy. Automatic tax remains false as instructed; the business tax treatment still needs resolution before launch.
+
+## Temporary tax pause
+
+`checkout-config.js` sets `taxCollectionPaused: true` for all new online and on-site Sessions. No manual tax rates are attached. Existing Sessions and historical transactions are unchanged. Set the central flag to false to resume the explicit `STRIPE_AUTOMATIC_TAX` configuration. On-site automatic tax remains blocked until venue sourcing is implemented.

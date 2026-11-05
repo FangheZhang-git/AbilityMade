@@ -72,6 +72,12 @@ function createRecovery({ env, fetchImpl }) {
     if (p.id !== s.payment_intent || p.status !== 'succeeded' || p.currency !== 'usd' || p.livemode !== live ||
         !Number.isSafeInteger(s.amount_total) || s.amount_total <= 0 || p.amount !== s.amount_total || p.amount_received !== s.amount_total ||
         (!isLegacy && (p.metadata?.abilitymade_reference !== s.metadata.abilitymade_reference || p.metadata?.store !== 'abilitymade'))) throw fail(409, 'payment_mismatch');
+    const onsite = s.metadata.fulfillment_type === 'onsite';
+    if (s.metadata.fulfillment_type && !['online', 'onsite'].includes(s.metadata.fulfillment_type)) throw fail(409, 'shipping_mismatch');
+    if (onsite && (s.metadata.shipping_mode !== 'onsite_v1' || p.metadata?.shipping_mode !== 'onsite_v1' ||
+        p.metadata?.fulfillment_type !== 'onsite' || s.total_details?.amount_shipping !== 0 ||
+        s.shipping_address_collection != null || p.shipping != null || s.shipping_details != null ||
+        s.collected_information?.shipping_details != null)) throw fail(409, 'shipping_mismatch');
     let boundShipping;
     if (s.metadata.shipping_mode === 'bound_v1') {
       try {
@@ -81,7 +87,7 @@ function createRecovery({ env, fetchImpl }) {
             shippingHash(boundShipping) !== s.metadata.shipping_hash ||
             s.shipping_address_collection != null) throw new Error();
       } catch { throw fail(409, 'shipping_mismatch'); }
-    } else if (s.metadata.shipping_mode) throw fail(409, 'shipping_mismatch');
+    } else if (s.metadata.shipping_mode && !onsite) throw fail(409, 'shipping_mismatch');
     const refunds = await list('refunds?payment_intent=' + p.id);
     const disputes = await list('disputes?payment_intent=' + p.id);
     if (refunds.some(r => r.payment_intent !== p.id || r.currency !== 'usd' || !Number.isSafeInteger(r.amount) || r.amount < 0) ||
@@ -117,23 +123,26 @@ function createRecovery({ env, fetchImpl }) {
       if (JSON.stringify(items.map(p => [p.id, p.quantity, p.unitAmount])) !== JSON.stringify(expected) || s.amount_total !== (expected.length === 1 ? 8700 : 12000)) throw fail(409, 'legacy_order_mismatch');
     }
     const subtotal = items.reduce((n,p) => n + p.unitAmount * p.quantity, 0), t = s.total_details;
+    const onsite = s.metadata.fulfillment_type === 'onsite';
     const shipping = v.boundShipping || s.collected_information?.shipping_details || s.shipping_details;
     const language = v.isLegacy ? ({ en: 'en', zh: 'zh-CN' })[s.locale] : s.metadata.language;
     if (new Set(items.map(p=>p.id)).size !== items.length || s.amount_subtotal !== subtotal ||
         !t || !Number.isSafeInteger(t.amount_shipping) || t.amount_shipping < 0 || !Number.isSafeInteger(t.amount_tax) || t.amount_tax < 0 ||
         t.amount_discount !== 0 || s.amount_total !== subtotal + t.amount_shipping + t.amount_tax ||
-        !['en','zh-CN'].includes(language) || !s.customer_details?.email || !shipping?.name ||
+        !['en','zh-CN'].includes(language) || !s.customer_details?.email || (!onsite && (!shipping?.name ||
         !['US', 'PR', 'GU'].includes(shipping.address?.country) ||
         !['line1','city','postal_code'].every(k=>typeof shipping.address[k] === 'string' && shipping.address[k].trim()) ||
         (shipping.address.state != null && typeof shipping.address.state !== 'string') ||
         (shipping.address.country === 'US' && !shipping.address.state?.trim()) ||
-        ['AS','MP','VI','UM','AMERICAN SAMOA','NORTHERN MARIANA ISLANDS','US VIRGIN ISLANDS','U.S. VIRGIN ISLANDS','UNITED STATES MINOR OUTLYING ISLANDS'].includes(shipping.address.state?.trim().toUpperCase()) ||
+        ['AS','MP','VI','UM','AMERICAN SAMOA','NORTHERN MARIANA ISLANDS','US VIRGIN ISLANDS','U.S. VIRGIN ISLANDS','UNITED STATES MINOR OUTLYING ISLANDS'].includes(shipping.address.state?.trim().toUpperCase()))) ||
         (!v.isLegacy && !/^[a-f0-9]{64}$/.test(s.metadata.catalog_revision || ''))) throw fail(409, 'incomplete_order');
     return { schemaVersion: 2, items, subtotal, shipping: t.amount_shipping, language, live: s.livemode,
       status: 'paid', financialStatusAtRecovery: v.status, refundedAtRecovery: v.refunded,
       disputesAtRecovery: v.disputes, sessionId: s.id, paymentIntent: s.payment_intent,
       reference: s.metadata.abilitymade_reference, amountTotal: s.amount_total, tax: t.amount_tax,
-      customer: s.customer_details, shippingDetails: shipping,
+      customer: s.customer_details, shippingDetails: onsite ? undefined : shipping,
+      ...(s.metadata.fulfillment_type ? { fulfillment_type: s.metadata.fulfillment_type } : {}),
+      ...(onsite ? { fulfillmentStatus: 'ready_for_collection' } : {}),
       catalogRevision: v.isLegacy ? 'legacy-29f1e5f' : s.metadata.catalog_revision,
       recoveredAt: new Date().toISOString(), source: 'stripe_recovery', requiresHumanReview: true };
   }
