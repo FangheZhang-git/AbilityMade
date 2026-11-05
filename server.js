@@ -2,7 +2,11 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 
+const { createPayments } = require("./payments");
+const payments = createPayments();
 const root = __dirname;
+const publicFiles = new Set(['index.html', 'index-zh.html', 'our-story-in-full.html',
+  'our-story-in-full-zh.html', 'checkout.html', 'checkout.js', 'style.css', 'favicon.ico', 'robots.txt', 'sitemap.xml']);
 const port = Number.parseInt(process.env.PORT || "3000", 10);
 const purchaseRequestTo = process.env.PURCHASE_REQUEST_TO || "AbilityMade@gmail.com";
 const purchaseRequestFrom = process.env.PURCHASE_REQUEST_FROM || "";
@@ -30,8 +34,10 @@ const contentTypes = {
 
 const getFilePath = (requestUrl) => {
   const url = new URL(requestUrl, `http://localhost:${port}`);
-  const decodedPath = decodeURIComponent(url.pathname);
+  let decodedPath;
+  try { decodedPath = decodeURIComponent(url.pathname); } catch { return null; }
   const relativePath = decodedPath === "/" ? "index.html" : decodedPath.slice(1);
+  if (!publicFiles.has(relativePath) && !/^assets\/images\/[a-zA-Z0-9_-]+\.(?:png|jpe?g|webp|gif|svg|ico)$/i.test(relativePath)) return null;
   const filePath = path.resolve(root, relativePath);
 
   if (!filePath.startsWith(root + path.sep) && filePath !== root) {
@@ -279,14 +285,48 @@ const getPurchaseRequestEmail = ({ firstName, lastName, email, items, subtotal }
   return { text, html };
 };
 
-const handleCheckoutSession = async (req, res) => {
-  if (req.method !== "POST") {
-    res.writeHead(405, { Allow: "POST" });
-    res.end("Method Not Allowed");
-    return;
+const paymentAttempts = new Map();
+const readPaymentBody = async (req) => {
+  const chunks = [];
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > 1024 * 1024) throw Object.assign(new Error('request_too_large'), { status: 413 });
+    chunks.push(chunk);
   }
-
-  sendJson(res, 503, { error: "Checkout is currently disabled." });
+  return Buffer.concat(chunks);
+};
+const handlePayments = async (req, res, pathname, url) => {
+  res.setHeader('Cache-Control', 'no-store');
+  const method = pathname === '/api/checkout-status' ? 'GET' : 'POST';
+  if (req.method !== method) {
+    res.setHeader('Allow', method);
+    return sendJson(res, 405, { error: 'method_not_allowed' });
+  }
+  try {
+    if (pathname === '/api/stripe-webhook') {
+      await payments.webhook(await readPaymentBody(req), req.headers['stripe-signature']);
+      return sendJson(res, 200, { received: true });
+    }
+    if (pathname === '/api/checkout-status') {
+      return sendJson(res, 200, await payments.status(url.searchParams.get('session_id')));
+    }
+    const now = Date.now();
+    for (const [key, attempt] of paymentAttempts) if (attempt.until < now) paymentAttempts.delete(key);
+    const address = getClientAddress(req);
+    const attempt = paymentAttempts.get(address) || { count: 0, until: now + 60000 };
+    attempt.count += 1;
+    if (attempt.count > 20 || paymentAttempts.size > 10000) return sendJson(res, 429, { error: 'rate_limited' });
+    paymentAttempts.set(address, attempt);
+    let body;
+    try { body = JSON.parse((await readPaymentBody(req)).toString('utf8')); }
+    catch { return sendJson(res, 400, { error: 'invalid_request' }); }
+    return sendJson(res, 200, await payments.createSession(body));
+  } catch (error) {
+    // Never log provider payloads, customer information, or credentials.
+    console.error('Payment request failed:', error.status || 500);
+    return sendJson(res, error.status || 500, { error: error.status ? error.message : 'payment_unavailable' });
+  }
 };
 
 const handlePurchaseRequest = async (req, res) => {
@@ -466,8 +506,8 @@ const handleNewsletterSubscribe = async (req, res) => {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, `http://localhost:${port}`);
 
-  if (url.pathname === "/api/create-checkout-session") {
-    handleCheckoutSession(req, res);
+  if (["/api/create-checkout-session", "/api/stripe-webhook", "/api/checkout-status"].includes(url.pathname)) {
+    handlePayments(req, res, url.pathname, url);
     return;
   }
 

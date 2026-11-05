@@ -1,5 +1,10 @@
 .DS_Store
 node_modules/
+.env
+.env.*
+!.env.example
+.checkout-data/
+Truist Folder/
 
 # Keep all PDF documents local
 *.[pP][dD][fF]
