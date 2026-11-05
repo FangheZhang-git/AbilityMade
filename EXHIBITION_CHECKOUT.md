@@ -31,7 +31,11 @@ The server defaults legacy checkout requests to `online`. Online shipping remain
 
 The existing Stripe HTTP integration and pinned API version are retained. Signed, amount-validated Stripe webhooks create paid orders atomically and idempotently; the success page polls those records. An on-site success message additionally requires the verified order's fulfillment type to be onsite. Visiting a success URL alone never authorizes collection. Delayed payments remain pending. This does not implement item pickup tracking or prevent someone re-showing an old paid receipt; exhibition operating procedures must address that.
 
-**Tax limitation: automatic-tax on-site checkout is intentionally blocked.** The existing integration has no trusted exhibition address/location, and customer-billing-location taxation is not necessarily correct for physical pickup. When `STRIPE_AUTOMATIC_TAX=true`, on-site creation returns `503 onsite_tax_configuration_required`; online automatic tax remains unchanged. No tax exemption or venue rate was invented. The existing explicit false setting is preserved for mock tests / a separately approved no-tax configuration; do not disable tax simply to bypass this guard. Venue-specific tax configuration and validation remain required before launching where tax applies. Thus this is not yet a production-complete tax solution.
+**Temporary tax pause (owner-approved November 5, 2026):** `checkout-config.js` sets `taxCollectionPaused: true` for both online and on-site purchases. New Sessions explicitly send `automatic_tax[enabled]=false`, attach no manual or dynamic tax rates, and ignore client-supplied tax settings. The pause overrides `STRIPE_AUTOMATIC_TAX`, including an existing `true` value, and removes the on-site tax blocker while active. Shipping and product prices are unchanged.
+
+To re-enable collection, set `taxCollectionPaused: false` centrally and use an explicit `STRIPE_AUTOMATIC_TAX=true` or `false` environment setting. Restart the server after changing configuration. With automatic tax enabled again, the on-site venue-location guard still applies until trusted exhibition tax sourcing is implemented; online automatic tax resumes normally. Do not change Stripe tax registrations for this pause.
+
+Only new Sessions use this setting. Already-created Sessions may retain their original tax configuration. Existing paid orders and signed webhook processing retain their original amounts, including tax; no transaction history is rewritten. This local change is not deployed.
 
 ## Changed feature files
 
@@ -42,7 +46,7 @@ Existing uncommitted Stripe/storefront prerequisites are recorded in a separate 
 ## Before production
 
 1. Review the prerequisite and feature commits, including price limits and collection operating procedures.
-2. Resolve venue tax sourcing/configuration; do not bypass the automatic-tax guard.
+2. Confirm the temporary tax pause is still intended. Before re-enabling on-site automatic tax, resolve venue tax sourcing/configuration.
 3. Complete the existing `STRIPE_SETUP.md` checks: approved shipping rate, persistent private order volume/backups, Stripe sandbox webhook and payment-method validation.
 4. Test actual hosted Stripe Checkout in sandbox, including English/Chinese, tax, cancellation, delayed payments, signature retries, restart persistence and mobile devices. Local mocks do not verify Stripe account configuration.
 5. Test printed labels with physical phones. Confirm the production origin and label prices.

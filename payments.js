@@ -3,6 +3,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { getCatalog } = require('./exhibition');
+const checkoutConfig = require('./checkout-config');
 const MAX_AMOUNT = 99999999;
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -16,14 +17,15 @@ function configuration(env) {
       directory === __dirname || directory.startsWith(__dirname + path.sep) ||
       (env.RAILWAY_ENVIRONMENT_ID && (!mount || (directory !== mount && !directory.startsWith(mount + path.sep)))) ||
       !/^\d+$/.test(env.SHIPPING_FLAT_RATE_CENTS || '') ||
-      !['true', 'false'].includes(env.STRIPE_AUTOMATIC_TAX) ||
+      (!checkoutConfig.taxCollectionPaused && !['true', 'false'].includes(env.STRIPE_AUTOMATIC_TAX)) ||
       (live && (env.STRIPE_LIVE_ENABLED !== 'true' || origin.protocol !== 'https:')) ||
       (!live && origin.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(origin.hostname))) {
     throw fail(503, 'checkout_unavailable');
   }
   const shipping = Number(env.SHIPPING_FLAT_RATE_CENTS);
   if (!Number.isSafeInteger(shipping) || shipping > 100000) throw fail(503, 'checkout_unavailable');
-  return { origin: origin.origin, directory, shipping, live, tax: env.STRIPE_AUTOMATIC_TAX === 'true' };
+  return { origin: origin.origin, directory, shipping, live,
+    tax: !checkoutConfig.taxCollectionPaused && env.STRIPE_AUTOMATIC_TAX === 'true' };
 }
 
 function validateCart(body) {
@@ -85,8 +87,8 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
     if (fulfillment === 'onsite' && (body.pickupConfirmed !== true || body.shippingAddress || body.shipping_details)) {
       throw fail(400, 'physical_collection_required');
     }
-    // Automatic tax currently sources the customer's address, not an exhibition's location.
-    // Do not silently charge the wrong venue tax or claim a tax exemption.
+    // The central pause makes config.tax false for both flows. Retain the venue
+    // guard for when tax collection is re-enabled; pickup sourcing is unresolved.
     if (fulfillment === 'onsite' && config.tax) throw fail(503, 'onsite_tax_configuration_required');
     const items = validateCart(body);
     const subtotal = items.reduce((sum, p) => sum + p.unitAmount * p.quantity, 0);
@@ -109,6 +111,8 @@ function createPayments({ env = process.env, fetchImpl = (...args) => fetch(...a
       'shipping_options[0][shipping_rate_data][fixed_amount][currency]': 'usd',
       'shipping_options[0][shipping_rate_data][display_name]': body.language === 'zh-CN' ? '标准配送' : 'Standard shipping',
     });
+    // Never forward client tax settings or attach manual/dynamic tax rates.
+    // Inline price_data plus automatic_tax=false means no tax on new Sessions.
     params.set('metadata[fulfillment_type]', fulfillment);
     params.set('payment_intent_data[metadata][fulfillment_type]', fulfillment);
     params.set('payment_intent_data[metadata][abilitymade_reference]', reference);

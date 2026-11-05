@@ -101,10 +101,45 @@ test('fulfillment spoofing never gives online delivery free shipping; threshold 
   await payments.createSession({...b,items:[{...b.items[0],unitAmount:12000}]});
   assert.equal(calls[1].get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'),'0');
 });
-test('automatic tax setting preserved for online; unsupported venue taxation fails closed', async () => {
-  const {payments,env,calls}=await fixture();env.STRIPE_AUTOMATIC_TAX='true';
-  await payments.createSession(body());assert.equal(calls[0].get('automatic_tax[enabled]'),'true');
-  await assert.rejects(payments.createSession({...body(),fulfillment_type:'onsite',pickupConfirmed:true}),{status:503,message:'onsite_tax_configuration_required'});
+test('tax pause disables automatic and manual rates in both modes despite legacy or client settings', async () => {
+  for (const setting of ['true', 'false', undefined, '']) {
+    for (const language of ['en', 'zh-CN']) {
+      for (const fulfillment_type of ['online', 'onsite']) {
+        const {payments,env,calls}=await fixture();env.STRIPE_AUTOMATIC_TAX=setting;
+        const product=products.find(p=>p.unitAmount<12000);
+        const unitAmount=product.unitAmount+1;
+        await payments.createSession({...body(),language,fulfillment_type,pickupConfirmed:true,
+          automatic_tax:{enabled:true},tax_rates:['txr_untrusted'],
+          items:[{id:product.id,quantity:1,unitAmount,tax_rates:['txr_untrusted'],dynamic_tax_rates:['txr_untrusted']}]});
+        const params=calls[0];
+        assert.equal(params.get('automatic_tax[enabled]'),'false');
+        assert.ok(![...params.keys()].some(k=>/tax_rates|tax_rate_data/.test(k)));
+        assert.equal(params.get('line_items[0][price_data][unit_amount]'),String(unitAmount));
+        assert.equal(params.get('shipping_options[0][shipping_rate_data][fixed_amount][amount]'),fulfillment_type==='online'?'800':null);
+      }
+    }
+  }
+});
+test('central pause can be lifted; historical taxed orders still verify after it resumes', async t => {
+  const config=require('./checkout-config');
+  t.after(()=>{config.taxCollectionPaused=true;});
+  const {payments,env,calls,directory}=await fixture();env.STRIPE_AUTOMATIC_TAX='true';
+  config.taxCollectionPaused=false;
+  const b=body();
+  await payments.createSession(b);assert.equal(calls[0].get('automatic_tax[enabled]'),'true');
+  await assert.rejects(payments.createSession({...b,fulfillment_type:'onsite',pickupConfirmed:true}),{status:503,message:'onsite_tax_configuration_required'});
+  config.taxCollectionPaused=true;
+  await payments.createSession(b);
+  assert.equal(calls[1].get('automatic_tax[enabled]'),'false');
+  assert.notEqual(calls[0].get('metadata[abilitymade_reference]'),calls[1].get('metadata[abilitymade_reference]'));
+  const event={type:'checkout.session.completed',livemode:false,data:{object:{id:'cs_test_historicaltax',payment_status:'paid',mode:'payment',currency:'usd',livemode:false,
+    metadata:{store:'abilitymade',abilitymade_reference:calls[0].get('metadata[abilitymade_reference]')},
+    amount_subtotal:products[0].unitAmount,amount_total:products[0].unitAmount+800+123,
+    total_details:{amount_shipping:800,amount_discount:0,amount_tax:123}}}};
+  const raw=Buffer.from(JSON.stringify(event)),timestamp=Math.floor(Date.now()/1000);
+  await payments.webhook(raw,`t=${timestamp},v1=${crypto.createHmac('sha256',env.STRIPE_WEBHOOK_SECRET).update(timestamp+'.').update(raw).digest('hex')}`);
+  const orderFile=(await fs.readdir(directory)).find(n=>n.startsWith('order-'));
+  assert.equal(JSON.parse(await fs.readFile(path.join(directory,orderFile))).tax,123);
 });
 test('only verified paid onsite webhook grants collection; duplicate events create one immutable order', async () => {
   const {payments,env,calls,directory}=await fixture();const b={...body(),fulfillment_type:'onsite',pickupConfirmed:true};

@@ -13,12 +13,16 @@ Set these privately in Railway service Variables. Never paste secret values into
 | `PUBLIC_SITE_URL` | `https://abilitymade.net` in production; your staging URL during testing |
 | `ORDER_DATA_DIR` | `/data/orders` on a Railway persistent volume mounted at `/data` |
 | `SHIPPING_FLAT_RATE_CENTS` | Owner-approved US flat rate below $120, in cents |
-| `STRIPE_AUTOMATIC_TAX` | Explicit `true` or `false`; configure tax registrations/product tax settings in Stripe if enabled |
+| `STRIPE_AUTOMATIC_TAX` | Used only when `checkout-config.js` has `taxCollectionPaused: false`. While paused, both modes explicitly disable automatic tax regardless of this value. |
 | `STRIPE_LIVE_ENABLED` | Keep `false` during testing; `true` permits live-key session creation |
 
 Use a separate Railway environment, Stripe sandbox, and volume for test orders. Railway's ordinary application filesystem is ephemeral. Mount a volume before allowing payments, keep a single service replica, configure backups, and test that an order survives a restart/redeploy. The application refuses storage inside the public repository. In a Railway environment, it also requires the order directory to be on `RAILWAY_VOLUME_MOUNT_PATH`. Mounting the volume, configuring backups, and verifying persistence remain deployment prerequisites.
 
 The app creates private immutable `checkout-<reference>.json` snapshots and `order-<session-hash>.json` paid records, using fsync and atomic publication to handle concurrent webhook retries. Do not delete these files as routine cleanup. They contain customer information. Backups require the same access restrictions. No customer data is returned by the public status endpoint.
+
+## Temporary tax pause
+
+`checkout-config.js` centrally sets `taxCollectionPaused: true` for new online and on-site Sessions. No manual tax rates are attached. To resume the existing environment-controlled behavior, change the setting to `false` and restart the server with an explicit `STRIPE_AUTOMATIC_TAX` value. On-site automatic tax will again require venue configuration before checkout. Existing Sessions, tax registrations, historical orders, and webhook tax verification remain unchanged. No deployment is implied by this local setting.
 
 ## Stripe configuration and verification
 
@@ -48,7 +52,7 @@ Create `.env` privately using `.env.example`, set `ORDER_DATA_DIR` to a private 
 
 ## Failure handling
 
-- Missing shipping/tax/key/storage configuration returns 503; live keys also require explicit live activation and HTTPS.
+- Missing shipping/key/storage configuration (or tax configuration when the pause is lifted) returns 503; live keys also require explicit live activation and HTTPS.
 - Invalid products/quantities fail before contacting Stripe. Browser-provided prices and names are never trusted.
 - The same browser payment attempt uses an idempotency key on retries. A changed cart creates a new attempt. The cart is retained on cancellation and after payment so changes made in another tab are not erased; customers should review it before another purchase.
 - Unsigned, tampered, or stale webhooks are rejected. Unpaid events do not create paid orders. Storage failures return non-2xx so Stripe can retry; monitor failed webhook deliveries in Stripe and retry after correcting the storage issue.
