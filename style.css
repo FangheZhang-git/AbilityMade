@@ -379,6 +379,10 @@ input {
   object-fit: cover;
 }
 
+.merchandise-image--full-photo img {
+  object-fit: contain;
+}
+
 .product-description,
 .merchandise-card h3,
 .merchandise-card .price {

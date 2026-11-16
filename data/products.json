@@ -80,6 +80,31 @@
     "unitAmount": 5000
   },
   {
+    "id": "diamond-painting-mountain-landscape",
+    "name": "Diamond Painting - Mountain Landscape",
+    "unitAmount": 5500
+  },
+  {
+    "id": "diamond-painting-sunflower-bouquet",
+    "name": "Diamond Painting - Sunflower Bouquet",
+    "unitAmount": 5500
+  },
+  {
+    "id": "diamond-painting-good-fortune",
+    "name": "Diamond Painting - Good Fortune",
+    "unitAmount": 5500
+  },
+  {
+    "id": "diamond-painting-princess",
+    "name": "Diamond Painting - Princess",
+    "unitAmount": 5000
+  },
+  {
+    "id": "diamond-painting-bunny-with-carrot",
+    "name": "Diamond Painting - Bunny with Carrot",
+    "unitAmount": 5000
+  },
+  {
     "id": "beaded-sculpture-green-tree",
     "name": "Beaded Tree Sculpture",
     "unitAmount": 9500
@@ -168,6 +193,11 @@
     "id": "small-painting-birthday-cake",
     "name": "Birthday Cake Mini Painting",
     "unitAmount": 6500
+  },
+  {
+    "id": "framed-blossoms",
+    "name": "Framed Blossoms",
+    "unitAmount": 6000
   },
   {
     "id": "paper-cut-art-framed-scene",
