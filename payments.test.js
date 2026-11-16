@@ -131,9 +131,9 @@ test('approved shipping is one $10 order fee below $120 and free at or above $12
   for (const language of ['en', 'zh-CN']) {
     const { payments, body, calls } = await fixture();
     for (const [items, expected] of [
-      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'frame-clutch-black-gold', quantity: 1 }], '1000'], // $110, multiple products
-      [[{ id: 'frame-clutch-blue-bunny', quantity: 6 }], '0'], // exactly $120
-      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'member-drawing-art-block', quantity: 1 }], '0'], // $130
+      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'beaded-bracelet-shell-strand-white', quantity: 1 }], '1000'], // $117.50
+      [[{ id: 'diamond-painting-framed-portrait', quantity: 1 }, { id: 'member-heart-art-notecards', quantity: 1 }], '0'], // $120
+      [[{ id: 'frame-clutch-black-vine', quantity: 1 }, { id: 'member-drawing-art-block', quantity: 1 }], '0'], // $135
     ]) {
       await payments.createSession({ ...body, language, items, shipping: 1, supplierCount: 9, state: 'AK' });
       const params = calls.at(-1).params;
