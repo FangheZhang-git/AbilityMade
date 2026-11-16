@@ -74,7 +74,7 @@ async function handleExhibition(req, res, url) {
       : send(200, 'image/svg+xml', await QRCode.toString(qrUrl(id, origin), { type: 'svg', margin: 4, errorCorrectionLevel: 'M' }));
   }
   if (url.pathname === '/exhibition/labels') {
-    const labels = await Promise.all(getCatalog().filter(p => p.active !== false && p.available !== false).map(async p =>
+    const labels = await Promise.all(getCatalog().filter(p => !p.exhibitionTest && p.active !== false && p.available !== false).map(async p =>
       `<article>${await labelSvg(p, process.env.PUBLIC_SITE_URL || 'https://abilitymade.net')}<p class="controls"><a href="/exhibition/label/${p.id}.svg">Label SVG</a> · <a href="/exhibition/qr/${p.id}.png">QR PNG</a></p></article>`));
     return send(200, 'text/html; charset=utf-8', `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>AbilityMade — Print labels</title><style>body{font-family:Arial;margin:16px}.labels{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}article{break-inside:avoid;border:1px solid #ddd}svg{width:100%;height:auto}.controls{padding:8px}@media print{@page{margin:10mm}.controls{display:none}.labels{grid-template-columns:repeat(2,1fr);gap:4mm}article{border:1px dotted #aaa}}</style><h1 class="controls">AbilityMade QR labels</h1><p class="controls">Use your browser’s Print command to print all labels or save as PDF. Verify printed QR codes with a phone before exhibition use.</p><main class="labels">${labels.join('')}</main></html>`);
   }

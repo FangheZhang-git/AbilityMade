@@ -107,11 +107,12 @@ test('catalog matches both storefronts including existing product additions', as
   for (const filename of ['index.html', 'index-zh.html']) {
     const html = await fs.readFile(path.join(__dirname, filename), 'utf8');
     const cards = [...html.matchAll(/<article class="merchandise-card"[^>]*>([\s\S]*?)<\/article>/g)];
-    assert.equal(cards.length, products.length);
+    assert.equal(cards.length, products.filter(product => !product.exhibitionTest).length);
     for (const [, card] of cards) {
       const id = path.basename(card.match(/<img src="([^"]+)"/)[1]).replace(/\.[a-z0-9]+$/i, '').toLowerCase();
       const product = products.find(p => p.id === id);
       assert.ok(product, id);
+      assert.ok(!product.exhibitionTest, id);
       assert.equal(product.unitAmount, Math.round(Number(card.match(/class="price">\$([\d.]+)/)[1]) * 100));
     }
   }

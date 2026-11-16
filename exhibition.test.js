@@ -38,7 +38,7 @@ test('real QR SVG, 1200px PNG, escaped labels, and all-product print sheet', asy
   assert.equal(png.body.readUInt32BE(16),1200);
   const label=await labelSvg({...products[0],name:'<unsafe & name>'});
   assert.match(label,/&lt;unsafe &amp; name&gt;/);assert.match(label,/Scan to Add to Cart/);
-  const print=await route('/exhibition/labels');assert.equal((print.body.match(/<article>/g)||[]).length,products.length);
+  const print=await route('/exhibition/labels');assert.equal((print.body.match(/<article>/g)||[]).length,products.filter(p=>!p.exhibitionTest).length);
   assert.equal((await route('/exhibition/add/missing')).status,404);
   assert.equal((await route('/api/exhibition/catalog','POST')).status,405);
 });
@@ -164,6 +164,26 @@ test('generated PNG decodes to the permanent product URL', async () => {
   const png=PNG.sync.read(result.body);
   const decoded=jsQR(new Uint8ClampedArray(png.data),png.width,png.height);
   assert.equal(decoded.data,qrUrl(products[0].id));
+});
+test('the $1 payment test uses the on-site flow and stays off the bulk label sheet', async () => {
+  const id = 'exhibition-payment-test';
+  assert.equal((await route('/exhibition/add/' + id)).status, 303);
+  assert.equal((await route('/exhibition/qr/' + id + '.png')).status, 200);
+  assert.ok(!(await route('/exhibition/labels')).body.includes(id));
+
+  const {payments, calls} = await fixture();
+  const testOrder = {...body(), items:[{id, quantity:1}]};
+  await assert.rejects(payments.createSession(testOrder), {status:400, message:'invalid_cart'});
+  const pickup = {...testOrder, fulfillment_type:'onsite', pickupConfirmed:true, shippingDetails:undefined};
+  for (const price of [99, 101]) {
+    await assert.rejects(payments.createSession({...pickup, items:[{id, quantity:1, unitAmount:price}]}), {status:400, message:'invalid_price'});
+  }
+  await payments.createSession(pickup);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].get('line_items[0][price_data][unit_amount]'), '100');
+  assert.equal(calls[0].get('line_items[0][quantity]'), '1');
+  assert.equal(calls[0].get('metadata[fulfillment_type]'), 'onsite');
+  assert.ok(![...calls[0].keys()].some(key => key.startsWith('shipping_')));
 });
 test('catalog additions and disablements are picked up without hardcoded QR lists', async t => {
   const syncfs=require('node:fs');const original=syncfs.readFileSync;

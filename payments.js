@@ -40,7 +40,9 @@ function validateCart(body) {
   const seen = new Set();
   return body.items.map(item => {
     const product = catalog.get(item?.id);
-    if (!product || product.active === false || product.available === false || seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+    if (!product || product.active === false || product.available === false ||
+        (product.exhibitionTest && body.fulfillment_type !== 'onsite') ||
+        seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
       throw fail(400, 'invalid_cart');
     }
     seen.add(item.id);

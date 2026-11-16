@@ -248,5 +248,14 @@
     "id": "sticker-doing-my-best",
     "name": "Doing My Gosh Dang Best Sticker",
     "unitAmount": 1750
+  },
+  {
+    "id": "exhibition-payment-test",
+    "name": "Exhibition Pickup Payment Test",
+    "nameZh": "展览现场自取付款测试",
+    "image": "assets/images/abilitymade-logo.png",
+    "unitAmount": 100,
+    "maxUnitAmount": 100,
+    "exhibitionTest": true
   }
 ]
