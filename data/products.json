@@ -47,7 +47,7 @@
   {
     "id": "diamond-painting-framed-portrait",
     "name": "Diamond Painting - Framed Portrait",
-    "unitAmount": 9000
+    "unitAmount": 12000
   },
   {
     "id": "diamond-painting-bunny",
@@ -82,17 +82,17 @@
   {
     "id": "diamond-painting-mountain-landscape",
     "name": "Diamond Painting - Mountain Landscape",
-    "unitAmount": 5500
+    "unitAmount": 12000
   },
   {
     "id": "diamond-painting-sunflower-bouquet",
     "name": "Diamond Painting - Sunflower Bouquet",
-    "unitAmount": 5500
+    "unitAmount": 12000
   },
   {
     "id": "diamond-painting-good-fortune",
     "name": "Diamond Painting - Good Fortune",
-    "unitAmount": 5500
+    "unitAmount": 12000
   },
   {
     "id": "diamond-painting-princess",
@@ -197,7 +197,7 @@
   {
     "id": "framed-blossoms",
     "name": "Framed Blossoms",
-    "unitAmount": 6000
+    "unitAmount": 7000
   },
   {
     "id": "paper-cut-art-framed-scene",
