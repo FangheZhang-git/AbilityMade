@@ -2,92 +2,92 @@
   {
     "id": "frame-clutch-black-vine",
     "name": "Black Floral Frame Clutch",
-    "unitAmount": 8000
+    "unitAmount": 7500
   },
   {
     "id": "frame-clutch-white-gold",
     "name": "White Gold Frame Clutch",
-    "unitAmount": 8000
+    "unitAmount": 7500
   },
   {
     "id": "frame-clutch-black-gold",
     "name": "Black Gold Floral Frame Clutch",
-    "unitAmount": 3000
+    "unitAmount": 6000
   },
   {
     "id": "frame-clutch-blue-bunny",
     "name": "Blue Bunny Frame Clutch",
-    "unitAmount": 2000
+    "unitAmount": 5000
   },
   {
     "id": "frame-clutch-color-stripe",
     "name": "Color Stripe Frame Clutch",
-    "unitAmount": 3000
+    "unitAmount": 6000
   },
   {
     "id": "frame-clutch-floral-stripe",
     "name": "Bunny Floral Frame Clutch",
-    "unitAmount": 3500
+    "unitAmount": 6000
   },
   {
     "id": "frame-clutch-mint-flower",
     "name": "Mint Floral Frame Clutch",
-    "unitAmount": 3000
+    "unitAmount": 6500
   },
   {
     "id": "diamond-painting-purple-flowers",
     "name": "Diamond Painting - Purple Flowers",
-    "unitAmount": 30000
+    "unitAmount": 17000
   },
   {
     "id": "diamond-painting-colorful-floral",
     "name": "Diamond Painting - Colorful Floral",
-    "unitAmount": 30000
+    "unitAmount": 17000
   },
   {
     "id": "diamond-painting-framed-portrait",
     "name": "Diamond Painting - Framed Portrait",
-    "unitAmount": 20000
+    "unitAmount": 9000
   },
   {
     "id": "diamond-painting-bunny",
     "name": "Diamond Painting - Starry Bunny",
-    "unitAmount": 20000
+    "unitAmount": 15500
   },
   {
     "id": "diamond-painting-framed-butterflies",
     "name": "Diamond Painting - Framed Butterflies",
-    "unitAmount": 20000
+    "unitAmount": 5500
   },
   {
     "id": "diamond-painting-framed-pandas",
     "name": "Diamond Painting - Framed Pandas",
-    "unitAmount": 20000
+    "unitAmount": 5500
   },
   {
     "id": "diamond-painting-girl-with-flowers",
     "name": "Diamond Painting - Girl with Flowers",
-    "unitAmount": 20000
+    "unitAmount": 5000
   },
   {
     "id": "diamond-painting-girl-in-red-dress",
     "name": "Diamond Painting - Girl in Red Dress",
-    "unitAmount": 20000
+    "unitAmount": 5000
   },
   {
     "id": "diamond-painting-girl-with-sunflowers",
     "name": "Diamond Painting - Girl with Sunflowers",
-    "unitAmount": 20000
+    "unitAmount": 5000
   },
   {
     "id": "beaded-sculpture-green-tree",
     "name": "Beaded Tree Sculpture",
-    "unitAmount": 10000
+    "unitAmount": 9500
   },
   {
     "id": "beaded-sculpture-red-fruit",
     "name": "Beaded Fruit Sculpture",
-    "unitAmount": 7000
+    "unitAmount": 6500
   },
   {
     "id": "beaded-sculpture-yellow-flowers",
@@ -102,52 +102,52 @@
   {
     "id": "beaded-sculpture-flower-arrangement",
     "name": "Beaded Flower Arrangement",
-    "unitAmount": 8000
+    "unitAmount": 8500
   },
   {
     "id": "beaded-tissue-box-golden-red",
     "name": "Golden Beaded Tissue Box",
-    "unitAmount": 8000
+    "unitAmount": 6500
   },
   {
     "id": "beaded-tissue-box-yellow-pink",
     "name": "Yellow Beaded Tissue Box",
-    "unitAmount": 8000
+    "unitAmount": 6500
   },
   {
     "id": "beaded-tissue-box-red-green",
     "name": "Red Beaded Tissue Box",
-    "unitAmount": 8000
+    "unitAmount": 6500
   },
   {
     "id": "beaded-bracelet-shell-strand-white",
     "name": "White Tagua Nut Beaded Bracelet",
-    "unitAmount": 8000
+    "unitAmount": 4250
   },
   {
     "id": "beaded-bracelet-shell-strand-gold",
     "name": "Gold Shell Beaded Bracelet",
-    "unitAmount": 8000
+    "unitAmount": 4750
   },
   {
     "id": "beaded-bracelet-shell-strand-natural",
     "name": "Natural Shell Beaded Bracelet",
-    "unitAmount": 8000
+    "unitAmount": 4250
   },
   {
     "id": "beaded-bracelet-shell-loop",
     "name": "Looped Shell Beaded Bracelet",
-    "unitAmount": 8000
+    "unitAmount": 4750
   },
   {
     "id": "love-is-artwork",
     "name": "Love Is Artwork",
-    "unitAmount": 5000
+    "unitAmount": 6000
   },
   {
     "id": "member-drawing-art-block",
     "name": "Member Drawing Art Block",
-    "unitAmount": 5000
+    "unitAmount": 6000
   },
   {
     "id": "member-heart-art-notecards",
@@ -157,27 +157,27 @@
   {
     "id": "small-painting-happy-birthday",
     "name": "Happy Birthday Mini Painting",
-    "unitAmount": 4000
+    "unitAmount": 6000
   },
   {
     "id": "small-painting-forest-butterflies",
     "name": "Forest Light Mini Painting",
-    "unitAmount": 4000
+    "unitAmount": 7500
   },
   {
     "id": "small-painting-birthday-cake",
     "name": "Birthday Cake Mini Painting",
-    "unitAmount": 4000
+    "unitAmount": 6500
   },
   {
     "id": "paper-cut-art-framed-scene",
     "name": "Framed Paper-Cut Scene",
-    "unitAmount": 5000
+    "unitAmount": 4250
   },
   {
     "id": "paper-cut-art-floral-circle",
     "name": "Floral Paper-Cut Art",
-    "unitAmount": 5000
+    "unitAmount": 5750
   },
   {
     "id": "paper-cut-art-fish",
@@ -187,41 +187,36 @@
   {
     "id": "sticker-poor-impulse-control-crow",
     "name": "Poor Impulse Control Crow Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-blelele-snake",
     "name": "Blelele Snake Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-octopus-bicycle",
     "name": "Octopus Bicycle Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-folk-art-clear",
     "name": "Folk Art Clear Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-cluck-around",
     "name": "Cluck Around and Find Out Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-cozy-bookshelf",
     "name": "Cozy Bookshelf Sticker",
-    "unitAmount": 750
+    "unitAmount": 1750
   },
   {
     "id": "sticker-doing-my-best",
     "name": "Doing My Gosh Dang Best Sticker",
-    "unitAmount": 750
-  },
-  {
-    "id": "sticker-kiss-every-bug",
-    "name": "Kiss Every Bug Bumper Sticker",
-    "unitAmount": 1200
+    "unitAmount": 1750
   }
 ]
