@@ -383,6 +383,44 @@ input {
   object-fit: contain;
 }
 
+/* Lift shadow detail in product photos with bright reflections. */
+img[src$="/diamond-painting-girl-with-flowers.png"],
+img[src$="/diamond-painting-sunflower-bouquet.jpg"],
+img[src$="/beaded-tissue-box-yellow-pink.jpeg"],
+img[src$="/framed-blossoms.jpg"] {
+  filter: contrast(0.88) brightness(1.06);
+}
+
+img[src$="/frame-clutch-white-gold.jpeg"],
+img[src$="/frame-clutch-color-stripe.jpeg"],
+img[src$="/frame-clutch-floral-stripe.jpeg"],
+img[src$="/frame-clutch-mint-flower.jpeg"],
+img[src$="/diamond-painting-bunny.png"],
+img[src$="/diamond-painting-framed-pandas.jpeg"],
+img[src$="/diamond-painting-mountain-landscape.jpg"],
+img[src$="/diamond-painting-good-fortune.jpg"],
+img[src$="/beaded-sculpture-yellow-basket.png"],
+img[src$="/beaded-tissue-box-red-green.jpeg"],
+img[src$="/beaded-bracelet-shell-strand-white.jpeg"],
+img[src$="/beaded-bracelet-shell-strand-gold.jpeg"],
+img[src$="/beaded-bracelet-shell-strand-natural.jpeg"],
+img[src$="/beaded-bracelet-shell-loop.jpeg"],
+img[src$="/small-painting-happy-birthday.png"] {
+  filter: contrast(0.94) brightness(1.09);
+}
+
+img[src$="/diamond-painting-framed-butterflies.jpeg"],
+img[src$="/beaded-sculpture-red-fruit.png"],
+img[src$="/beaded-sculpture-flower-arrangement.jpeg"],
+img[src$="/beaded-tissue-box-golden-red.jpeg"],
+img[src$="/small-painting-forest-butterflies.png"] {
+  filter: contrast(0.90) brightness(1.17);
+}
+
+img[src$="/small-painting-birthday-cake.png"] {
+  filter: contrast(0.94) brightness(1.50);
+}
+
 .product-description,
 .merchandise-card h3,
 .merchandise-card .price {
