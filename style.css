@@ -1241,6 +1241,7 @@ main > .story-section:first-child {
   width: min(82%, 150px);
   aspect-ratio: 1;
   margin-inline: auto;
+  overflow: hidden;
   border-radius: 50%;
   background: white;
   border: 1px solid var(--border);
