@@ -48,22 +48,32 @@ test('each deliberate scan has a fresh receipt and redirects to isolated cart', 
   assert.equal(first.status,303);assert.equal(first.headers['Cache-Control'],'no-store');
   assert.notEqual(first.headers.Location,second.headers.Location);assert.match(first.headers.Location,/language=zh-CN/);
 });
-test('scan persistence is atomic and repeat receipt does not increment; fresh scan preserves edited price', () => {
+test('fresh scans replace the pickup cart and replayed scans cannot restore an old product', () => {
   const p=publicCatalog()[0], q=publicCatalog()[1];
   const storage=new Map([['abilitymade-cart-v1','online untouched']]);
   storage.getItem=storage.get.bind(storage);storage.setItem=storage.set.bind(storage);
   let state=cart.load(storage), receipt=crypto.randomUUID();
   assert.equal(cart.scan(state,p,receipt),true);
   state.items[0].unitAmount+=100;
+  state.items[0].quantity=3;
   storage.setItem(cart.KEY,JSON.stringify(state));state=cart.load(storage);
+  assert.equal(state.items[0].quantity,1);
   assert.equal(cart.scan(state,p,receipt),false);
-  cart.scan(state,p,crypto.randomUUID());cart.scan(state,q,crypto.randomUUID());
-  assert.equal(state.items[0].quantity,2);assert.equal(state.items[0].unitAmount,p.unitAmount+100);
-  assert.equal(state.items.length,2);assert.equal(storage.get('abilitymade-cart-v1'),'online untouched');
+  const repeat = crypto.randomUUID();
+  assert.equal(cart.scan(state,p,repeat),true);
+  assert.equal(state.items[0].unitAmount,p.unitAmount);
+  assert.equal(cart.scan(state,q,crypto.randomUUID()),true);
+  assert.equal(cart.scan(state,p,repeat),false);
+  assert.deepEqual(state.items,[{id:q.id, quantity:1, unitAmount:q.unitAmount}]);
+  assert.equal(storage.get('abilitymade-cart-v1'),'online untouched');
   assert.throws(() => cart.scan(state,{...p,available:false},crypto.randomUUID()));
   assert.throws(() => cart.scan(state,p,'bad'));
   assert.equal(cart.cents('12.01'),1201);
   for(const value of ['1.001','-1','1e3','NaN','']) assert.throws(() => cart.cents(value));
+  storage.setItem(cart.KEY,JSON.stringify({...state, items:[...state.items, {id:p.id, quantity:1, unitAmount:p.unitAmount}]}));
+  const oldCart = cart.load(storage);
+  assert.deepEqual(oldCart.items,[]);
+  assert.deepEqual(oldCart.receipts,state.receipts);
 });
 test('server validates selected prices, minimums, integer cents, quantities and totals', async () => {
   const {payments,calls}=await fixture(); const b=body();
@@ -78,6 +88,10 @@ test('on-site sessions have zero delivery cost, pickup acknowledgement and payme
   for(const language of ['en','zh-CN']) {
     const {payments,calls}=await fixture();
     const b={...body(),language,fulfillment_type:'onsite',shippingDetails:undefined,pickupConfirmed:true};
+    await assert.rejects(payments.createSession({...b,items:[{...b.items[0],quantity:2}]}), {status:400,message:'invalid_cart'});
+    await assert.rejects(payments.createSession({...b,items:[b.items[0],{id:products[1].id,quantity:1}]}), {status:400,message:'invalid_cart'});
+    assert.equal(calls.length,0);
+    assert.equal(validateCart({...body(),items:[{...b.items[0],quantity:2}]})[0].quantity,2);
     await payments.createSession(b);const params=calls[0];
     assert.ok(![...params.keys()].some(k => k.startsWith('shipping_')));
     assert.equal(params.get('metadata[fulfillment_type]'),'onsite');

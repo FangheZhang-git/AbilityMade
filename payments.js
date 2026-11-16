@@ -32,6 +32,7 @@ function configuration(env) {
 
 function validateCart(body) {
   if (!body || !Array.isArray(body.items) || !body.items.length || body.items.length > 50 ||
+      (body.fulfillment_type === 'onsite' && body.items.length !== 1) ||
       !/^[0-9a-f-]{36}$/i.test(body.requestId || '') || !['en', 'zh-CN'].includes(body.language)) {
     throw fail(400, 'invalid_cart');
   }
@@ -42,7 +43,8 @@ function validateCart(body) {
     const product = catalog.get(item?.id);
     if (!product || product.active === false || product.available === false ||
         (product.exhibitionTest && body.fulfillment_type !== 'onsite') ||
-        seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) {
+        seen.has(item.id) || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99 ||
+        (body.fulfillment_type === 'onsite' && item.quantity !== 1)) {
       throw fail(400, 'invalid_cart');
     }
     seen.add(item.id);

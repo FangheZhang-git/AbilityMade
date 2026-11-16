@@ -61,40 +61,48 @@
     fn(state);
     localStorage.setItem(OnsiteCart.KEY, JSON.stringify(state));
     render();
-  }).catch(() => notice(text('Could not update cart. Check the amount, quantity, and browser storage.', '无法更新购物车。请检查金额、数量及浏览器存储。')));
+  }).catch(() => notice(text('Could not update cart. Check the amount and browser storage.', '无法更新购物车。请检查金额及浏览器存储。')));
+  let displayedReceipt;
   const render = () => {
     const state = OnsiteCart.load(localStorage);
+    const receipt = state.receipts.at(-1);
+    if (receipt !== displayedReceipt) {
+      $('pickup').checked = false;
+      displayedReceipt = receipt;
+    }
     $('items').replaceChildren();
     let total = 0;
-    let valid = state.items.length > 0;
-    $('empty').textContent = state.items.length ? '' : text('Scan a product QR code to add it here. Your online cart is kept separately.', '扫描商品二维码即可添加到此购物车。网上购物车单独保留。');
+    let valid = state.items.length === 1;
+    $('empty').textContent = valid ? '' : text('Scan a product QR code to start a new pickup cart.', '扫描商品二维码，开启新的现场自取购物车。');
     for (const item of state.items) {
       const p = catalog.get(item.id);
       const available = p?.available;
-      const correct = available && Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= 99 && Number.isSafeInteger(item.unitAmount) && item.unitAmount >= p.unitAmount && item.unitAmount <= p.maxUnitAmount;
+      const correct = available && Number.isSafeInteger(item.unitAmount) && item.unitAmount >= p.unitAmount && item.unitAmount <= p.maxUnitAmount;
       valid &&= correct;
-      if (correct) total += item.unitAmount * item.quantity;
+      if (correct) total += item.unitAmount;
       const row = document.createElement('article'); row.className = 'exhibition-item';
       const image = document.createElement('img'); image.alt = ''; if (p?.image) image.src = '/' + p.image.replace(/^\//, '');
       const details = document.createElement('div');
       const title = document.createElement('h2'); title.textContent = p ? (zh ? p.nameZh : p.name) : item.id;
       const min = document.createElement('p'); min.textContent = available ? text('Minimum per item: ', '每件最低价格：') + money(p.unitAmount) : text('Unavailable — remove this item to continue.', '商品不可购买，请移除后继续。');
-      details.append(title, min);
-      for (const [field, label, value, minimum, maximum, step] of [
-        ['quantity', text('Quantity', '数量'), item.quantity, 1, 99, 1],
-        ['unitAmount', text('Your price per item (USD)', '您的每件价格（美元）'), (item.unitAmount/100).toFixed(2), p ? p.unitAmount/100 : 0, p ? p.maxUnitAmount/100 : 0, .01],
-      ]) {
-        const wrapper = document.createElement('label'); wrapper.textContent = label + ' ';
-        const input = document.createElement('input'); input.type = 'number'; input.min = minimum; input.max = maximum; input.step = step; input.value = value; input.disabled = !available;
-        input.addEventListener('change', () => {
-          if (!input.checkValidity() || input.value === '') { input.reportValidity(); $('pay').disabled = true; return; }
-          mutate(state => {
-            const saved = state.items.find(i => i.id === item.id);
-            if (saved) saved[field] = field === 'quantity' ? Number(input.value) : OnsiteCart.cents(input.value);
-          });
+      const quantity = document.createElement('p'); quantity.textContent = text('Quantity: 1', '数量：1');
+      const price = document.createElement('label'); price.textContent = text('Your price per item (USD) ', '您的每件价格（美元） ');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = p ? p.unitAmount / 100 : 0;
+      input.max = p ? p.maxUnitAmount / 100 : 0;
+      input.step = .01;
+      input.value = (item.unitAmount / 100).toFixed(2);
+      input.disabled = !available;
+      input.addEventListener('change', () => {
+        if (!input.checkValidity() || input.value === '') { input.reportValidity(); $('pay').disabled = true; return; }
+        mutate(state => {
+          const saved = state.items.find(i => i.id === item.id);
+          if (saved) saved.unitAmount = OnsiteCart.cents(input.value);
         });
-        wrapper.append(input); details.append(wrapper);
-      }
+      });
+      price.append(input);
+      details.append(title, min, quantity, price);
       const remove = document.createElement('button'); remove.textContent = text('Remove', '移除');
       remove.addEventListener('click', () => mutate(state => { state.items = state.items.filter(i => i.id !== item.id); }));
       details.append(remove); row.append(image, details); $('items').append(row);
@@ -104,11 +112,13 @@
   };
   $('pickup').addEventListener('change', render);
   addEventListener('storage', event => { if (event.key === OnsiteCart.KEY) render(); });
+  addEventListener('pageshow', event => { if (event.persisted) render(); });
   if (query.has('scan')) {
     await mutate(state => {
       const product = catalog.get(query.get('scan'));
-      OnsiteCart.scan(state, product, query.get('receipt'));
-      notice(text('Added to your on-site cart: ', '已添加到现场购物车：') + (zh ? product.nameZh : product.name));
+      if (OnsiteCart.scan(state, product, query.get('receipt'))) {
+        notice(text('Ready for pickup checkout: ', '已加入现场自取结账：') + (zh ? product.nameZh : product.name));
+      }
       // Write before removing the receipt from the URL, so interrupted navigation is safe.
     });
     history.replaceState(null, '', '/exhibition.html?language=' + lang);
@@ -117,11 +127,16 @@
   render();
   $('pay').addEventListener('click', async () => {
     if (!$('pickup').checked) return;
-    $('pay').disabled = true;
-    notice(text('Opening secure checkout…', '正在打开安全支付页面…'));
     try {
-      const items = OnsiteCart.load(localStorage).items;
-      const fingerprint = JSON.stringify(items);
+      const { items, receipts } = OnsiteCart.load(localStorage);
+      const receipt = receipts.at(-1);
+      if (receipt !== displayedReceipt || items.length !== 1) {
+        render();
+        return;
+      }
+      $('pay').disabled = true;
+      notice(text('Opening secure checkout…', '正在打开安全支付页面…'));
+      const fingerprint = JSON.stringify({ receipt, items });
       let attempt;
       try { attempt = JSON.parse(sessionStorage.getItem('abilitymade-onsite-attempt')); } catch {}
       if (!attempt || attempt.fingerprint !== fingerprint || Date.now() - attempt.created > 23*3600000) {
@@ -132,6 +147,10 @@
       if (!response.ok) throw new Error();
       const result = await response.json();
       if (new URL(result.url).origin !== 'https://checkout.stripe.com') throw new Error();
+      if (OnsiteCart.load(localStorage).receipts.at(-1) !== receipt) {
+        render();
+        return;
+      }
       location.assign(result.url);
     } catch { notice(text('Checkout is unavailable or your cart needs updating. Please contact AbilityMade. No payment was confirmed.', '暂时无法结账或购物车需要更新。请联系 AbilityMade。尚未确认付款。')); render(); }
   });

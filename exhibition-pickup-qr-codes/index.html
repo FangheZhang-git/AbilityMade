@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AbilityMade | $1 Pickup Payment Test</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: system-ui, sans-serif;
+      background: #f8f5ee;
+      color: #143d34;
+    }
+
+    body {
+      margin: 0;
+      padding: clamp(16px, 5vw, 48px);
+    }
+
+    main {
+      max-width: 440px;
+      margin: 0 auto;
+      padding: clamp(18px, 5vw, 36px);
+      border: 1px solid #e4d9c9;
+      border-radius: 8px;
+      background: white;
+      text-align: center;
+    }
+
+    header p {
+      margin: 0;
+      font-weight: 750;
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      line-height: 1.15;
+    }
+
+    img {
+      display: block;
+      width: min(100%, 300px);
+      height: auto;
+      margin: 12px auto;
+    }
+
+    p {
+      line-height: 1.5;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 20px;
+      margin-top: 20px;
+    }
+
+    a {
+      color: #143d34;
+      text-underline-offset: 3px;
+    }
+
+    @media print {
+      :root { background: white; }
+      body { padding: 0; }
+      main { border: 0; }
+      nav { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p>AbilityMade</p>
+      <h1>$1 Exhibition Pickup Payment Test</h1>
+    </header>
+    <img src="abilitymade-1-dollar-pickup-test-qr.png" width="1200" height="1200"
+         alt="Scan to add the $1 test item to the AbilityMade exhibition pickup cart">
+    <p>Scan once in a fresh browser session. Confirm pickup, then continue to live Stripe Checkout. Completing payment charges $1.00.</p>
+    <nav aria-label="Pickup test links">
+      <a href="https://abilitymade.net/exhibition/add/exhibition-payment-test">Open live pickup cart</a>
+      <a href="abilitymade-1-dollar-pickup-test-qr.png" download>Download QR code</a>
+    </nav>
+  </main>
+</body>
+</html>
